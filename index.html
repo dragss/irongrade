@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IRONGRADE — Prototype manager v0.9.0</title>
+<title>IRONGRADE — Prototype manager v0.9.1</title>
 <style>
   :root { font-family: 'Inter', system-ui, sans-serif; background: #0B0E12; color: #E7EBEF; }
   * { box-sizing: border-box; margin: 0; }
@@ -130,7 +130,7 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.9.0 — MOTEUR DE COMBAT v0.6.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
+  <div class="footer">IRONGRADE v0.9.1 — MOTEUR DE COMBAT v0.6.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -271,14 +271,14 @@
 <div class="screen" id="screen-about">
   <div class="tophead"><span class="org">À PROPOS</span></div>
   <div class="panel">
-    <h3>IRONGRADE — prototype manager v0.9.0</h3>
+    <h3>IRONGRADE — prototype manager v0.9.1</h3>
     <div class="hint">Vertical slice de gestion : la boucle complète (roster, garage, ligue, matchs observés, rapport, sauvegarde) sur le moteur de combat v0.6.0 déterministe 15 Hz.</div>
     <table>
       <tr><td><b>MOTEUR</b></td><td>CombatSim v0.6.0 — spawns d'arène par point de largage / couloir d'entrée (D-027), précision &amp; stabilité par mech (D-026), 2v2 &amp; ciblage par profil (D-024), fumigène (D-025).</td></tr>
       <tr><td><b>SAUVEGARDE</b></td><td>Locale (navigateur), une seule par appareil. « Nouvelle carrière » écrase la sauvegarde.</td></tr>
       <tr><td><b>ÉCONOMIE</b></td><td>Monnaie unique (crédits). Toutes les récompenses, prix et barèmes XP de ce prototype sont des hypothèses d'équilibrage data-driven, à valider par l'owner avant tout contenu réel.</td></tr>
       <tr><td><b>GOUVERNANCE</b></td><td>Aucune loot box, aucun achat, aucune probabilité de drop dans ce prototype — les taux restent une décision owner.</td></tr>
-      <tr><td><b>VISUELS</b></td><td>Greybox — maquettes SVG procédurales v0.9.0 : portraits pilotes, hangar de customisation, blasons, <b>caméra BROADCAST pseudo-3D</b> en bataille (touche C pour alterner avec la vue tactique) et <b>vue 3D de l'atelier</b> (Three.js chargé en ligne, retour automatique à la maquette SVG hors-ligne). Pipeline prêt pour modèles 3D Tripo (GLB). Placeholder assumé, pas d'art final.</td></tr>
+      <tr><td><b>VISUELS</b></td><td>Greybox stylisé — direction artistique hybride TITANFALL × PACIFIC RIM (proportions héroïques, plaques, réacteur pectoral concentrique, weathering déterministe) en v0.9.1 : maquettes SVG procédurales, portraits pilotes, hangar de customisation, blasons, <b>caméra BROADCAST pseudo-3D</b> avec effets (muzzle flashes, impacts, vignette retransmission) et <b>vue 3D de l'atelier</b> (Three.js chargé en ligne, fallback maquette SVG hors-ligne). Pipeline prêt pour modèles 3D Tripo (GLB). Placeholder assumé, pas d'art final.</td></tr>
     </table>
   </div>
   <button class="ghost" id="btn-about-back">← RETOUR</button>
@@ -1771,22 +1771,27 @@ function pilotSVG(p, size, opts){
   let g = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">';
   g += '<defs><linearGradient id="' + pid + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + visor + '"/><stop offset=".55" stop-color="' + visor + '"/><stop offset="1" stop-color="#232830"/></linearGradient></defs>';
   g += '<rect width="60" height="60" fill="#0B0E12"/><rect x=".5" y=".5" width="59" height="59" fill="none" stroke="' + (opts.recon ? '#2A3138' : '#343B43') + '"/>';
-  g += '<path d="M8 60 L14 41 Q30 33 46 41 L52 60 Z" fill="' + suit + '" stroke="#232830"/>';
-  g += '<path d="M28 37 L32 37 L32 60 L28 60 Z" fill="' + acc + '" opacity=".75"/>';
-  if (helm === 0) g += '<path d="M30 11 Q42 11 43 26 Q43 37 30 39 Q17 37 17 26 Q18 11 30 11 Z" fill="#3D444D" stroke="#232830"/>';
-  else if (helm === 1) g += '<path d="M21 11 L39 11 L43 29 L36 39 L24 39 L17 29 Z" fill="#3D444D" stroke="#232830"/>';
-  else g += '<path d="M22 13 L38 13 L40 30 Q30 41 20 30 Z" fill="#3D444D" stroke="#232830"/><path d="M24 33 Q30 38 36 33 L36 39 L24 39 Z" fill="#232830"/>';
-  g += '<rect x="22" y="20" width="16" height="7" rx="2" fill="url(#' + pid + ')" opacity="' + (opts.recon ? '.3' : '.95') + '"/>';
-  g += '<rect x="23" y="21.5" width="13" height="2" rx="1" fill="#E7EBEF" opacity="' + (opts.recon ? '.15' : '.4') + '"/>';
+  // rig de pilote : épaules + harnais + bandoulière
+  g += '<path d="M6 60 L11 43 Q30 35 49 43 L54 60 Z" fill="' + suit + '" stroke="#232830"/>';
+  g += '<path d="M19 47 h22 M17 54 h26" stroke="#232830" stroke-width="1.4"/>';
+  g += '<rect x="26" y="45" width="6" height="15" fill="' + acc + '" opacity=".75"/>';
+  g += '<path d="M25 33 h10 v6 h-10 z" fill="#232830"/>'; // cou
+  if (helm === 0) g += '<path d="M30 9 Q43 10 44 26 L42 34 L30 37 L18 34 L16 26 Q17 10 30 9 Z" fill="#3D444D" stroke="#232830"/>';
+  else if (helm === 1) g += '<path d="M20 10 L40 10 L45 27 L37 37 L23 37 L15 27 Z" fill="#3D444D" stroke="#232830"/>';
+  else g += '<path d="M22 12 L38 12 L41 29 Q30 40 19 29 Z" fill="#3D444D" stroke="#232830"/><path d="M24 32 Q30 37 36 32 L36 38 L24 38 Z" fill="#232830"/>';
+  // visière HUD large + reflet
+  g += '<path d="M21 19 L39 19 L38 27 L22 27 Z" fill="url(#' + pid + ')" opacity="' + (opts.recon ? '.3' : '.95') + '"/>';
+  g += '<path d="M22 20.5 L37 20.5 L36.5 23 L22.5 23 Z" fill="#E7EBEF" opacity="' + (opts.recon ? '.15' : '.4') + '"/>';
+  g += '<path d="M43 22 l4 3 M42.5 27 a3 3 0 0 1 4 4" stroke="' + acc + '" stroke-width="1.3" fill="none"/>'; // micro-casque
   const pips = Math.min(5, p.niveau || 1);
-  for (let i = 0; i < pips; i++) g += '<rect x="' + (25 + i * 2.8) + '" y="46" width="1.7" height="5" fill="' + acc + '" opacity=".9"/>';
+  for (let i = 0; i < pips; i++) g += '<rect x="' + (25 + i * 2.8) + '" y="47" width="1.7" height="5" fill="' + acc + '" opacity=".9"/>';
   if (opts.badge === 'ko') g += '<circle cx="49" cy="11" r="8" fill="#D93432"/><path d="M45 11 H53 M49 7 V15" stroke="#0B0E12" stroke-width="2"/>';
   if (opts.badge === 'tired') g += '<circle cx="49" cy="11" r="8" fill="#E3A23B"/><path d="M45 11 H53" stroke="#0B0E12" stroke-width="2"/>';
   g += '</svg>';
   return g;
 }
 
-// blason d'équipe (écu + initiales, couleur par équipe)
+// blason d'équipe// blason d'équipe (écu + initiales, couleur par équipe)
 function crestSVG(teamId, nom, size){
   const col = TEAM_COLORS[teamId] || '#AAB2BA';
   const ini = ((nom || '?').split(/\s+/).map(w => w[0]).join('') || '?').slice(0, 3);
@@ -1830,9 +1835,10 @@ function mechSVG(m, size, opts){
   const W = RULESET.weapons[info.weapon] || {}, W2 = RULESET.secondary ? null : null;
   const secId = info.secondary, W2b = secId ? RULESET.weapons[secId] : null;
   const HULL = '#343B43', PLATE = '#3D444D', DARK = '#232830', LIGHT = '#E7EBEF';
-  const tw = heavy ? 31 : (scout ? 19 : 23);   // demi-largeur torse
-  const lw = heavy ? 12 : (scout ? 8 : 10);    // demi-largeur jambe
-  const legX = tw * 0.52, legW = lw * 1.7, legY = 104, footY = 150;
+  // proportions héroïques : épaules massives, taille fine, tête compacte (Jaeger × Titanfall)
+  const tw = heavy ? 33 : (scout ? 21 : (arty ? 25 : 27)); // demi-largeur épaules
+  const waist = tw * .6;
+  const scr = hashStr((m && m.label) || String(info.weapon || 'x')); // weathering déterministe
   const sprint = (lo.left_leg && lo.left_leg.indexOf('sprint') >= 0) || (lo.right_leg && lo.right_leg.indexOf('sprint') >= 0);
   const fortified = lo.torso && lo.torso.indexOf('fortified') >= 0;
   const deco = lo.torso && lo.torso.indexOf('decal') >= 0;
@@ -1840,87 +1846,116 @@ function mechSVG(m, size, opts){
   const gid = 'mg' + (svgGid++);
   let g = '<svg width="' + size + '" height="' + Math.round(size * 170 / 120) + '" viewBox="0 0 120 170" xmlns="http://www.w3.org/2000/svg">';
   g += '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3E464F"/><stop offset="1" stop-color="#262C34"/></linearGradient>' +
+    '<linearGradient id="' + gid + 'e" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="' + acc + '" stop-opacity=".95"/><stop offset="1" stop-color="' + acc + '" stop-opacity=".25"/></linearGradient>' +
     '<radialGradient id="' + gid + 'r"><stop offset="0" stop-color="' + procCol + '" stop-opacity=".85"/><stop offset="1" stop-color="' + procCol + '" stop-opacity="0"/></radialGradient></defs>';
-  g += '<ellipse cx="60" cy="163" rx="36" ry="5" fill="#000" opacity=".4"/>';
-  // JAMBES
+  g += '<ellipse cx="60" cy="163" rx="40" ry="5.5" fill="#000" opacity=".45"/>';
+  // ==== JAMBES : cuisses plaquées, genouillères, tibins nervurés, pieds massifs ====
   g += '<g' + hot('legs') + '>';
   [[-1], [1]].forEach(function(sdv){ const sd = sdv[0];
-    const lx = 60 + sd * legX - legW / 2;
-    g += '<rect x="' + lx + '" y="' + legY + '" width="' + legW + '" height="' + (footY - legY) + '" fill="url(#' + gid + ')" stroke="' + DARK + '"/>';
-    g += '<rect x="' + (lx - 1.5) + '" y="' + (legY + 4) + '" width="' + (legW + 3) + '" height="10" fill="' + PLATE + '" stroke="' + DARK + '"/>';
-    g += '<rect x="' + (lx - 3) + '" y="' + footY + '" width="' + (legW + 6) + '" height="10" fill="' + PLATE + '" stroke="' + DARK + '"/>';
-    if (sprint){ g += '<path d="M' + (lx + legW / 2) + ' ' + (footY + 10) + ' l-4 6 h8 z" fill="' + procCol + '" opacity=".85"/>'; }
+    const lx = 60 + sd * (tw * .5);
+    g += '<path d="M' + (lx - 9) + ' 92 L' + (lx + 9) + ' 92 L' + (lx + 6.5) + ' 122 L' + (lx - 6.5) + ' 122 Z" fill="url(#' + gid + ')" stroke="' + DARK + '"/>';
+    g += '<path d="M' + (lx - 7.5) + ' 96 L' + (lx + 7.5) + ' 96 L' + (lx + 5.5) + ' 112 L' + (lx - 5.5) + ' 112 Z" fill="' + PLATE + '" stroke="' + DARK + '" stroke-width=".7"/>';
+    g += '<path d="M' + (lx - 6) + ' 120 L' + (lx + 6) + ' 120 L' + (lx + 7) + ' 128 L' + (lx - 7) + ' 128 Z" fill="' + PLATE + '" stroke="' + DARK + '"/><circle cx="' + lx + '" cy="124" r="1.4" fill="' + acc + '" opacity=".9"/>';
+    g += '<rect x="' + (lx - 5.5) + '" y="128" width="11" height="24" fill="url(#' + gid + ')" stroke="' + DARK + '"/>';
+    g += '<path d="M' + (lx - 4) + ' 133 h8 M' + (lx - 3.5) + ' 140 h7" stroke="' + DARK + '" stroke-width=".8"/>';
+    g += '<path d="M' + (lx - 7) + ' 150 L' + (lx + 6) + ' 150 L' + (lx + 10) + ' 158 L' + (lx - 9) + ' 158 Z" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+    if (sprint){ g += '<path d="M' + (lx + (sd < 0 ? -2 : 2)) + ' 138 l' + (sd < 0 ? -5 : 5) + ' 7 l4 0 z" fill="' + procCol + '" opacity=".85"/>'; }
   });
-  if (sprint){ g += '<path d="M24 118 l10 0 M20 126 l8 0 M96 118 l-10 0 M100 126 l-8 0" stroke="' + procCol + '" stroke-width="1.4" opacity=".6" fill="none"/>'; }
-  g += '<rect x="' + (60 - tw * 0.8) + '" y="96" width="' + (tw * 1.6) + '" height="10" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+  if (sprint){ g += '<path d="M27 142 l-9 6 M25 150 l-7 5 M93 142 l9 6 M95 150 l7 5" stroke="' + procCol + '" stroke-width="1.6" opacity=".55" fill="none"/>'; }
+  g += '<path d="M' + (60 - waist) + ' 88 L' + (60 + waist) + ' 88 L' + (60 + waist * .8) + ' 100 L' + (60 - waist * .8) + ' 100 Z" fill="' + DARK + '" stroke="' + DARK + '"/>';
   g += '</g>';
-  // TORSE + réacteur (processeur) + modules torse
+  // ==== TORSE : pectoraux plaqués + réacteur pectoral concentrique ====
   g += '<g' + hot('torso') + '>';
-  g += '<path d="M' + (60 - tw) + ' 54 L' + (60 + tw) + ' 54 L' + (60 + tw * 0.78) + ' 98 L' + (60 - tw * 0.78) + ' 98 Z" fill="url(#' + gid + ')" stroke="' + DARK + '"/>';
-  if (fortified){ g += '<path d="M' + (60 - tw + 3) + ' 58 L' + (60 + tw - 3) + ' 58 L' + (60 + tw * 0.62) + ' 94 L' + (60 - tw * 0.62) + ' 94 Z" fill="none" stroke="' + PLATE + '" stroke-width="2"/>'; }
-  g += '<rect x="' + (60 - tw + 5) + '" y="58" width="6" height="26" fill="' + PLATE + '" opacity=".55" stroke="' + DARK + '"/>';
-  g += '<rect x="' + (60 + tw - 11) + '" y="58" width="6" height="26" fill="' + PLATE + '" opacity=".55" stroke="' + DARK + '"/>';
-  if (deco){ g += '<path d="M' + (60 - 8) + ' 60 L' + (60 + 6) + ' 54 L' + (60 + 10) + ' 60 L' + (60 - 4) + ' 66 Z" fill="' + acc + '" opacity=".8"/>'; }
-  g += '<circle cx="60" cy="78" r="7.5" fill="' + procCol + '" opacity=".92"/>';
+  g += '<path d="M' + (60 - tw) + ' 40 L' + (60 + tw) + ' 40 L' + (60 + waist) + ' 98 L' + (60 - waist) + ' 98 Z" fill="url(#' + gid + ')" stroke="' + DARK + '"/>';
+  g += '<path d="M' + (60 - tw) + ' 40 L' + (60 - tw * .8) + ' 29 L' + (60 + tw * .8) + ' 29 L' + (60 + tw) + ' 40 Z" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+  g += '<path d="M' + (60 - tw + 3) + ' 46 L57 46 L55 62 L' + (60 - tw + 6) + ' 76 Z" fill="' + PLATE + '" stroke="' + DARK + '" stroke-width=".7"/>';
+  g += '<path d="M63 46 L' + (60 + tw - 3) + ' 46 L' + (60 + tw - 6) + ' 76 L65 62 Z" fill="' + PLATE + '" stroke="' + DARK + '" stroke-width=".7"/>';
+  g += '<path d="M' + (60 - tw + 5) + ' 44 L' + (60 - 10) + ' 52 M' + (60 + tw - 5) + ' 44 L' + (60 + 10) + ' 52 M' + (60 - waist + 2) + ' 90 h' + (waist * 2 - 4) + '" stroke="' + DARK + '" stroke-width=".8" fill="none"/>';
+  g += '<path d="M' + (60 - tw + 6) + ' 58 l6 5 M' + (60 - tw + 7) + ' 65 l5 5 M' + (60 + tw - 12) + ' 63 l6 -5 M' + (60 + tw - 12) + ' 70 l5 -5" stroke="' + DARK + '" stroke-width="1.4"/>';
+  if (scr % 3 === 0){ g += '<path d="M' + (60 - tw * .5) + ' 70 l10 6 l-4 4 z" fill="' + DARK + '" opacity=".3"/>'; }
+  if (scr % 2 === 0){ g += '<path d="M' + (60 + tw * .3) + ' 52 l8 5 l-3 5 z" fill="' + DARK + '" opacity=".25"/>'; }
+  // réacteur pectoral (cœur concentrique façon Jaeger)
   g += '<circle cx="60" cy="78" r="15" fill="url(#' + gid + 'r)"/>';
   g += '<circle cx="60" cy="78" r="10.5" fill="none" stroke="' + procCol + '" opacity=".35"/>';
-  g += '<circle cx="60" cy="78" r="2.2" fill="' + LIGHT + '" opacity=".8"/>';
-  if (lo.cooling && lo.cooling.indexOf('deluxe') >= 0){ g += '<path d="M' + (60 - 14) + ' 88 h28 M' + (60 - 11) + ' 92 h22" stroke="#7EB6C1" stroke-width="1.4" opacity=".7"/>'; }
-  // bélier frontal (impact_ram) : piston sur le torse
-  if (info.weapon === 'impact_ram'){ g += '<rect x="55" y="52" width="10" height="14" fill="' + PLATE + '" stroke="' + DARK + '"/><path d="M52 50 h16 v6 h-16 z" fill="' + acc + '"/>'; }
+  g += '<circle cx="60" cy="78" r="7" fill="#111418" stroke="' + procCol + '" stroke-width="1.6"/>';
+  g += '<circle cx="60" cy="78" r="4.2" fill="' + procCol + '"/>';
+  g += '<circle cx="60" cy="78" r="1.8" fill="' + LIGHT + '" opacity=".9"/>';
+  g += '<path d="M52 74 a9 9 0 0 1 6 -4 M68 82 a9 9 0 0 1 -6 4" stroke="' + LIGHT + '" stroke-width=".9" fill="none" opacity=".55"/>';
+  if (fortified){ g += '<path d="M' + (60 - tw + 2.5) + ' 44 L' + (60 + tw - 2.5) + ' 44 L' + (60 + waist * .9) + ' 96 L' + (60 - waist * .9) + ' 96 Z" fill="none" stroke="' + PLATE + '" stroke-width="2"/>'; }
+  if (deco){ g += '<path d="M' + (60 - 12) + ' 58 L' + (60 + 4) + ' 46 L' + (60 + 12) + ' 52 L' + (60 - 4) + ' 64 Z" fill="url(#' + gid + 'e)" opacity=".85"/>'; }
+  if (lo.cooling && lo.cooling.indexOf('deluxe') >= 0){ g += '<path d="M' + (60 - 14) + ' 92 h28 M' + (60 - 11) + ' 95 h22" stroke="#7EB6C1" stroke-width="1.4" opacity=".7"/>'; }
+  if (info.weapon === 'impact_ram'){ g += '<rect x="53" y="46" width="14" height="16" fill="' + PLATE + '" stroke="' + DARK + '"/><path d="M50 44 h20 v7 h-20 z" fill="url(#' + gid + 'e)"/><path d="M54 62 v8 M66 62 v8" stroke="' + DARK + '" stroke-width="2"/>'; }
   g += '</g>';
-  // TÊTE
+  // ==== TÊTE compacte : casque angulaire + visière lumineuse + capteurs ====
   g += '<g' + hot('head') + '>';
-  g += '<rect x="52" y="38" width="16" height="18" rx="2" fill="' + PLATE + '" stroke="' + DARK + '"/>';
-  g += '<rect x="54.5" y="44" width="11" height="5" rx="1" fill="#7FA6C9" opacity=".9"/>';
-  if (scope){ g += '<circle cx="69" cy="44" r="3.2" fill="none" stroke="' + acc + '" stroke-width="1.3"/><circle cx="69" cy="44" r="1" fill="' + acc + '"/>'; }
-  if (scout){ g += '<path d="M66 38 L74 22" stroke="' + LIGHT + '" stroke-width="1.6"/><circle cx="74" cy="21" r="1.6" fill="' + acc + '"/>'; }
+  g += '<path d="M53 30 L58 23 L66 23 L70 30 L68 42 L61 45 L54 41 Z" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+  g += '<path d="M55.5 32 L66 32 L65 38 L56.5 37 Z" fill="' + procCol + '" opacity=".95"/>';
+  g += '<path d="M56 33 L64.5 33 L63.5 35 L56.8 34.5 Z" fill="' + LIGHT + '" opacity=".5"/>';
+  g += '<path d="M61 45 L62 23" stroke="' + DARK + '" stroke-width=".7"/>';
+  if (scope){ g += '<circle cx="70" cy="34" r="3.4" fill="none" stroke="' + acc + '" stroke-width="1.3"/><circle cx="70" cy="34" r="1" fill="' + acc + '"/>'; }
+  if (scout){ g += '<path d="M68 25 L76 11" stroke="' + LIGHT + '" stroke-width="1.5"/><circle cx="76.5" cy="10.5" r="1.8" fill="' + acc + '"/>'; }
+  else { g += '<path d="M53 27 L48 21" stroke="' + LIGHT + '" stroke-width="1.2"/><circle cx="47.5" cy="20.5" r="1.3" fill="' + procCol + '"/>'; }
   g += '</g>';
-  // ÉPAULES (zones séparées pour l'atelier)
-  const padW = 9 + (heavy ? 3 : 0);
-  g += '<g' + hot('lsh') + '><rect x="' + (60 - tw - padW - 1) + '" y="56" width="' + padW + '" height="17" rx="2" fill="' + (lo.left_shoulder ? PLATE : HULL) + '" stroke="' + DARK + '"/>' + (lo.left_shoulder ? '<rect x="' + (60 - tw - padW + .5) + '" y="57.5" width="' + (padW - 3) + '" height="5" fill="' + acc + '" opacity=".6"/>' : '') + '</g>';
-  g += '<g' + hot('rsh') + '><rect x="' + (60 + tw + 1) + '" y="56" width="' + padW + '" height="17" rx="2" fill="' + (lo.right_shoulder ? PLATE : HULL) + '" stroke="' + DARK + '"/>' + (lo.right_shoulder ? '<rect x="' + (60 + tw + 2.5) + '" y="57.5" width="' + (padW - 3) + '" height="5" fill="' + acc + '" opacity=".6"/>' : '') + '</g>';
-  if (lo.shield){ g += '<path d="M' + (60 - tw - 6) + ' 52 a10 10 0 0 1 12 -6" stroke="#7FA6C9" stroke-width="2" fill="none" opacity=".8"/>'; }
-  // ARMS
+  // ==== ÉPAULES : pauldrons massifs en biseau ====
+  const padH = 15 + (heavy ? 5 : 0);
+  g += '<g' + hot('lsh') + '><path d="M' + (60 - tw + 1) + ' 44 L' + (60 - tw - 12) + ' 38 L' + (60 - tw - 13) + ' ' + (38 + padH) + ' L' + (60 - tw) + ' ' + (44 + padH) + ' Z" fill="' + (lo.left_shoulder ? PLATE : HULL) + '" stroke="' + DARK + '"/>' +
+    (lo.left_shoulder ? '<path d="M' + (60 - tw - 10) + ' 43 L' + (60 - tw - 3) + ' 45 L' + (60 - tw - 4) + ' ' + (43 + padH - 6) + ' L' + (60 - tw - 11) + ' ' + (41 + padH - 6) + ' Z" fill="url(#' + gid + 'e)"/>' : '') +
+    '<path d="M' + (60 - tw - 9) + ' ' + (48 + padH * .5) + ' h6" stroke="' + DARK + '" stroke-width="1.2"/></g>';
+  g += '<g' + hot('rsh') + '><path d="M' + (60 + tw - 1) + ' 44 L' + (60 + tw + 12) + ' 38 L' + (60 + tw + 13) + ' ' + (38 + padH) + ' L' + (60 + tw) + ' ' + (44 + padH) + ' Z" fill="' + (lo.right_shoulder ? PLATE : HULL) + '" stroke="' + DARK + '"/>' +
+    (lo.right_shoulder ? '<path d="M' + (60 + tw + 3) + ' 45 L' + (60 + tw + 10) + ' 43 L' + (60 + tw + 11) + ' ' + (41 + padH - 6) + ' L' + (60 + tw + 4) + ' ' + (43 + padH - 6) + ' Z" fill="url(#' + gid + 'e)"/>' : '') +
+    '<path d="M' + (60 + tw + 3) + ' ' + (48 + padH * .5) + ' h6" stroke="' + DARK + '" stroke-width="1.2"/></g>';
+  if (lo.shield){ g += '<path d="M' + (60 - tw - 15) + ' 46 a14 14 0 0 1 16 -11" stroke="#7FA6C9" stroke-width="2.4" fill="none" opacity=".85"/>'; }
+  // ==== BRAS : bras plaqués + poings ====
   g += '<g' + hot('arms') + '>';
-  g += '<rect x="' + (60 - tw - 4) + '" y="76" width="6.5" height="26" rx="2" fill="url(#' + gid + ')" stroke="' + DARK + '"/>';
-  g += '<rect x="' + (60 + tw - 2.5) + '" y="76" width="6.5" height="26" rx="2" fill="url(#' + gid + ')" stroke="' + DARK + '"/>';
+  g += '<path d="M' + (60 - tw - 2) + ' ' + (44 + padH) + ' L' + (60 - tw - 8) + ' ' + (44 + padH + 4) + ' L' + (60 - tw - 7) + ' 104 L' + (60 - tw - 1) + ' 100 Z" fill="url(#' + gid + ')" stroke="' + DARK + '"/>';
+  g += '<path d="M' + (60 + tw + 2) + ' ' + (44 + padH) + ' L' + (60 + tw + 8) + ' ' + (44 + padH + 4) + ' L' + (60 + tw + 7) + ' 104 L' + (60 + tw + 1) + ' 100 Z" fill="url(#' + gid + ')" stroke="' + DARK + '"/>';
+  g += '<rect x="' + (60 - tw - 8) + '" y="100" width="7" height="8" rx="1.5" fill="' + PLATE + '" stroke="' + DARK + '"/><rect x="' + (60 + tw + 1) + '" y="100" width="7" height="8" rx="1.5" fill="' + PLATE + '" stroke="' + DARK + '"/>';
   g += '</g>';
-  // ARME PRIMAIRE (zone arme)
+  // ==== ARME PRIMAIRE ====
+  const wy = 96;
   g += '<g' + hot('weapon') + '>';
-  const wy = 88;
   if (W.type === 'ranged'){
-    if (info.weapon === 'seraph_lrm_pod'){ // pods dorsaux + tubes
-      g += '<rect x="' + (60 - tw - 9) + '" y="42" width="17" height="12" fill="' + PLATE + '" stroke="' + DARK + '"/><rect x="' + (60 + tw - 8) + '" y="42" width="17" height="12" fill="' + PLATE + '" stroke="' + DARK + '"/>';
-      for (let k = 0; k < 3; k++){ g += '<circle cx="' + (60 - tw - 5.5 + k * 5) + '" cy="48" r="1.4" fill="' + acc + '"/><circle cx="' + (60 + tw - 3.5 + k * 5) + '" cy="48" r="1.4" fill="' + acc + '"/>'; }
-    } else if (info.weapon === 'rail_gun_mk1'){ // long canon + anneaux
-      g += '<rect x="' + (60 + tw + 2) + '" y="' + (wy - 2) + '" width="36" height="4.5" fill="' + PLATE + '" stroke="' + DARK + '"/>';
-      g += '<path d="M' + (60 + tw + 12) + ' ' + (wy - 4) + ' v9 M' + (60 + tw + 20) + ' ' + (wy - 4) + ' v9 M' + (60 + tw + 28) + ' ' + (wy - 4) + ' v9" stroke="' + procCol + '" stroke-width="1.6"/>';
-      g += '<rect x="' + (60 + tw + 34) + '" y="' + (wy - 2.8) + '" width="4" height="6.5" fill="' + acc + '"/>';
-    } else if (info.weapon === 'scatter_gun_mk1'){ // canon court et large
-      g += '<rect x="' + (60 + tw + 2) + '" y="' + (wy - 4) + '" width="17" height="9" fill="' + PLATE + '" stroke="' + DARK + '"/><rect x="' + (60 + tw + 17) + '" y="' + (wy - 3) + '" width="4" height="7" fill="' + acc + '"/>';
-    } else { // autocanon par défaut
-      g += '<rect x="' + (60 + tw + 2) + '" y="' + (wy - 2.5) + '" width="26" height="6" fill="' + PLATE + '" stroke="' + DARK + '"/>';
-      g += '<rect x="' + (60 + tw + 26) + '" y="' + (wy - 2) + '" width="4" height="5" fill="' + acc + '"/>';
-      g += '<rect x="' + (60 + tw + 6) + '" y="' + (wy + 1) + '" width="6" height="4" fill="' + DARK + '"/>';
+    if (info.weapon === 'seraph_lrm_pod'){ // pods dorsaux + grille de tubes
+      [[60 - tw - 6], [60 + tw - 9]].forEach(px0 => { const px = px0[0];
+        g += '<rect x="' + px + '" y="26" width="15" height="14" rx="2" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+        for (let k = 0; k < 3; k++) for (let j = 0; j < 2; j++) g += '<circle cx="' + (px + 3.6 + k * 4) + '" cy="' + (29.5 + j * 5.6) + '" r="1.5" fill="' + acc + '" opacity=".9"/>';
+        g += '<rect x="' + (px + 1) + '" y="39.5" width="13" height="2" fill="url(#' + gid + 'e)"/>';
+      });
+    } else if (info.weapon === 'rail_gun_mk1'){ // long canon + rainures + anneaux + bouche émissive
+      g += '<rect x="' + (60 + tw + 2) + '" y="' + (wy - 4) + '" width="10" height="12" rx="1.5" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+      g += '<rect x="' + (60 + tw + 10) + '" y="' + (wy - 2.5) + '" width="30" height="5" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+      g += '<path d="M' + (60 + tw + 12) + ' ' + (wy - 4) + ' h26 M' + (60 + tw + 12) + ' ' + (wy + 4.5) + ' h26" stroke="' + DARK + '" stroke-width="1"/>';
+      g += '<path d="M' + (60 + tw + 16) + ' ' + (wy - 5) + ' v10 M' + (60 + tw + 24) + ' ' + (wy - 5) + ' v10" stroke="' + procCol + '" stroke-width="1.8"/>';
+      g += '<rect x="' + (60 + tw + 38) + '" y="' + (wy - 3.5) + '" width="5" height="7" fill="url(#' + gid + 'e)"/>';
+    } else if (info.weapon === 'scatter_gun_mk1'){ // canon épais + évent + large bouche
+      g += '<rect x="' + (60 + tw + 2) + '" y="' + (wy - 5) + '" width="9" height="13" rx="1.5" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+      g += '<rect x="' + (60 + tw + 10) + '" y="' + (wy - 4) + '" width="16" height="11" rx="2" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+      g += '<path d="M' + (60 + tw + 13) + ' ' + (wy - 2) + ' h10 M' + (60 + tw + 13) + ' ' + (wy + 2) + ' h10" stroke="' + DARK + '" stroke-width="1"/>';
+      g += '<rect x="' + (60 + tw + 26) + '" y="' + (wy - 5.5) + '" width="6" height="14" rx="1" fill="url(#' + gid + 'e)"/>';
+    } else { // AUTOCANON : boîtier + canon nervuré + frein de bouche + tambour
+      g += '<rect x="' + (60 + tw + 1) + '" y="' + (wy - 6) + '" width="12" height="14" rx="1.5" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+      g += '<rect x="' + (60 + tw + 12) + '" y="' + (wy - 3) + '" width="20" height="6.5" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+      g += '<path d="M' + (60 + tw + 14) + ' ' + (wy - 3) + ' h16 M' + (60 + tw + 14) + ' ' + (wy - .5) + ' h16 M' + (60 + tw + 14) + ' ' + (wy + 2) + ' h16" stroke="' + DARK + '" stroke-width=".9"/>';
+      g += '<rect x="' + (60 + tw + 31) + '" y="' + (wy - 4.5) + '" width="5.5" height="9" rx="1" fill="url(#' + gid + 'e)"/>';
+      g += '<circle cx="' + (60 + tw + 7) + '" cy="' + (wy + 9) + '" r="5" fill="' + DARK + '" stroke="' + PLATE + '"/><circle cx="' + (60 + tw + 7) + '" cy="' + (wy + 9) + '" r="1.6" fill="' + acc + '"/>';
     }
   } else if (W.type === 'melee'){
-    if (info.weapon === 'war_pike_mk1'){ g += '<rect x="' + (60 + tw + 6) + '" y="28" width="4" height="76" fill="' + PLATE + '" stroke="' + DARK + '"/><path d="M' + (60 + tw + 4) + ' 28 h8 l-4 -14 z" fill="' + acc + '"/>'; }
-    else if (info.weapon === 'grinder_mk1'){ g += '<circle cx="' + (60 + tw + 8) + '" cy="' + (wy + 4) + '" r="8" fill="' + PLATE + '" stroke="' + DARK + '"/>'; for (let k = 0; k < 6; k++){ const a = k * Math.PI / 3; g += '<path d="M' + (60 + tw + 8 + Math.cos(a) * 8) + ' ' + (wy + 4 + Math.sin(a) * 8) + ' l' + Math.cos(a) * 3 + ' ' + Math.sin(a) * 3 + '" stroke="' + acc + '" stroke-width="1.6"/>'; } }
-    else if (info.weapon === 'impact_ram'){ /* déjà sur le torse */ }
-    else { // lame (reaver)
-      g += '<path d="M' + (60 + tw + 3) + ' ' + (wy - 2) + ' L' + (60 + tw + 30) + ' ' + (wy - 24) + ' L' + (60 + tw + 28) + ' ' + (wy - 14) + ' L' + (60 + tw + 5) + ' ' + (wy + 2) + ' Z" fill="' + PLATE + '" stroke="' + LIGHT + '" stroke-width=".8"/>';
-      g += '<path d="M' + (60 + tw + 4) + ' ' + (wy - 1) + ' L' + (60 + tw + 27) + ' ' + (wy - 21) + '" stroke="' + acc + '" stroke-width="1.4"/>';
+    if (info.weapon === 'war_pike_mk1'){ g += '<rect x="' + (60 + tw + 7) + '" y="20" width="4.5" height="78" fill="' + PLATE + '" stroke="' + DARK + '"/><path d="M' + (60 + tw + 4.5) + ' 20 h9.5 l-4.75 -17 z" fill="url(#' + gid + 'e)"/><rect x="' + (60 + tw + 5) + '" y="52" width="9" height="4" fill="' + DARK + '"/>'; }
+    else if (info.weapon === 'grinder_mk1'){ g += '<circle cx="' + (60 + tw + 11) + '" cy="' + (wy + 2) + '" r="9.5" fill="' + PLATE + '" stroke="' + DARK + '"/>'; for (let k = 0; k < 8; k++){ const a = k * Math.PI / 4; g += '<path d="M' + (60 + tw + 11 + Math.cos(a) * 9.5) + ' ' + (wy + 2 + Math.sin(a) * 9.5) + ' l' + Math.cos(a) * 3.5 + ' ' + Math.sin(a) * 3.5 + '" stroke="' + acc + '" stroke-width="2"/>'; } g += '<circle cx="' + (60 + tw + 11) + '" cy="' + (wy + 2) + '" r="3" fill="' + DARK + '" stroke="' + acc + '" stroke-width="1.2"/><rect x="' + (60 + tw + 2) + '" y="' + (wy - 2) + '" width="9" height="9" rx="1.5" fill="' + PLATE + '" stroke="' + DARK + '"/>'; }
+    else if (info.weapon === 'impact_ram'){ g += '<path d="M' + (60 + tw + 2) + ' ' + (wy - 3) + ' l8 3 l-8 3 z" fill="' + acc + '"/>'; }
+    else { // LAME REAVER à tranchant émissif
+      g += '<path d="M' + (60 + tw + 3) + ' ' + (wy - 4) + ' L' + (60 + tw + 34) + ' ' + (wy - 30) + ' L' + (60 + tw + 31) + ' ' + (wy - 17) + ' L' + (60 + tw + 5) + ' ' + (wy + 2) + ' Z" fill="' + PLATE + '" stroke="' + LIGHT + '" stroke-width=".8"/>';
+      g += '<path d="M' + (60 + tw + 5) + ' ' + (wy - 2) + ' L' + (60 + tw + 31) + ' ' + (wy - 26) + '" stroke="url(#' + gid + 'e)" stroke-width="2.4"/>';
+      g += '<rect x="' + (60 + tw + 1) + '" y="' + (wy - 4) + '" width="7" height="9" rx="1.5" fill="' + DARK + '" stroke="' + PLATE + '"/>';
     }
-    if (!info.weapon || info.weapon === 'fists'){ g += '<rect x="' + (60 + tw - 3.5) + '" y="100" width="8" height="6" fill="' + PLATE + '" stroke="' + DARK + '"/>'; }
+    if (!info.weapon || info.weapon === 'fists'){ g += '<rect x="' + (60 + tw - 1) + '" y="102" width="9" height="7" rx="1.5" fill="' + PLATE + '" stroke="' + DARK + '"/>'; }
   }
-  // SECONDAIRE (petit miroir côté gauche)
-  if (W2b && W2b.type === 'melee' && secId !== 'fists'){ g += '<path d="M' + (60 - tw - 3) + ' ' + (wy - 2) + ' L' + (60 - tw - 22) + ' ' + (wy - 19) + ' L' + (60 - tw - 20) + ' ' + (wy - 11) + ' L' + (60 - tw - 5) + ' ' + (wy + 2) + ' Z" fill="' + PLATE + '" stroke="' + LIGHT + '" stroke-width=".7"/>'; }
-  else if (W2b && W2b.type === 'ranged'){ g += '<rect x="' + (60 - tw - 18) + '" y="' + (wy - 1) + '" width="16" height="4.5" fill="' + PLATE + '" stroke="' + DARK + '"/>'; }
+  if (W2b && W2b.type === 'melee' && secId !== 'fists'){ g += '<path d="M' + (60 - tw - 3) + ' ' + (wy - 3) + ' L' + (60 - tw - 26) + ' ' + (wy - 22) + ' L' + (60 - tw - 24) + ' ' + (wy - 13) + ' L' + (60 - tw - 5) + ' ' + (wy + 1) + ' Z" fill="' + PLATE + '" stroke="' + LIGHT + '" stroke-width=".7"/><path d="M' + (60 - tw - 5) + ' ' + (wy - 1) + ' L' + (60 - tw - 24) + ' ' + (wy - 19) + '" stroke="url(#' + gid + 'e)" stroke-width="1.8"/>'; }
+  else if (W2b && W2b.type === 'ranged'){ g += '<rect x="' + (60 - tw - 21) + '" y="' + (wy - 2) + '" width="18" height="6" rx="1" fill="' + PLATE + '" stroke="' + DARK + '"/><rect x="' + (60 - tw - 24) + '" y="' + (wy - 3) + '" width="4" height="8" fill="url(#' + gid + 'e)"/>'; }
   g += '</g>';
   // ÉTAT : rayures si endommagé, voile HS
-  if (cond < 100){ g += '<path d="M' + (60 - tw * .5) + ' 64 l14 8" stroke="' + acc + '" stroke-width="1.2" opacity=".8"/>'; }
-  if (cond < 50){ g += '<path d="M' + (60 + 2) + ' 60 l-16 10 M' + (60 - 4) + ' 88 l12 -6" stroke="' + acc + '" stroke-width="1.6" opacity=".9"/>'; }
+  if (cond < 100){ g += '<path d="M' + (60 - tw * .4) + ' 52 l14 8" stroke="' + acc + '" stroke-width="1.2" opacity=".8"/>'; }
+  if (cond < 50){ g += '<path d="M' + (60 + 2) + ' 48 l-16 10 M' + (60 - 4) + ' 88 l12 -6" stroke="' + acc + '" stroke-width="1.6" opacity=".9"/>'; }
   if (opts.hs || (opts.live !== true && cond < 50)){ g += '<rect x="10" y="10" width="100" height="150" fill="#0B0E12" opacity=".55"/><text x="60" y="88" text-anchor="middle" font-family="monospace" font-size="14" fill="' + acc + '">HS</text>'; }
   g += '</svg>';
   return g;
@@ -2030,8 +2065,8 @@ function buildMech3D(lo, chId, hot){
   const deco = lo.torso && lo.torso.indexOf('decal') >= 0;
   const scope = lo.head && (lo.head.indexOf('target') >= 0 || lo.head.indexOf('sensor') >= 0);
   // proportions par châssis (hauteur totale ≈ 4.6-5)
-  const legH = heavy ? 1.6 : (arty ? 2.0 : 1.75), torsoH = heavy ? 1.7 : 1.4, legX = heavy ? .62 : .5;
-  const tw = heavy ? 2.1 : (scout ? 1.5 : 1.75);
+  const legH = heavy ? 1.6 : (arty ? 2.0 : 1.75), torsoH = heavy ? 1.85 : 1.55, legX = heavy ? .62 : .5;
+  const tw = heavy ? 2.3 : (scout ? 1.55 : 1.95);
   const ty0 = legH + .55, hy = ty0 + torsoH;
   // JAMBES
   [-1, 1].forEach(sd => {
@@ -2046,19 +2081,20 @@ function buildMech3D(lo, chId, hot){
   if (fortified) add('torso', new THREE.BoxGeometry(tw + .22, torsoH * .7, 1.3), at3dMat(0x3D444D), 0, ty0 + torsoH * .55, 0);
   if (deco) add('torso', new THREE.BoxGeometry(.5, torsoH * .8, .06), at3dMat(0xD93432), 0, ty0 + torsoH / 2, .6);
   const core = add('torso', new THREE.SphereGeometry(.3, 20, 16), at3dMat(new THREE.Color(procCol).getHex(), { emissive: new THREE.Color(procCol), emissiveIntensity: 1.3, roughness: .4 }), 0, ty0 + torsoH * .62, .62);
+  add('torso', new THREE.TorusGeometry(.42, .05, 10, 28), at3dMat(0x232830), 0, ty0 + torsoH * .62, .62);
   const lgt = new THREE.PointLight(new THREE.Color(procCol), 5, 9); lgt.position.set(0, ty0 + torsoH * .62, 1.2); grp.add(lgt);
   if (lo.cooling && lo.cooling.indexOf('deluxe') >= 0) [-.45, .45].forEach(o =>
     add('torso', new THREE.BoxGeometry(.34, .3, .1), at3dMat(0x2A3138, { emissive: 0x7EB6C1, emissiveIntensity: .4 }), o, ty0 + .3, .6));
   // TÊTE
-  add('head', new THREE.BoxGeometry(.85, .55, .7), at3dMat(0x3D444D), 0, hy + .28, 0);
+  add('head', new THREE.BoxGeometry(.7, .48, .6), at3dMat(0x3D444D), 0, hy + .28, 0);
   add('head', new THREE.BoxGeometry(.6, .16, .1), at3dMat(0x2A3138, { emissive: 0x7FA6C9, emissiveIntensity: .8 }), 0, hy + .3, .36);
   if (scope) add('head', new THREE.CylinderGeometry(.09, .09, .5, 12), at3dMat(0x232830), .3, hy + .62, 0, 0, 0, Math.PI / 2.6);
   if (scout) add('head', new THREE.CylinderGeometry(.02, .02, .7, 6), at3dMat(0xE7EBEF), -.35, hy + .7, -.1, .2, 0, .3);
   // ÉPAULES + BRAS
-  const padW = heavy ? .95 : .75;
+  const padW = heavy ? 1.1 : .9;
   [-1, 1].forEach(sd => {
-    add(sd < 0 ? 'lsh' : 'rsh', new THREE.BoxGeometry(padW, .75, 1.05), at3dMat(lo[sd < 0 ? 'left_shoulder' : 'right_shoulder'] ? 0x3D444D : 0x343B43), sd * (tw / 2 + padW / 2 - .08), hy - .28, 0);
-    add('arms', new THREE.BoxGeometry(.42, 1.1, .5), at3dMat(0x343B43), sd * (tw / 2 + .25), ty0 + .5, 0);
+    add(sd < 0 ? 'lsh' : 'rsh', new THREE.BoxGeometry(padW, .95, 1.3), at3dMat(lo[sd < 0 ? 'left_shoulder' : 'right_shoulder'] ? 0x3D444D : 0x343B43), sd * (tw / 2 + padW / 2 - .08), hy - .28, 0);
+    add('arms', new THREE.BoxGeometry(.55, 1.3, .6), at3dMat(0x343B43), sd * (tw / 2 + .25), ty0 + .5, 0);
   });
   if (lo.shield){ const sm = new THREE.Mesh(new THREE.TorusGeometry(1.5, .07, 10, 40, Math.PI * 1.15),
       at3dMat(0x7FA6C9, { emissive: 0x7FA6C9, emissiveIntensity: .7, transparent: true, opacity: .85 }));
@@ -2668,18 +2704,18 @@ function renderBattleBroadcast(){
     }
     const isRam = m.weaponId === 'impact_ram', isLRM = m.weaponId === 'seraph_lrm_pod';
     const tTop = bcShade(col, 1.45), tSide = col, hullTop = '#3D444D', hullSide = '#343B43';
-    if (m.improvShield > 0) mechBox(m, 0, 0, 1.5, 3.5, 1.5, 1.25, 'rgba(227,162,59,.16)', 'rgba(227,162,59,.30)', '#E3A23B');
-    mechBox(m, 0, -.55, 0, 1.5, .3, .38, hullTop, hullSide, '#232830'); // jambe G
-    mechBox(m, 0, .55, 0, 1.5, .3, .38, hullTop, hullSide, '#232830'); // jambe D
-    mechBox(m, 0, 0, 1.4, 1.75, .8, .5, hullTop, hullSide, '#232830'); // bassin
-    mechBox(m, 0, 0, 1.7, 3.1, .95, .7, tTop, tSide, '#232830');       // torse
-    mechBox(m, 0, -1.15, 2.45, 3.0, .35, .55, hullTop, hullSide, '#232830'); // épaulière G
-    mechBox(m, 0, 1.15, 2.45, 3.0, .35, .55, hullTop, hullSide, '#232830'); // épaulière D
-    mechBox(m, 0, 0, 3.1, 3.55, .38, .35, '#4A5560', '#3D444D', '#232830'); // tête
-    if (isLRM){ mechBox(m, -.6, -.5, 3.1, 3.65, .32, .5, hullTop, hullSide, '#232830'); mechBox(m, -.6, .5, 3.1, 3.65, .32, .5, hullTop, hullSide, '#232830'); }
-    else mechBox(m, isRam ? .55 : 1.5, .95, 2.45, 2.8, isRam ? .6 : .24, isRam ? .35 : 1.6, isRam ? '#D93432' : hullTop, isRam ? '#B02926' : hullSide, '#232830'); // arme
+    if (m.improvShield > 0) mechBox(m, 0, 0, 1.5, 3.6, 1.7, 1.4, 'rgba(227,162,59,.16)', 'rgba(227,162,59,.30)', '#E3A23B');
+    mechBox(m, 0, -.58, 0, 1.5, .34, .45, hullTop, hullSide, '#232830'); // jambe G
+    mechBox(m, 0, .58, 0, 1.5, .34, .45, hullTop, hullSide, '#232830'); // jambe D
+    mechBox(m, 0, 0, 1.4, 1.75, .85, .55, hullTop, hullSide, '#232830'); // bassin
+    mechBox(m, 0, 0, 1.7, 3.3, 1.15, .75, tTop, tSide, '#232830');       // torse
+    mechBox(m, 0, -1.3, 2.4, 3.15, .5, .75, hullTop, hullSide, '#232830'); // épaulière G
+    mechBox(m, 0, 1.3, 2.4, 3.15, .5, .75, hullTop, hullSide, '#232830'); // épaulière D
+    mechBox(m, 0, 0, 3.3, 3.65, .3, .3, '#4A5560', '#3D444D', '#232830'); // tête
+    if (isLRM){ mechBox(m, -.6, -.5, 3.3, 3.85, .32, .5, hullTop, hullSide, '#232830'); mechBox(m, -.6, .5, 3.3, 3.85, .32, .5, hullTop, hullSide, '#232830'); }
+    else mechBox(m, isRam ? .6 : 1.7, 1.05, 2.6, 2.95, isRam ? .65 : .26, isRam ? .4 : 1.75, isRam ? '#D93432' : hullTop, isRam ? '#B02926' : hullSide, '#232830'); // arme
     // lueur du réacteur (billboard)
-    const rp = proj(m.pos.x + Math.cos(m.heading) * .72, 2.5, m.pos.z + Math.sin(m.heading) * .72);
+    const rp = proj(m.pos.x + Math.cos(m.heading) * .8, 2.6, m.pos.z + Math.sin(m.heading) * .8);
     if (rp) faces.push({ d: rp.d * .997, fn: () => { cx.fillStyle = m.team === 0 ? '#D93432' : '#7FA6C9'; cx.beginPath(); cx.arc(rp.x, rp.y, Math.max(1.5, rp.s * .35), 0, Math.PI * 2); cx.fill(); } });
     // anneaux d'état aux pieds (stun/stagger)
     if ((m.stunTicks || 0) > 0 || (m.staggeredTicks || 0) > 0){
@@ -2713,11 +2749,43 @@ function renderBattleBroadcast(){
     if (f.fill){ cx.fillStyle = f.fill; cx.fill(); }
     if (f.stroke){ cx.strokeStyle = f.stroke; cx.lineWidth = f.lw || 1; cx.stroke(); }
   }
+  // ===== effets temps réel : muzzle flashes, impacts, critiques =====
+  evts.forEach(e => {
+    const age = sim.tick - e.tick;
+    if (e.type === 'weapon_fired' && age >= 0 && age <= 3 && sim.mechs[e.mech] && sim.mechs[e.mech].hpNow > 0){
+      const mm2 = sim.mechs[e.mech];
+      const fp = proj(mm2.pos.x + Math.cos(mm2.heading) * 2.9, 2.7, mm2.pos.z + Math.sin(mm2.heading) * 2.9);
+      if (fp){ const k = 1 - age / 4;
+        cx.fillStyle = 'rgba(227,162,59,' + (.55 * k) + ')'; cx.beginPath(); cx.arc(fp.x, fp.y, Math.max(4, (fp.s || 8) * 1.7 * k + 3), 0, Math.PI * 2); cx.fill();
+        cx.fillStyle = 'rgba(255,222,140,' + (.9 * k) + ')'; cx.beginPath(); cx.arc(fp.x, fp.y, Math.max(2, (fp.s || 8) * .8 * k + 2), 0, Math.PI * 2); cx.fill();
+      }
+    } else if (e.type === 'projectile_impact' && age >= 0 && age <= 2){
+      const tgt = (e.data && e.data.target !== undefined && sim.mechs[e.data.target]) ? sim.mechs[e.data.target] : sim.mechs[e.mech];
+      if (tgt){ const ip = proj(tgt.pos.x, 2.2, tgt.pos.z);
+        if (ip){ const k = 1 - age / 3;
+          cx.strokeStyle = 'rgba(255,238,200,' + (.9 * k) + ')'; cx.lineWidth = 1.5;
+          for (let sp = 0; sp < 6; sp++){ const an = sp * Math.PI / 3 + age * .9;
+            cx.beginPath(); cx.moveTo(ip.x + Math.cos(an) * 3 * k, ip.y + Math.sin(an) * 3 * k);
+            cx.lineTo(ip.x + Math.cos(an) * (9 - 3 * age) * k, ip.y + Math.sin(an) * (9 - 3 * age) * k); cx.stroke();
+          }
+        }
+      }
+    } else if (e.type === 'critical_hit' && age >= 0 && age <= 2){
+      const tgt = (e.data && e.data.target !== undefined && sim.mechs[e.data.target]) ? sim.mechs[e.data.target] : sim.mechs[e.mech];
+      if (tgt){ const ip = proj(tgt.pos.x, 2.4, tgt.pos.z);
+        if (ip){ const k = 1 - age / 3;
+          cx.fillStyle = 'rgba(217,52,50,' + (.5 * k) + ')'; cx.beginPath(); cx.arc(ip.x, ip.y, 12 * k + 2, 0, Math.PI * 2); cx.fill();
+          cx.strokeStyle = 'rgba(255,238,200,' + (.8 * k) + ')'; cx.lineWidth = 2;
+          cx.beginPath(); cx.arc(ip.x, ip.y, 16 * k, 0, Math.PI * 2); cx.stroke();
+        }
+      }
+    }
+  });
   // plaques signalétiques (nom + HP + bouclier) par-dessus, triées par profondeur
   const tags = [];
   sim.mechs.forEach(m => {
     if (m.hpNow <= 0) return;
-    const p = proj(m.pos.x, 4.3, m.pos.z); if (!p) return;
+    const p = proj(m.pos.x, 4.4, m.pos.z); if (!p) return;
     tags.push({ p, m, col: TEAMCOL[m.team] });
   });
   tags.sort((a, b) => b.p.d - a.p.d);
@@ -2730,6 +2798,10 @@ function renderBattleBroadcast(){
     cx.fillStyle = '#E7EBEF'; cx.font = 'bold 9px monospace'; cx.textAlign = 'center';
     cx.fillText(t.m.name, t.p.x, t.p.y - 3);
   });
+  // ===== vignette broadcast + lueur d'horizon =====
+  cx.fillStyle = 'rgba(3,4,6,.42)'; cx.fillRect(0, 0, W, 26); cx.fillRect(0, H - 26, W, 26);
+  cx.fillRect(0, 0, 14, H); cx.fillRect(W - 14, 0, 14, H);
+  cx.fillStyle = 'rgba(217,52,50,.05)'; cx.fillRect(0, 20, W, 60);
   // ===== bandeau broadcast =====
   const secs = Math.round(sim.tick / (sim.tickRate || 15));
   const mm = ('0' + Math.floor(secs / 60)).slice(-2), ss = ('0' + (secs % 60)).slice(-2);
@@ -2745,7 +2817,7 @@ function renderBattleBroadcast(){
   cx.font = '9px monospace'; cx.fillStyle = '#6E7780'; cx.textAlign = 'right';
   cx.fillText('CAM BROADCAST — GREYBOX — ' + divisionLabel(G.org.division), W - 12, H - 12);
   cx.textAlign = 'left';
-  cx.fillText('DUEL ' + (matchCtx.idx + 1) + '/' + matchCtx.duels.length + ' — [C] CAM — v0.9.0', 12, H - 12);
+  cx.fillText('DUEL ' + (matchCtx.idx + 1) + '/' + matchCtx.duels.length + ' — [C] CAM — v0.9.1', 12, H - 12);
 }
 
 // ==== NAVIGATION + BOOT ====
