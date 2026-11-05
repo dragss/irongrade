@@ -6,7 +6,7 @@
 <script type="importmap">
 { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/" } }
 </script>
-<title>IRONGRADE — Prototype manager v0.9.2</title>
+<title>IRONGRADE — Prototype manager v0.10.0</title>
 <style>
   :root { font-family: 'Inter', system-ui, sans-serif; background: #0B0E12; color: #E7EBEF; }
   * { box-sizing: border-box; margin: 0; }
@@ -145,7 +145,7 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.9.2 — MOTEUR DE COMBAT v0.6.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
+  <div class="footer">IRONGRADE v0.10.0 — MECHCORE v1.1.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -206,7 +206,7 @@
 <div class="screen" id="screen-analysis">
   <div class="tophead"><span class="org">ANALYSE D'ADVERSAIRE</span><span class="meta" id="an-meta"></span></div>
   <div class="panel" id="an-opp"></div>
-  <div class="panel"><h3>Lineups adverses (ordre d'engagement prévu)</h3><div id="an-lineups"></div></div>
+  <div class="panel"><h3>Escouade adverse — 3 mechs engagés simultanément</h3><div id="an-lineups"></div></div>
   <button class="primary" id="an-prepare">▸ PRÉPARER LE MATCH</button>
   <button class="ghost small" id="an-back">← RETOUR</button>
   <div class="navrow" id="nav-analysis"></div>
@@ -215,7 +215,7 @@
 <!-- PRÉ-BATAILLE -->
 <div class="screen" id="screen-setup">
   <div class="tophead"><span class="org">PRÉPARATION DU MATCH</span><span class="meta" id="su-meta"></span></div>
-  <div class="panel"><h3>Duels — choisissez vos engagements (le meilleur des 3 l'emporte)</h3><div id="su-duels"></div></div>
+  <div class="panel"><h3>Escouade — assignez 3 duos mech/pilote (bataille 3v3 simultanée)</h3><div id="su-duels"></div><div class="hint" id="su-aff-team" style="margin:10px 0 0"></div></div>
   <button class="primary" id="su-confirm">▸ ENGAGER LES MECHS — GO !</button>
   <button class="ghost small" id="su-back">← RETOUR</button>
   <div class="footer">Rappel : en match vous êtes manager-observateur — les processeurs dirigent vos mechs (décision actée du projet).</div>
@@ -274,7 +274,7 @@
       <tr><td><b>1. CENTRE DE COMMANDEMENT</b></td><td>Suivez les finances, la réputation, le prochain match et les alertes.</td></tr>
       <tr><td><b>2. ROSTER</b></td><td>Recrutez et entraînez vos pilotes (3 actifs + 2 réserves). La précision et le sang-froid d'un pilote améliorent la visée et la stabilité de son mech.</td></tr>
       <tr><td><b>3. GARAGE</b></td><td>Réparez vos mechs (crédits), changez le processeur, montez les modules à l'atelier (budgets masse/puissance/chaleur).</td></tr>
-      <tr><td><b>4. CHAMPIONNAT</b></td><td>Ligue à 6 équipes, 10 journées. Un match = 3 duels 1v1, un mech par duel — 2 victoires de duels = match gagné.</td></tr>
+      <tr><td><b>4. CHAMPIONNAT</b></td><td>Ligue à 6 équipes, 10 journées. Un match = UNE bataille d'équipe 3v3 SIMULTANÉE : les 6 mechs sont sur le terrain en même temps, chaque processeur choisit sa cible. Victoire collective par destruction totale ou score HP au timeout (D-035).</td></tr><tr><td><b>4b. AFFINITÉS</b></td><td>Liaisons d'escouade : deux pilotes de la même origine → +3% visée chacun par liaison VIVANTE ; même bloc régional → +2%. Escouade 100% même bloc → PHALANX : +3 stabilité chacun. Les liaisons s'éteignent quand le coéquipier tombe.</td></tr>
       <tr><td><b>5. PRÉPARATION</b></td><td>Analysez l'adversaire, choisissez qui engage quel mech et avec quel processeur.</td></tr>
       <tr><td><b>6. MATCH</b></td><td>Vous observez : les processeurs dirigent les mechs. Caméra tactique, pause, ×1/×2/×4.</td></tr>
       <tr><td><b>7. RAPPORT</b></td><td>XP des pilotes, condition des mechs, crédits, classement. Les mechs détruits blessent leur pilote (1 journée).</td></tr>
@@ -288,10 +288,10 @@
 <div class="screen" id="screen-about">
   <div class="tophead"><span class="org">À PROPOS</span></div>
   <div class="panel">
-    <h3>IRONGRADE — prototype manager v0.9.2</h3>
-    <div class="hint">Vertical slice de gestion : la boucle complète (roster, garage, ligue, matchs observés, rapport, sauvegarde) sur le moteur de combat v0.6.0 déterministe 15 Hz.</div>
+    <h3>IRONGRADE — prototype manager v0.10.0</h3>
+    <div class="hint">Vertical slice de gestion : la boucle complète (roster, garage, ligue, matchs observés, rapport, sauvegarde) sur MECHCORE v1.1.0 déterministe 15 Hz.</div>
     <table>
-      <tr><td><b>MOTEUR</b></td><td>CombatSim v0.6.0 — spawns d'arène par point de largage / couloir d'entrée (D-027), précision &amp; stabilité par mech (D-026), 2v2 &amp; ciblage par profil (D-024), fumigène (D-025).</td></tr>
+      <tr><td><b>MOTEUR</b></td><td>MECHCORE v1.1.0 — spawns d'arène par point de largage / couloir d'entrée (D-027), précision &amp; stabilité par mech (D-026), ciblage par profil (D-024), fumigène (D-025), affinités d'escouade bloc/origine (D-035).</td></tr>      <tr><td><b>FORMAT</b></td><td>Un match = UNE bataille d'équipe 3v3 simultanée (6 mechs sur le terrain), résultat collectif décliné par slot. Les pilotes partagent des origines et blocs régionaux → liaisons de visée vivantes + PHALANX (v0.10.0).</td></tr>
       <tr><td><b>SAUVEGARDE</b></td><td>Locale (navigateur), une seule par appareil. « Nouvelle carrière » écrase la sauvegarde.</td></tr>
       <tr><td><b>ÉCONOMIE</b></td><td>Monnaie unique (crédits). Toutes les récompenses, prix et barèmes XP de ce prototype sont des hypothèses d'équilibrage data-driven, à valider par l'owner avant tout contenu réel.</td></tr>
       <tr><td><b>GOUVERNANCE</b></td><td>Aucune loot box, aucun achat, aucune probabilité de drop dans ce prototype — les taux restent une décision owner.</td></tr>
@@ -345,6 +345,7 @@ class CombatSim {
       weapons: [r.weapons[cfg.weaponId], r.weapons[cfg.secondaryWeaponId || 'fists']], secondaryWeaponId: cfg.secondaryWeaponId || 'fists',
       meleeReach: Math.max(0, ...[r.weapons[cfg.weaponId], r.weapons[cfg.secondaryWeaponId || 'fists']].filter(w => w.type === 'melee').map(w => w.range)),
       pos: { x: spawn.x, z: spawn.z }, heading: sideSS ? sideSS.dir : (cfg.team === 0 ? 0 : Math.PI), targetIdx: null,
+      affinity: cfg.affinity || null, // v1.1.0 : liaisons d'escouade (bloc/origine) — neutre si absent
       hpNow: r.mechs[cfg.mechId].hp, shieldMax: r.mechs[cfg.mechId].shield, shieldNow: r.mechs[cfg.mechId].shield,
       heat: 0, cooldown: 0, cooldown2: 0, meleeState: null, pinned: false, stunTicks: 0, staggeredTicks: 0, staggerImmunityTicks: 0,
       damageDealt: 0, damageTaken: 0, shotsFired: 0, shotsHit: 0, crits: 0, dodges: 0, ticksMoved: 0, ticksStationary: 0,
@@ -357,6 +358,16 @@ class CombatSim {
   log(type, mech, data){ this.events.push({ tick: this.tick, type, mech, ...(data || {}) }); }
   otherIdx(i){ return this.mechs.findIndex(m => m.team !== this.mechs[i].team); } // 1v1 rétrocompat
   enemiesOf(i){ const out = []; for (let j = 0; j < this.mechs.length; j++) if (j !== i && this.mechs[j].team !== this.mechs[i].team && this.mechs[j].hpNow > 0) out.push(j); return out; }
+  // v1.1.0 (D-035) : affinités d'escouade — chaque coéquipier VIVANT partageant l'origine (ou le bloc) d'un mech
+  // lui confère un bonus de visée. Générique et neutre : sans cfg.affinity, retourne 0 → 1v1 bit-identique à v1.0.0.
+  affLinks(i){ const m = this.mechs[i]; let b = 0;
+    if (!m.affinity || !m.affinity.bloc) return 0;
+    for (const o of this.mechs){
+      if (o === m || o.team !== m.team || o.hpNow <= 0 || !o.affinity || !o.affinity.bloc) continue;
+      if (o.affinity.origin && o.affinity.origin === m.affinity.origin) b += (m.affinity.accSameOrigin || 0);
+      else if (o.affinity.bloc === m.affinity.bloc) b += (m.affinity.accSameBloc || 0);
+    }
+    return b; }
   // D-024 : sélection de cible — profil par processeur (data-driven), sticky (focus-fire), déterministe
   targetOf(i){ const m = this.mechs[i]; const es = this.enemiesOf(i);
     if (es.length === 0) return null;
@@ -597,7 +608,7 @@ class CombatSim {
     const lead = c.aim_lead_factor;
     let ax = foe.pos.x + (foe.vel.x || 0) * ft * lead, az = foe.pos.z + (foe.vel.z || 0) * ft * lead;
     // D-026 : précision du châssis (garage D-019) resserre l'erreur de visée — tireurs seulement
-    const acc = Math.min(0.98, w.accuracy + (m.accuracy_bonus || 0));
+    const acc = Math.min(0.98, w.accuracy + (m.accuracy_bonus || 0) + this.affLinks(i)); // v1.1.0 : + liaisons vivantes
     const err = (1 - acc) * dist * c.aim_error_factor;
     const ang = this.rng.range(-Math.PI, Math.PI), rad = this.rng.range(0, err);
     ax += Math.cos(ang) * rad; az += Math.sin(ang) * rad;
@@ -1449,8 +1460,8 @@ const store = { get(k){ try { return localStorage.getItem(k); } catch (e){ retur
 const SAVE_KEY = 'irongrade_v070';
 
 const GAME = { // HYPOTHÈSES d'équilibrage (D-029) — data-driven, à valider par l'owner
-  credits_depart: 2500, cr_victoire_match: 260, cr_defaite_match: 90, cr_duel_gagne: 20,
-  cr_reparation_par_hp: 2, condition_indisponible: 50,
+  credits_depart: 2500, cr_victoire_match: 650, cr_defaite_match: 420, cr_duel_gagne: 20,
+  cr_reparation_par_hp: 1, condition_indisponible: 50, // v0.10.0 (D-035) : réparations ÷2 + primes ×2.5/×4.7 — une bataille 3v3 coûte ~535 CR de réparations en moyenne (mesuré sur 200 sims)
   xp_duel_gagne: 30, xp_duel_perdu: 12, xp_niveau: 100, stat_cap: 10,
   fatigue_par_duel: 18, fatigue_reflexes_mod: 1, fatigue_repos_journee: 9, fatigue_max_alignable: 80,
   blessure_journees: 1, moral_duel_gagne: 6, moral_duel_perdu: 7,
@@ -1460,6 +1471,30 @@ const GAME = { // HYPOTHÈSES d'équilibrage (D-029) — data-driven, à valider
 };
 // effet pilote → moteur (symétrique joueur/IA, champs D-026 uniquement — zéro changement moteur) : HYPOTHÈSES
 const PILOT_ACC_PER_PT = 0.004, PILOT_STAB_PER_PT = 3;
+
+// ---- AFFINITÉS D'ESCOUADE (D-035) — HYPOTHÈSES, validées par simulation (voir decision log) ----
+// Les pilotes d'une même origine (ou d'un même bloc régional) créent des liaisons : bonus de visée par liaison VIVANTE.
+const AFF_ACC_SAME_ORIGIN = 0.03, AFF_ACC_SAME_BLOC = 0.02, AFF_STAB_TRIPLE = 3;
+const BLOCS = { // groupes régionaux de l'univers (identité des organisations, pas des nationalités réelles)
+  'Ceinture de Tycho': 'ORBITALE', 'Docks de Novograd': 'MÉRIDIENNE', 'Archipel Kessari': 'PACIFIQUE',
+  'Région du Fer': 'MÉRIDIENNE', 'Vallée des Treilles': 'EUROPÉENNE', 'Terres Hautes': 'CONTINENTALE', "Port d'Anaïs": 'PACIFIQUE' };
+function blocOf(p){ return (p && p.origine && BLOCS[p.origine]) || 'INDÉPENDANTE'; }
+function affOf(p){ return p && p.origine ? { bloc: blocOf(p), origin: p.origine, accSameOrigin: AFF_ACC_SAME_ORIGIN, accSameBloc: AFF_ACC_SAME_BLOC } : null; }
+function affText(p, others){
+  if (!p || !p.origine) return '';
+  let so = 0, sb = 0;
+  (others || []).forEach(o => { if (o && o.origine){ if (o.origine === p.origine) so++; else if (blocOf(o) === blocOf(p)) sb++; } });
+  if (!so && !sb) return 'BLOC ' + blocOf(p) + ' — SANS LIAISON';
+  const t = [];
+  if (so) t.push('+' + (so * AFF_ACC_SAME_ORIGIN * 100).toFixed(0) + '% visée (' + so + ' liaison' + (so > 1 ? 's' : '') + ' d' + String.fromCharCode(39) + 'origine vivante' + (so > 1 ? 's' : '') + ')');
+  if (sb) t.push('+' + (sb * AFF_ACC_SAME_BLOC * 100).toFixed(0) + '% visée (' + sb + ' liaison' + (sb > 1 ? 's' : '') + ' de bloc vivante' + (sb > 1 ? 's' : '') + ')');
+  return 'LIAISON ' + blocOf(p) + ' : ' + t.join(' · ');
+}
+function affTeamText(pilots){
+  const bs = (pilots || []).filter(Boolean).map(blocOf);
+  if (bs.length === 3 && bs.every(b => b === bs[0])) return 'PHALANX — escouade 100% BLOC ' + bs[0] + ' : +' + AFF_STAB_TRIPLE + ' stabilité chacun';
+  return '';
+}
 
 // ---- données de départ (data-driven, déterministes) ----
 const PILOT_POOL = [
@@ -1481,19 +1516,19 @@ const STARTING_MECHS = [ // 3 mechs de départ de l'orga (presets garage, proces
 const IA_TEAMS = { // organisations adverses (ligue pro médiatisée — univers hybride sport/militaire)
   fer: [
     { id: 'forge_rouge', nom: 'FORGE ROUGE', style: 'RUSH — mêlée et pression',
-      pilotes: [{ nom: 'BARZA', prec: 4, calme: 3, ref: 7 }, { nom: 'OXEL', prec: 5, calme: 4, ref: 6 }, { nom: 'RUDYA', prec: 5, calme: 5, ref: 5 }],
+      pilotes: [{ nom: 'BARZA', origine: 'Région du Fer', prec: 4, calme: 3, ref: 7 }, { nom: 'OXEL', origine: 'Archipel Kessari', prec: 5, calme: 4, ref: 6 }, { nom: 'RUDYA', origine: 'Docks de Novograd', prec: 5, calme: 5, ref: 5 }],
       lineups: [{ preset: 'linebreaker', proc: 'berserker' }, { preset: 'skirmisher', proc: 'berserker' }, { preset: 'sweeper', proc: 'berserker' }] },
     { id: 'ecurie_kessler', nom: 'ÉCURIE KESSLER', style: 'SNIPER — tir de précision',
-      pilotes: [{ nom: 'HALLDAN K.', prec: 8, calme: 8, ref: 4 }, { nom: 'SAWYER', prec: 8, calme: 7, ref: 5 }, { nom: 'MIRELLE', prec: 7, calme: 8, ref: 5 }],
+      pilotes: [{ nom: 'HALLDAN K.', origine: 'Ceinture de Tycho', prec: 8, calme: 8, ref: 4 }, { nom: 'SAWYER', origine: 'Ceinture de Tycho', prec: 8, calme: 7, ref: 5 }, { nom: 'MIRELLE', origine: 'Ceinture de Tycho', prec: 7, calme: 8, ref: 5 }],
       lineups: [{ preset: 'marksman', proc: 'phantom' }, { preset: 'marksman', proc: 'tactician' }, { preset: 'artillery', proc: 'tactician' }] },
     { id: 'heritiers', nom: 'LES HÉRITIERS', style: 'POLYVALENTE — bloc et tir',
-      pilotes: [{ nom: 'AUREL', prec: 6, calme: 6, ref: 5 }, { nom: 'NADIA V.', prec: 6, calme: 7, ref: 5 }, { nom: 'CASSIAN', prec: 7, calme: 6, ref: 4 }],
+      pilotes: [{ nom: 'AUREL', origine: 'Vallée des Treilles', prec: 6, calme: 6, ref: 5 }, { nom: 'NADIA V.', origine: 'Vallée des Treilles', prec: 6, calme: 7, ref: 5 }, { nom: 'CASSIAN', origine: 'Vallée des Treilles', prec: 7, calme: 6, ref: 4 }],
       lineups: [{ preset: 'bulwark', proc: 'guardian' }, { preset: 'sweeper', proc: 'tactician' }, { preset: 'artillery', proc: 'tactician' }] },
     { id: 'compagnie_vulcain', nom: 'COMPAGNIE VULCAIN', style: 'LOURDE — assaut blindé',
-      pilotes: [{ nom: 'GORAN', prec: 5, calme: 5, ref: 6 }, { nom: 'TESSA R.', prec: 6, calme: 5, ref: 6 }, { nom: 'IDRIS', prec: 5, calme: 6, ref: 6 }],
+      pilotes: [{ nom: 'GORAN', origine: 'Région du Fer', prec: 5, calme: 5, ref: 6 }, { nom: 'TESSA R.', origine: 'Région du Fer', prec: 6, calme: 5, ref: 6 }, { nom: 'IDRIS', origine: 'Région du Fer', prec: 5, calme: 6, ref: 6 }],
       lineups: [{ preset: 'bulwark', proc: 'guardian' }, { preset: 'linebreaker', proc: 'berserker' }, { preset: 'sweeper', proc: 'guardian' }] },
     { id: 'megabolt', nom: 'MEGABOLT', style: 'ÉNERGIE — vitesse et éclats',
-      pilotes: [{ nom: 'JUNO', prec: 6, calme: 5, ref: 7 }, { nom: 'RAVI K.', prec: 6, calme: 6, ref: 6 }, { nom: 'SIX-K', prec: 7, calme: 4, ref: 7 }],
+      pilotes: [{ nom: 'JUNO', origine: 'Terres Hautes', prec: 6, calme: 5, ref: 7 }, { nom: 'RAVI K.', origine: "Port d'Anaïs", prec: 6, calme: 6, ref: 6 }, { nom: 'SIX-K', origine: 'Ceinture de Tycho', prec: 7, calme: 4, ref: 7 }],
       lineups: [{ preset: 'skirmisher', proc: 'phantom' }, { preset: 'sweeper', proc: 'tactician' }, { preset: 'marksman', proc: 'phantom' }] }
   ],
   acier: null // généré depuis fer (stats IA +1) à la promotion — même structure
@@ -1595,6 +1630,34 @@ function runDuelSilent(duel, seed){ // pour l'audit / les matchs IA-IA : sim com
 }
 function duelSeed(day, idx){ return (G.org.saison * 100000 + day * 100 + idx) % 999983; }
 
+// ---- BATAILLE D'ÉQUIPE 3v3 (v0.10.0) : les 3 mechs de chaque escouade combattent SIMULTANÉMENT ----
+function teamRS(slots){
+  const rs = JSON.parse(JSON.stringify(RSG));
+  slots.forEach((d, i) => {
+    rs.mechs['p' + i] = mechEntryFor(rs, d.mech, d.pilot);
+    rs.mechs['o' + i] = mechEntryFor(rs, d.oppMech, d.oppPilot);
+  });
+  // PHALANX : les 3 pilotes d'une escouade du même bloc → +stabilité (HYPOTHÈSE AFF_STAB_TRIPLE, D-035)
+  [['p', d => d.pilot], ['o', d => d.oppPilot]].forEach(([pfx, getP]) => {
+    const bs = slots.map(d => blocOf(getP(d)));
+    if (bs.every(b => b === bs[0])) slots.forEach((d, i) => { rs.mechs[pfx + i].stability = (rs.mechs[pfx + i].stability || 0) + AFF_STAB_TRIPLE; });
+  });
+  return rs;
+}
+function teamCfg(slots, arenaId){
+  const wOf = m => m.loadout ? m.loadout.weapon_primary : PRESETS[m.preset].weapon;
+  return { arenaId, mechs: [].concat(
+    slots.map((d, i) => ({ team: 0, side: 'alpha', name: (d.pilot ? d.pilot.nom + ' — ' : '') + d.mech.label, mechId: 'p' + i, weaponId: wOf(d.mech), processorId: d.proc, affinity: affOf(d.pilot) })),
+    slots.map((d, i) => ({ team: 1, side: 'omega', name: d.oppPilot.nom + ' — ' + d.oppMech.label, mechId: 'o' + i, weaponId: wOf(d.oppMech), processorId: d.oppProc, affinity: affOf(d.oppPilot) }))
+  ) };
+}
+function runTeamSilent(slots, seed){ // sim complète d'une bataille d'équipe sans rendu (IA-IA, audits, tests)
+  const rs = teamRS(slots), cfg = teamCfg(slots, slots[0].arenaId);
+  const s = new CombatSim(rs, cfg, seed);
+  let g = 0; while (!s.ended && g++ < 9000) s.step();
+  return s;
+}
+
 // ---- match du joueur ----
 function startMatch(lineup){ // lineup: [{ mechId, pilotId, proc }] × 3, opposé à l'équipe IA
   const day = G.org.journee, fx = playerFixtureOfDay(day), oppId = fx[0] === 'you' ? fx[1] : fx[0];
@@ -1606,45 +1669,42 @@ function startMatch(lineup){ // lineup: [{ mechId, pilotId, proc }] × 3, oppos�
     oppPilot: opp.pilotes[i], oppProc: opp.lineups[i].proc,
     seed: duelSeed(day, i), result: null, sim: null
   }));
-  matchCtx = { day, oppId, duels, winsYou: 0, winsOpp: 0, idx: 0 };
+  matchCtx = { day, oppId, duels, winsYou: 0, winsOpp: 0, idx: 0, battleSeed: duelSeed(day, 11), battle: null };
 }
-function launchDuel(duel){
-  const rs = duelRS(duel), cfg = duelCfg(duel);
-  sim = new CombatSim(rs, cfg, duel.seed);
-  $('hud-name-a').textContent = cfg.mechs[0].name; $('hud-name-o').textContent = cfg.mechs[1].name;
+function launchDuel(){ // v0.10.0 : UNE bataille d'équipe 3v3 simultanée (les 3 slots sur le terrain en même temps)
+  const slots = matchCtx.duels;
+  const rs = teamRS(slots), cfg = teamCfg(slots, slots[0].arenaId);
+  sim = new CombatSim(rs, cfg, matchCtx.battleSeed);
+  $('hud-name-a').textContent = G.org.name + ' — ESCOUADE'; $('hud-name-o').textContent = oppTeam(matchCtx.oppId).nom + ' — ESCOUADE';
   $('bt-banner').style.display = 'none'; $('btn-next').style.display = 'none';
   playing = true; speed = 1; accT = 0; $('btn-pause').textContent = '⏸ PAUSE';
   camLook = { x: 0, z: 0, init: false }; bLastEvt = 0; bShake = 0; // caméra broadcast (D-032)
   updateMsScore(); show('battle'); lastT = performance.now(); requestAnimationFrame(loop);
 }
 function updateMsScore(){
-  $('ms-score').innerHTML = 'DUEL ' + (matchCtx.idx + 1) + '/' + matchCtx.duels.length +
-    ' — SÉRIE <b>' + matchCtx.winsYou + '</b> — <b>' + matchCtx.winsOpp + '</b> ' + oppTeam(matchCtx.oppId).nom;
+  $('ms-score').innerHTML = 'BATAILLE D' + String.fromCharCode(39) + 'ÉQUIPE 3v3 — SIMULTANÉE — <b>' + matchCtx.winsYou + '</b> — <b>' + matchCtx.winsOpp + '</b> ' + oppTeam(matchCtx.oppId).nom;
 }
-function duelFinished(forfeit){
-  const duel = matchCtx.duels[matchCtx.idx];
+function duelFinished(forfeit){ // v0.10.0 : résultat COLLECTIF de la bataille d'équipe, décliné par slot
+  const slots = matchCtx.duels, n = slots.length;
   const w = forfeit ? 1 : sim.winner;
-  duel.result = { winner: w, forfeit: !!forfeit, hpA: Math.max(0, Math.round(sim.mechs[0].hpNow)),
-    hpB: Math.max(0, Math.round(sim.mechs[1].hpNow)), ticks: sim.tick, reason: sim.ended ? (sim.events.length && sim.events[sim.events.length - 1].reason) : 'forfait' };
-  duel.sim = sim;
-  if (w === 0) matchCtx.winsYou++; else if (w === 1) matchCtx.winsOpp++;
+  const reason = sim.ended && sim.events.length ? sim.events[sim.events.length - 1].reason : (forfeit ? 'forfait' : undefined);
+  slots.forEach((d, i) => {
+    const pm = sim.mechs[i], om = sim.mechs[n + i];
+    d.result = { winner: w, forfeit: !!forfeit, hpA: Math.max(0, Math.round(pm.hpNow)), hpB: Math.max(0, Math.round(om.hpNow)),
+      dmgA: Math.round(pm.damageDealt || 0), dmgB: Math.round(om.damageDealt || 0), ticks: sim.tick, reason };
+  });
+  matchCtx.battle = { sim, winner: w, ticks: sim.tick };
+  if (w === 0) matchCtx.winsYou = 1; else if (w === 1) matchCtx.winsOpp = 1;
   updateMsScore();
   const banner = $('bt-banner');
   banner.style.display = 'block';
-  banner.textContent = forfeit ? 'DUEL ABANDONNÉ — DÉFAITE' :
-    (w === null ? 'DUEL NUL' : (w === 0 ? 'DUEL GAGNÉ' : 'DUEL PERDU'));
+  banner.textContent = forfeit ? 'MATCH ABANDONNÉ — DÉFAITE' :
+    (w === null ? 'BATAILLE NULLE' : (w === 0 ? 'BATAILLE GAGNÉE' : 'BATAILLE PERDUE'));
   banner.style.color = w === 0 ? '#4FAE6B' : (w === null ? '#AAB2BA' : '#D93432');
-  const remaining = matchCtx.duels.length - matchCtx.idx - 1;
-  const decided = matchCtx.winsYou > matchCtx.duels.length / 2 || matchCtx.winsOpp > matchCtx.duels.length / 2;
   $('btn-next').style.display = 'block';
-  $('btn-next').textContent = (remaining > 0 && !decided) ? 'DUEL SUIVANT ▸' : 'RAPPORT DE MATCH ▸';
+  $('btn-next').textContent = 'RAPPORT DE MATCH ▸';
 }
-function nextDuel(){
-  const remaining = matchCtx.duels.length - matchCtx.idx - 1;
-  const decided = matchCtx.winsYou > matchCtx.duels.length / 2 || matchCtx.winsOpp > matchCtx.duels.length / 2;
-  if (remaining > 0 && !decided){ matchCtx.idx++; launchDuel(matchCtx.duels[matchCtx.idx]); }
-  else finishMatch();
-}
+function nextDuel(){ finishMatch(); } // une seule bataille par match
 
 // ---- application des résultats du match joueur + matchs IA de la journée ----
 function applyDuelToPlayer(duel){
@@ -1667,25 +1727,20 @@ function applyDuelToPlayer(duel){
   }
   return you;
 }
-function simulateOtherMatches(day){ // les 2 matchs IA-IA de la journée (même moteur, même format 3 duels)
+function simulateOtherMatches(day){ // les 2 matchs IA-IA de la journée : batailles d'équipe 3v3 simultanées (même moteur, D-035)
   const fx = fixtureOfDay(day);
   fx.forEach(pr => {
     if (pr[0] === 'you' || pr[1] === 'you') return;
     const A = oppTeam(pr[0]), B = oppTeam(pr[1]), arenaId = arenaOfDay(day);
-    let wa = 0, wb = 0, dfa = 0, dda = 0;
-    for (let i = 0; i < GAME.duels_par_match; i++){
-      const duel = {
-        mech: { label: PRESETS[A.lineups[i].preset].label, preset: A.lineups[i].preset, loadout: null },
-        pilot: A.pilotes[i], proc: A.lineups[i].proc,
-        oppMech: { label: PRESETS[B.lineups[i].preset].label, preset: B.lineups[i].preset, loadout: null },
-        oppPilot: B.pilotes[i], oppProc: B.lineups[i].proc, arenaId
-      };
-      const s = runDuelSilent(duel, duelSeed(day, 10 + i * 7 + pr[0].length));
-      const fA = s.mechs[0].hpNow / s.mechs[0].hp, fB = s.mechs[1].hpNow / s.mechs[1].hp;
-      dfa += Math.round(fA * 100); dda += Math.round(fB * 100);
-      if (s.winner === 0) wa++; else if (s.winner === 1) wb++;
-    }
-    recordMatchResult(pr[0], pr[1], wa, wb, dfa, dda);
+    const slots = A.lineups.map((lu, i) => ({
+      mech: { label: PRESETS[lu.preset].label, preset: lu.preset, loadout: null },
+      pilot: A.pilotes[i], proc: lu.proc,
+      oppMech: { label: PRESETS[B.lineups[i].preset].label, preset: B.lineups[i].preset, loadout: null },
+      oppPilot: B.pilotes[i], oppProc: B.lineups[i].proc, arenaId }));
+    const s = runTeamSilent(slots, duelSeed(day, 10 + pr[0].length));
+    const f = t => s.mechs.filter(m => m.team === t).reduce((n, m) => n + Math.round(100 * Math.max(0, m.hpNow) / m.hp), 0);
+    const wa = s.winner === 0 ? 1 : 0, wb = s.winner === 1 ? 1 : 0;
+    recordMatchResult(pr[0], pr[1], wa, wb, f(0), f(1));
   });
 }
 function recordMatchResult(idA, idB, winsA, winsB, dA, dB){
@@ -2405,7 +2460,7 @@ function renderHub(){
     '<div class="card" style="max-width:none"><div class="vsbig">' + crestSVG('you', G.org.name, 40) + '<span style="font-weight:900;letter-spacing:3px;color:#6E7780">VS</span>' + crestSVG(oppId, opp.nom, 40) + '</div><div class="t">' + esc(opp.nom) + '</div>' +
     '<div class="sub2">' + esc(opp.style) + '</div>' +
     '<div class="rowline"><span>ARÈNE</span><b>' + RULESET.arenas[arenaOfDay(day)].label + '</b></div>' +
-    '<div class="rowline"><span>FORMAT</span><b>' + GAME.duels_par_match + ' duels 1v1 — un mech par duel</b></div>' +
+    '<div class="rowline"><span>FORMAT</span><b>bataille d’escouade 3v3 — ' + GAME.duels_par_match + ' mechs simultanés</b></div>' +
     '<div style="margin-top:12px"><button class="primary small" id="btn-hub-play">ANALYSER &amp; PRÉPARER ▸</button></div></div>';
   $('btn-hub-play').onclick = () => { renderAnalysis(); show('analysis'); };
   $('hub-alerts').innerHTML = alertHTML();
@@ -2424,7 +2479,7 @@ function renderRoster(){
     let innerHTML = '<div class="port-row">' + pilotSVG(p, 56, { badge }) + '<div style="flex:1;min-width:0"><div class="t">' + esc(p.nom) + (p.actif ? ' <span class="badge ok">ACTIF</span>' : ' <span class="badge">RÉSERVE</span>');
     if (p.blessure > 0) innerHTML += ' <span class="badge err">BLESSÉ ' + p.blessure + 'J</span>';
     else if (p.fatigue >= GAME.fatigue_max_alignable) innerHTML += ' <span class="badge err">ÉPUISÉ</span>';
-    innerHTML += '</div><div class="sub2">' + esc(p.origine) + ' — ' + esc(p.traits) + ' — NIVEAU ' + p.niveau + '</div>' +
+    innerHTML += '</div><div class="sub2">' + esc(p.origine) + ' [' + blocOf(p) + '] — ' + esc(p.traits) + ' — NIVEAU ' + p.niveau + '</div>' +
       st('PRÉCISION', p.prec + '/10 (visée +' + (accBonus(p) >= 0 ? '+' : '') + (accBonus(p) * 100).toFixed(1) + '%)') +
       st('SANG-FROID', p.calme + '/10 (stabilité +' + stabBonus(p) + ')') +
       st('RÉFLEXES', p.ref + '/10 (fatigue −)') +
@@ -2457,7 +2512,7 @@ function renderRoster(){
   const rbox = $('recruit-cards'); rbox.innerHTML = '';
   G.agents.forEach(a => {
     const c = document.createElement('div'); c.className = 'card';
-    c.innerHTML = '<div class="port-row">' + pilotSVG(a, 48) + '<div style="flex:1;min-width:0"><div class="t">' + esc(a.nom) + '</div><div class="sub2">' + esc(a.origine) + ' — ' + esc(a.traits) + '</div>' +
+    c.innerHTML = '<div class="port-row">' + pilotSVG(a, 48) + '<div style="flex:1;min-width:0"><div class="t">' + esc(a.nom) + '</div><div class="sub2">' + esc(a.origine) + ' [' + blocOf(a) + '] — ' + esc(a.traits) + '</div>' +
       '<div class="rowline"><span>PRÉCISION / SANG-FROID / RÉFLEXES</span><b>' + a.prec + ' / ' + a.calme + ' / ' + a.ref + '</b></div>' +
       '<div class="rowline"><span>SALAIRE DE SIGNATURE</span><b>' + a.prix + ' CR</b></div></div></div>';
     const b = document.createElement('button'); b.className = 'primary small'; b.textContent = 'SIGNER';
@@ -2614,7 +2669,7 @@ function renderAnalysis(){
   opp.lineups.forEach((lu, i) => {
     const p = opp.pilotes[i], pr = PRESETS[lu.preset];
     const d = document.createElement('div'); d.className = 'duelrow';
-    d.innerHTML = '<label style="min-width:60px">DUEL ' + (i + 1) + '</label><div class="viscell">' + mechView({ preset: lu.preset, proc: lu.proc, label: pr.label }, 58, { accent: TEAM_COLORS[oppId] || '#AAB2BA' }) + pilotSVG(p, 42, { recon: true }) + '</div><div><label>PILOTE</label><b>' + esc(p.nom) + '</b></div>' +
+    d.innerHTML = '<label style="min-width:60px">SLOT ' + (i + 1) + '</label><div class="viscell">' + mechView({ preset: lu.preset, proc: lu.proc, label: pr.label }, 58, { accent: TEAM_COLORS[oppId] || '#AAB2BA' }) + pilotSVG(p, 42, { recon: true }) + '</div><div><label>PILOTE</label><b>' + esc(p.nom) + '</b> <span style="color:#6E7780;font-size:10px">' + blocOf(p) + '</span></div>' +
       '<div><label>MECH</label><b>' + esc(pr.label) + '</b></div><div><label>ARME</label><b>' + esc(RULESET.weapons[pr.weapon].label) + '</b></div>' +
       '<div><label>PROCESSEUR</label><b>' + esc(RULESET.processors[lu.proc].label) + '</b></div>' +
       '<div><label>STATS (PR/CALME/RÉF)</label><b>' + p.prec + '/' + p.calme + '/' + p.ref + '</b></div>';
@@ -2640,7 +2695,7 @@ function renderSetup(){
     G.pilots.forEach(p => { if (!pilotAvailable(p)) return; const o = document.createElement('option'); o.value = p.id; o.textContent = p.nom; selP.appendChild(o); });
     const selR = document.createElement('select'); selR.id = 'su-proc-' + i;
     PROC_IDS.forEach(prid => { const o = document.createElement('option'); o.value = prid; o.textContent = RULESET.processors[prid].label; selR.appendChild(o); });
-    d.innerHTML = '<label style="min-width:60px">DUEL ' + (i + 1) + '</label><span class="vs">VS</span>' +
+    d.innerHTML = '<label style="min-width:60px">SLOT ' + (i + 1) + '</label><span class="vs">VS</span>' +
       '<div class="viscell" id="su-vis-' + i + '"></div>' +
       '<div><label>TON MECH</label></div><div><label>PILOTE</label></div><div><label>PROCESSEUR</label></div>' +
       '<div><label>ADVERSAIRE</label><b>' + esc(pr.label) + ' — ' + esc(RULESET.weapons[pr.weapon].label) + ' (' + esc(RULESET.processors[lu.proc].label) + ')</b></div>';
@@ -2668,20 +2723,25 @@ function updateSuVis(i){
   const lu = oTeam ? oTeam.lineups[i] : null, pr = lu ? PRESETS[lu.preset] : null;
   const mech = $('su-mech-' + i) && $('su-mech-' + i).value ? mechById($('su-mech-' + i).value) : null;
   const pil = $('su-pilot-' + i) && $('su-pilot-' + i).value ? pilotById($('su-pilot-' + i).value) : null;
+  const lineupPilots = [];
+  for (let j = 0; j < GAME.duels_par_match; j++){ const e = $('su-pilot-' + j); lineupPilots.push(e && e.value ? pilotById(e.value) : null); }
+  const aff = pil && pil.origine ? affText(pil, lineupPilots.filter((_, j) => j !== i)) : '';
   el.innerHTML = (mech ? mechView(mech, 58, { live: true }) : '') + (pil ? pilotSVG(pil, 42) : '') +
-    (lu ? mechView({ preset: lu.preset, proc: lu.proc, label: pr ? pr.label : '' }, 58, { accent: TEAM_COLORS[matchCtx.oppId] || '#AAB2BA' }) : '');
+    (lu ? mechView({ preset: lu.preset, proc: lu.proc, label: pr ? pr.label : '' }, 58, { accent: TEAM_COLORS[matchCtx.oppId] || '#AAB2BA' }) : '') +
+    (aff ? '<div style="flex-basis:100%;font-size:10px;color:#6E7780;letter-spacing:.5px">' + esc(aff) + '</div>' : '');
+  if ($('su-aff-team')) $('su-aff-team').textContent = affTeamText(lineupPilots);
 }
 $('su-confirm').onclick = () => {
   const lineup = [];
   for (let i = 0; i < GAME.duels_par_match; i++){
     const mechId = $('su-mech-' + i).value, pilotId = $('su-pilot-' + i).value, proc = $('su-proc-' + i).value;
-    if (!mechId || !pilotId){ $('su-meta').textContent = '⚠ chaque duel exige un mech ET un pilote disponibles'; return; }
+    if (!mechId || !pilotId){ $('su-meta').textContent = '⚠ chaque slot exige un mech ET un pilote disponibles'; return; }
     lineup.push({ mechId, pilotId, proc });
   }
   const ids = new Set(lineup.map(l => l.mechId));
-  if (ids.size < lineup.length){ $('su-meta').textContent = '⚠ un mech ne peut pas engager deux duels'; return; }
+  if (ids.size < lineup.length){ $('su-meta').textContent = '⚠ un mech ne peut pas être engagé deux fois'; return; }
   startMatch(lineup);
-  launchDuel(matchCtx.duels[0]);
+  launchDuel();
 };
 $('su-back').onclick = () => show('analysis');
 
@@ -2690,23 +2750,26 @@ function renderReport(){
   const rep = matchCtx.report, opp = oppTeam(matchCtx.oppId);
   $('rp-meta').textContent = 'JOURNÉE ' + matchCtx.day + ' — ' + divisionLabel(G.org.division) + ' — SAISON ' + G.org.saison;
   const b = $('rp-banner');
-  b.textContent = rep.won ? 'VICTOIRE ' + rep.winsYou + '–' + rep.winsOpp : 'DÉFAITE ' + rep.winsYou + '–' + rep.winsOpp;
-  b.className = 'bignum ' + (rep.won ? 'win' : 'loss');
+  const nul = rep.winsYou === rep.winsOpp;
+  b.textContent = nul ? 'MATCH NUL 0–0' : (rep.won ? 'VICTOIRE 1–0' : 'DÉFAITE 0–1');
+  b.className = 'bignum ' + (rep.won ? 'win' : (nul ? 'draw' : 'loss'));
   $('rp-detail').textContent = 'CONTRE ' + opp.nom + ' — ARÈNE ' + RULESET.arenas[arenaOfDay(matchCtx.day)].label + ' — GAINS : ' + rep.creditsWon + ' CR';
   const rows = matchCtx.duels.map((d, i) => {
     const r = d.result, you = r.winner === 0;
     return '<tr' + (you ? ' class="alpha"' : '') + '><td><div style="display:flex;gap:7px;align-items:center">' + (d.pilot ? pilotSVG(d.pilot, 26) : '') + '<b>' + esc(d.pilot ? d.pilot.nom : '—') + '</b></div></td><td>' + esc(d.mech.label) + '</td><td>' + esc(d.proc ? RULESET.processors[d.proc].label : '') + '</td>' +
-      '<td>' + esc(d.oppPilot.nom) + '</td><td>' + esc(d.oppMech.label) + '</td><td>' + r.hpA + ' HP</td><td>' + r.hpB + ' HP</td>' +
+      '<td>' + esc(d.oppPilot.nom) + '</td><td>' + esc(d.oppMech.label) + '</td><td>' + r.hpA + ' HP</td><td>' + r.hpB + ' HP</td><td>' + (r.dmgA || 0) + '</td>' +
       '<td style="color:' + (you ? '#4FAE6B' : '#D93432') + '"><b>' + (you ? 'GAGNÉ' : (r.winner === null ? 'NUL' : 'PERDU')) + '</b></td></tr>';
   });
-  $('rp-duels').innerHTML = '<table><tr><th>PILOTE</th><th>MECH</th><th>PROC.</th><th>ADVERSAIRE</th><th>SON MECH</th><th>TON HP</th><th>SON HP</th><th>DUEL</th></tr>' + rows.join('') + '</table>';
+  $('rp-duels').innerHTML = '<table><tr><th>PILOTE</th><th>MECH</th><th>PROC.</th><th>ADVERSAIRE</th><th>SON MECH</th><th>TON HP</th><th>SON HP</th><th>DÉGÂTS</th><th>MATCH</th></tr>' + rows.join('') + '</table>';
   $('rp-rewards').innerHTML =
     '<div class="rowline"><span>CRÉDITS GAGNÉS</span><b>+' + rep.creditsWon + ' CR</b></div>' +
     '<div class="rowline"><span>TRÉSORERIE</span><b>' + Math.round(G.org.credits) + ' CR</b></div>' +
     '<div class="rowline"><span>RÉPUTATION</span><b>' + G.org.rep + '</b></div>' +
-    '<div class="rowline"><span>XP PILOTES</span><b>+' + GAME.xp_duel_gagne + ' par duel gagné, +' + GAME.xp_duel_perdu + ' par duel perdu</b></div>' +
+    '<div class="rowline"><span>XP PILOTES</span><b>+' + GAME.xp_duel_gagne + ' par pilote engagé (bataille gagnée), +' + GAME.xp_duel_perdu + ' (bataille perdue)</b></div>' +
     '<div class="rowline"><span>ÉTAT DES MECHS</span><b>' + G.mechs.map(m => m.label + ' ' + Math.max(0, Math.round(m.condition)) + '%').join(' · ') + '</b></div>' +
-    '<div class="hint" style="margin-top:6px">Les mechs endommagés se réparent au garage. Un mech détruit a blessé son pilote (1 journée).</div>';
+    '<div class="rowline"><span>AFFINITÉS D’ESCOUADE</span><b>' + esc(matchCtx.duels.map(d => d.pilot ? d.pilot.nom + ' : ' + affText(d.pilot, matchCtx.duels.filter(x => x !== d).map(x => x.pilot)) : '—').filter(t => t.indexOf('SANS LIAISON') < 0 && t !== '—').join(' · ') || 'aucune liaison d' + String.fromCharCode(39) + 'origine') + '</b></div>' +
+    (affTeamText(matchCtx.duels.map(d => d.pilot)) ? '<div class="rowline"><span>PHALANX</span><b>' + esc(affTeamText(matchCtx.duels.map(d => d.pilot))) + '</b></div>' : '') +
+    '<div class="hint" style="margin-top:6px">Bataille collective : tous les pilotes partagent le résultat. Les mechs endommagés se réparent au garage. Un mech détruit a blessé son pilote (1 journée).</div>';
   $('rp-standings').innerHTML = standingsTableHTML();
 }
 $('rp-done').onclick = () => {
@@ -3038,7 +3101,7 @@ function renderBattleBroadcast(){
   cx.font = '9px monospace'; cx.fillStyle = '#6E7780'; cx.textAlign = 'right';
   cx.fillText('CAM BROADCAST — GREYBOX — ' + divisionLabel(G.org.division), W - 12, H - 12);
   cx.textAlign = 'left';
-  cx.fillText('DUEL ' + (matchCtx.idx + 1) + '/' + matchCtx.duels.length + ' — [C] CAM — v0.9.2', 12, H - 12);
+  cx.fillText('BATAILLE D' + String.fromCharCode(39) + 'ESCOUADE 3v3 — [C] CAM — v0.10.0', 12, H - 12);
 }
 
 // ==== NAVIGATION + BOOT ====
