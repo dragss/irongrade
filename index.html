@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IRONGRADE — Prototype manager v0.9.1</title>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/" } }
+</script>
+<title>IRONGRADE — Prototype manager v0.9.2</title>
 <style>
   :root { font-family: 'Inter', system-ui, sans-serif; background: #0B0E12; color: #E7EBEF; }
   * { box-sizing: border-box; margin: 0; }
@@ -24,9 +27,9 @@
   button:disabled { opacity: .38; cursor: default; }
   .menu-col { display: flex; flex-direction: column; gap: 11px; margin-top: 8px; }
   .menu-col button { min-width: 320px; text-align: left; }
-  .panel { background: #111418; border: 1px solid #343B43; padding: 18px; width: 100%; max-width: 900px; margin-bottom: 14px; }
+  .panel { background: #111418; border: 1px solid #343B43; padding: 18px; width: 100%; max-width: 1080px; margin-bottom: 14px; }
   .panel h3 { font-size: 13px; letter-spacing: 3px; color: #6E7780; margin-bottom: 12px; text-transform: uppercase; }
-  .tophead { display: flex; gap: 26px; align-items: baseline; width: 100%; max-width: 900px; padding: 6px 4px 14px; border-bottom: 1px solid #343B43; margin-bottom: 16px; flex-wrap: wrap; }
+  .tophead { display: flex; gap: 26px; align-items: baseline; width: 100%; max-width: 1080px; padding: 6px 4px 14px; border-bottom: 1px solid #343B43; margin-bottom: 16px; flex-wrap: wrap; }
   .tophead .org { font-size: 19px; font-weight: 900; letter-spacing: 3px; color: #E7EBEF; }
   .tophead .res { color: #E3A23B; font-weight: 700; letter-spacing: 1px; font-size: 14px; }
   .tophead .meta { color: #6E7780; font-size: 12px; letter-spacing: 2px; }
@@ -34,7 +37,7 @@
   .navrow button { background: #0E1116; }
   .navrow button.cur { border-color: #D93432; color: #D93432; }
   .cards { display: flex; flex-wrap: wrap; gap: 12px; }
-  .card { background: #0E1116; border: 1px solid #343B43; padding: 14px; min-width: 252px; flex: 1; max-width: 284px; }
+  .card { background: #0E1116; border: 1px solid #343B43; padding: 14px; min-width: 286px; flex: 1; max-width: 396px; }
   .card .t { font-weight: 800; letter-spacing: 2px; font-size: 14px; margin-bottom: 2px; }
   .card .sub2 { color: #6E7780; font-size: 11px; letter-spacing: 1px; margin-bottom: 9px; }
   .card .rowline { display: flex; justify-content: space-between; font-size: 12px; padding: 2.5px 0; color: #AAB2BA; }
@@ -49,7 +52,7 @@
   select, input[type=text], input[type=number] { font-family: inherit; background: #0B0E12; color: #E7EBEF; border: 1px solid #343B43; padding: 7px; font-size: 13px; }
   select { min-width: 130px; }
   .slotrow { display: flex; gap: 8px; margin-bottom: 7px; align-items: center; }
-  .slotrow .tag { color: #6E7780; font-size: 10px; width: 122px; letter-spacing: 1px; text-transform: uppercase; }
+  .slotrow .tag { color: #6E7780; font-size: 10px; min-width: 132px; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
   .slotrow select { flex: 1; }
   .duelrow { display: flex; gap: 12px; align-items: center; border: 1px solid #343B43; background: #0E1116; padding: 12px; margin-bottom: 10px; flex-wrap: wrap; }
   .duelrow .vs { color: #D93432; font-weight: 900; letter-spacing: 2px; font-size: 15px; }
@@ -114,6 +117,18 @@
   #at-3d canvas { display: block; border-radius: 6px; cursor: grab; }
   .hangar-side > button { width: 100%; margin-bottom: 8px; }
   .hud button#bt-cam { font-weight: 700; }
+
+  /* ==== v0.9.2 — hangar 3D du garage + atelier 3D étendu + lisibilité desktop ==== */
+  .rowline span, .duelrow label, .hud .lbl span, .slotrow .tag { white-space: nowrap; }
+  #at-3d { width: 430px; height: 560px; }
+  #gar-3d-bg { position: fixed; inset: 0; z-index: 0; display: none; }
+  #gar-3d-bg canvas { width: 100% !important; height: 100% !important; border: none; }
+  #screen-garage .tophead, #screen-garage .panel, #screen-garage .navrow { position: relative; z-index: 1; }
+  #screen-garage.gar3d .panel { background: rgba(17,20,24,.86); backdrop-filter: blur(7px); }
+  #screen-garage.gar3d .tophead { background: rgba(11,14,18,.78); backdrop-filter: blur(7px); padding: 10px 14px; border-bottom-color: rgba(52,59,67,.7); }
+  #screen-garage.gar3d .navrow button { background: rgba(14,17,22,.92); }
+  #gar-3d-tog { margin-left: auto; }
+  .hint { line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -130,7 +145,7 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.9.1 — MOTEUR DE COMBAT v0.6.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
+  <div class="footer">IRONGRADE v0.9.2 — MOTEUR DE COMBAT v0.6.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -152,13 +167,15 @@
 
 <!-- GARAGE -->
 <div class="screen" id="screen-garage">
-  <div class="tophead"><span class="org">GARAGE</span><span class="res" id="gar-credits"></span></div>
-  <div class="panel"><h3>Mechs de l'organisation</h3><div class="cards" id="garage-mechs"></div></div>
+  <div id="gar-3d-bg"></div>
+  <div class="tophead"><span class="org">GARAGE</span><span class="res" id="gar-credits"></span><button class="small" id="gar-3d-tog">▦ HANGAR 3D</button></div>
+  <div class="panel"><h3>Mechs de l'organisation</h3><div class="hint" style="margin:-6px 0 12px">Réparez après les matchs (sous le seuil de condition = mech indisponible), changez le processeur, ouvrez l'ATELIER pour le build complet. En ligne : hangar 3D de la flotte en fond, drones de réparation sur les mechs endommagés.</div><div class="cards" id="garage-mechs"></div></div>
   <div class="panel" id="atelier-panel" style="display:none">
-    <h3>Atelier — <span id="at-title"></span><span style="float:right;color:#3A434D;font-size:9px;letter-spacing:2px">HANGAR — MAQUETTE GREYBOX (survolez un slot)</span></h3>
+    <h3>Atelier — <span id="at-title"></span><span style="float:right;color:#3A434D;font-size:9px;letter-spacing:2px">HANGAR 3D — SURVOL = SURLIGNER · CLIC SLOT = ZOOM ZONE</span></h3>
     <div class="hangar-flex">
       <div class="hangar-side">
         <button class="small" id="at-cam3d">▦ VUE 3D</button>
+        <button class="small" id="at-focus-reset" style="display:none">⤢ RECENTRER</button>
         <div id="at-hangar"></div>
         <div id="at-3d" style="display:none"></div>
         <div class="hint" id="at-3d-msg" style="display:none"></div>
@@ -271,14 +288,14 @@
 <div class="screen" id="screen-about">
   <div class="tophead"><span class="org">À PROPOS</span></div>
   <div class="panel">
-    <h3>IRONGRADE — prototype manager v0.9.1</h3>
+    <h3>IRONGRADE — prototype manager v0.9.2</h3>
     <div class="hint">Vertical slice de gestion : la boucle complète (roster, garage, ligue, matchs observés, rapport, sauvegarde) sur le moteur de combat v0.6.0 déterministe 15 Hz.</div>
     <table>
       <tr><td><b>MOTEUR</b></td><td>CombatSim v0.6.0 — spawns d'arène par point de largage / couloir d'entrée (D-027), précision &amp; stabilité par mech (D-026), 2v2 &amp; ciblage par profil (D-024), fumigène (D-025).</td></tr>
       <tr><td><b>SAUVEGARDE</b></td><td>Locale (navigateur), une seule par appareil. « Nouvelle carrière » écrase la sauvegarde.</td></tr>
       <tr><td><b>ÉCONOMIE</b></td><td>Monnaie unique (crédits). Toutes les récompenses, prix et barèmes XP de ce prototype sont des hypothèses d'équilibrage data-driven, à valider par l'owner avant tout contenu réel.</td></tr>
       <tr><td><b>GOUVERNANCE</b></td><td>Aucune loot box, aucun achat, aucune probabilité de drop dans ce prototype — les taux restent une décision owner.</td></tr>
-      <tr><td><b>VISUELS</b></td><td>Greybox stylisé — direction artistique hybride TITANFALL × PACIFIC RIM (proportions héroïques, plaques, réacteur pectoral concentrique, weathering déterministe) en v0.9.1 : maquettes SVG procédurales, portraits pilotes, hangar de customisation, blasons, <b>caméra BROADCAST pseudo-3D</b> avec effets (muzzle flashes, impacts, vignette retransmission) et <b>vue 3D de l'atelier</b> (Three.js chargé en ligne, fallback maquette SVG hors-ligne). Pipeline prêt pour modèles 3D Tripo (GLB). Placeholder assumé, pas d'art final.</td></tr>
+      <tr><td><b>VISUELS</b></td><td>Greybox stylisé — direction artistique hybride TITANFALL × PACIFIC RIM (proportions héroïques, plaques, réacteur pectoral concentrique, weathering déterministe) en v0.9.1 ; en v0.9.2 : <b>hangar 3D de la flotte en fond du garage</b> (caméra qui dérive, drones de réparation + étincelles de soudure sur les mechs endommagés), <b>atelier 3D par défaut</b> avec zoom caméra sur la zone cliquée (survol = surlignage) et décor de hangar <b>CC0 Quaternius</b> (modular sci-fi, chargé via CDN, fallback procédural hors-ligne). Three.js + GLTFLoader en modules (import map), fallback maquette SVG hors-ligne. Pipeline prêt pour modèles 3D Tripo (GLB). Placeholder assumé, pas d'art final pour les mechs.</td></tr>
     </table>
   </div>
   <button class="ghost" id="btn-about-back">← RETOUR</button>
@@ -1495,7 +1512,8 @@ let atelierMech = null; // mech en édition à l'atelier
 let hotZone = null; // zone de maquette mise en avant (survol de slot)
 
 const SCREENS = ['boot', 'hub', 'roster', 'garage', 'league', 'analysis', 'setup', 'battle', 'report', 'season', 'rules', 'about'];
-function show(name){ SCREENS.forEach(s => { const el = $('screen-' + s); if (el) el.classList.toggle('active', s === name); }); state = name; }
+function show(name){ SCREENS.forEach(s => { const el = $('screen-' + s); if (el) el.classList.toggle('active', s === name); }); state = name;
+  if (typeof window !== 'undefined'){ if (name === 'garage') gar3dEnter(); else gar3dLeave(); } }
 function save(){ if (G) store.set(SAVE_KEY, JSON.stringify(G)); }
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
@@ -1968,24 +1986,25 @@ function mechView(m, size, opts){
 // ==== v0.9.0 : VUE 3D DE L'ATELIER (Three.js chargé à la demande en ligne ; fallback maquette SVG hors-ligne) ====
 // Pipeline Tripo : quand les modèles GLB existeront, buildMech3D procédural sera remplacé par un GLTFLoader
 // (un GLB par châssis + un GLB par arme, montés aux sockets torso/armes) — même logique de zones/hot.
-let at3d = { mode: 'svg', loading: false, ok: false, scene: null, camera: null, renderer: null, group: null, parts: {}, hot: null, key: '', theta: .65, phi: 1.08, r: 10.5, drag: null, raf: 0 };
+let at3d = { mode: 'svg', loading: false, ok: false, scene: null, camera: null, renderer: null, group: null, parts: {}, hot: null, key: '', theta: .65, phi: 1.08, r: 10.5, ly: 2.1, drag: null, raf: 0, anim: null, saved: null, lastUser: 0, autoTried: false, fx: null };
 function ensureTHREE(cb){
   if (typeof window === 'undefined') return cb(false);
-  if (window.THREE) return cb(true);
+  if (window.THREE && window.THREE.GLTFLoader) return cb(true);
   if (window.__threeLoading){ window.__threeCb.push(cb); return; }
   window.__threeLoading = true; window.__threeCb = [cb];
-  const sc = document.createElement('script');
-  sc.src = 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js';
   const done = ok => { const cbs = window.__threeCb || []; window.__threeCb = []; window.__threeLoading = false; cbs.forEach(f => f(ok)); };
-  sc.onload = () => done(!!window.THREE);
-  sc.onerror = () => done(false);
-  (document.head || document.body).appendChild(sc);
+  // NB : un namespace de module ES est scellé — on copie les exports dans un objet extensible
+  import('three').then(m3 => import('three/addons/loaders/GLTFLoader.js'))
+    .then(g => { window.THREE = Object.assign({}, m3, { GLTFLoader: g.GLTFLoader }); done(true); })
+    .catch(() => done(false));
 }
 function setHangarView(mode){
   at3d.mode = mode;
   $('at-cam3d').textContent = mode === '3d' ? '▣ VUE MAQUETTE' : '▦ VUE 3D';
   $('at-hangar').style.display = mode === '3d' ? 'none' : 'block';
   $('at-3d').style.display = mode === '3d' ? 'block' : 'none';
+  $('at-focus-reset').style.display = 'none';
+  at3d.anim = null; at3d.saved = null;
   $('at-3d-msg').style.display = 'none';
   if (mode === '3d') initAt3D();
 }
@@ -1995,7 +2014,7 @@ function initAt3D(){
   if (at3d.loading) return;
   at3d.loading = true;
   $('at-3d-msg').style.display = 'block';
-  $('at-3d-msg').textContent = 'Chargement du moteur 3D (Three.js, ~650 Ko)…';
+  $('at-3d-msg').textContent = 'Chargement du moteur 3D (Three.js + GLTFLoader, ~800 Ko)…';
   ensureTHREE(ok => {
     at3d.loading = false;
     if (!ok){ $('at-3d-msg').textContent = 'Moteur 3D indisponible (hors-ligne) — retour à la maquette SVG.'; setHangarView('svg'); return; }
@@ -2006,7 +2025,7 @@ function initAt3D(){
   });
 }
 function buildAt3DScene(){
-  const w = 340, h = 470;
+  const w = 430, h = 560;
   at3d.renderer = new THREE.WebGLRenderer({ antialias: true });
   at3d.renderer.setPixelRatio(Math.min(2, (window.devicePixelRatio || 1)));
   at3d.renderer.setSize(w, h);
@@ -2024,16 +2043,18 @@ function buildAt3DScene(){
   plate.position.y = -.09; at3d.scene.add(plate);
   const ring = new THREE.Mesh(new THREE.TorusGeometry(3.4, .045, 8, 64), new THREE.MeshStandardMaterial({ color: 0xD93432, emissive: 0xD93432, emissiveIntensity: .5 }));
   ring.rotation.x = Math.PI / 2; ring.position.y = .02; at3d.scene.add(ring);
+  hangarProps(at3d.scene, 'atelier');
+  at3d.fx = mkRepairFX(at3d.scene);
   // orbite minimale : glisser pour tourner, molette pour zoomer
   const el = at3d.renderer.domElement;
-  el.addEventListener('mousedown', e => { at3d.drag = { x: e.clientX, y: e.clientY }; });
+  el.addEventListener('mousedown', e => { at3d.drag = { x: e.clientX, y: e.clientY }; at3d.lastUser = performance.now(); });
   window.addEventListener('mousemove', e => { if (!at3d.drag) return;
     at3d.theta -= (e.clientX - at3d.drag.x) * .008;
     at3d.phi = Math.max(.45, Math.min(1.42, at3d.phi - (e.clientY - at3d.drag.y) * .006));
     at3d.drag = { x: e.clientX, y: e.clientY }; });
   window.addEventListener('mouseup', () => { at3d.drag = null; });
-  el.addEventListener('wheel', e => { e.preventDefault(); at3d.r = Math.max(6, Math.min(22, at3d.r + (e.deltaY > 0 ? 1 : -1))); }, { passive: false });
-  el.addEventListener('touchstart', e => { if (e.touches[0]) at3d.drag = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }, { passive: true });
+  el.addEventListener('wheel', e => { e.preventDefault(); at3d.lastUser = performance.now(); at3d.r = Math.max(4, Math.min(22, at3d.r + (e.deltaY > 0 ? 1 : -1))); }, { passive: false });
+  el.addEventListener('touchstart', e => { if (e.touches[0]) at3d.drag = { x: e.touches[0].clientX, y: e.touches[0].clientY }; at3d.lastUser = performance.now(); }, { passive: true });
   el.addEventListener('touchmove', e => { if (!at3d.drag || !e.touches[0]) return;
     at3d.theta -= (e.touches[0].clientX - at3d.drag.x) * .008;
     at3d.phi = Math.max(.45, Math.min(1.42, at3d.phi - (e.touches[0].clientY - at3d.drag.y) * .006));
@@ -2043,23 +2064,13 @@ function at3dMat(col, opts){
   const m = new THREE.MeshStandardMaterial(Object.assign({ color: col, roughness: .78, metalness: .38 }, opts || {}));
   return m;
 }
-function buildMech3D(lo, chId, hot){
-  if (!at3d.ok || !at3d.scene || !atelierMech) return;
+function mech3DGroup(mech, lo, chId){
   lo = lo || {};
-  const key = chId + '|' + JSON.stringify(lo) + '|' + atelierMech.proc;
-  const hotOnly = key === at3d.key && hot !== at3d.hot;
-  at3d.hot = hot || null;
-  if (hotOnly){ updateAt3DHot(); return; }
-  at3d.key = key;
-  if (at3d.group){ at3d.scene.remove(at3d.group); at3d.group.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); }
-  const info = mechInfo(atelierMech, { loadout: lo, chassis: chId });
+  const info = mechInfo(mech, { loadout: lo, chassis: chId });
   const heavy = chId === 'warden_x1', scout = chId === 'ghost_lt', arty = chId === 'longbow_mk1';
   const procCol = PROC_GLOW[info.proc] || '#7FA6C9';
   const grp = new THREE.Group();
-  const P = at3d.parts = { legs: [], torso: [], head: [], lsh: [], rsh: [], arms: [], weapon: [] };
-  const add = (zone, geo, m, x, y, z, rx, ry, rz) => { const mesh = new THREE.Mesh(geo, m); mesh.position.set(x, y, z);
-    if (rx) mesh.rotation.x = rx; if (ry) mesh.rotation.y = ry; if (rz) mesh.rotation.z = rz;
-    grp.add(mesh); if (zone) P[zone].push(mesh); return mesh; };
+  const P = { legs: [], torso: [], head: [], lsh: [], rsh: [], arms: [], weapon: [] };
   const sprint = (lo.left_leg && lo.left_leg.indexOf('sprint') >= 0) || (lo.right_leg && lo.right_leg.indexOf('sprint') >= 0);
   const fortified = lo.torso && lo.torso.indexOf('fortified') >= 0;
   const deco = lo.torso && lo.torso.indexOf('decal') >= 0;
@@ -2146,8 +2157,20 @@ function buildMech3D(lo, chId, hot){
   }
   mkWeapon(info.weapon, 1, 1);
   if (info.secondary) mkWeapon(info.secondary, -1, .8);
-  at3d.group = grp;
-  at3d.scene.add(grp);
+  return { grp, parts: P };
+}
+function buildMech3D(lo, chId, hot){
+  if (!at3d.ok || !at3d.scene || !atelierMech) return;
+  lo = lo || {};
+  const key = chId + '|' + JSON.stringify(lo) + '|' + atelierMech.proc;
+  const hotOnly = key === at3d.key && hot !== at3d.hot;
+  at3d.hot = hot || null;
+  if (hotOnly){ updateAt3DHot(); return; }
+  at3d.key = key;
+  if (at3d.group){ at3d.scene.remove(at3d.group); at3d.group.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); }
+  const built = mech3DGroup(atelierMech, lo, chId);
+  at3d.group = built.grp; at3d.parts = built.parts;
+  at3d.scene.add(built.grp);
   updateAt3DHot();
 }
 function updateAt3DHot(){
@@ -2165,19 +2188,210 @@ function updateAt3DHot(){
 }
 function startAt3DLoop(){
   if (at3d.raf) return;
+  let last = 0;
   const tick3d = t => {
     at3d.raf = 0;
     if (at3d.mode !== '3d' || !at3d.ok) return;
-    if ($('atelier-panel').style.display === 'none') { return; }
+    if ($('atelier-panel').style.display === 'none') return;
+    const dt = last ? Math.min(50, t - last) : 16; last = t;
+    if (at3d.anim){ // tween caméra (zoom zone / recentrage)
+      const k = Math.min(1, (t - at3d.anim.t0) / at3d.anim.dur);
+      const e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      ['theta', 'phi', 'r', 'ly'].forEach(pp => { at3d[pp] = at3d.anim.from[pp] + (at3d.anim.to[pp] - at3d.anim.from[pp]) * e; });
+      if (k >= 1) at3d.anim = null;
+    }
+    if (!at3d.drag && !at3d.anim && t - at3d.lastUser > 4500) at3d.theta += dt * .00008; // dérive lente d'inspection
     at3d.camera.position.set(at3d.r * Math.sin(at3d.phi) * Math.sin(at3d.theta), at3d.r * Math.cos(at3d.phi) + 1.2, at3d.r * Math.sin(at3d.phi) * Math.cos(at3d.theta));
-    at3d.camera.lookAt(0, 2.1, 0);
+    at3d.camera.lookAt(0, at3d.ly, 0);
     if (at3d.group) at3d.group.position.y = Math.sin(t / 700) * .04; // idle
+    if (at3d.fx && atelierMech) at3d.fx.update(dt, t, [{ x: 0, y: 0, z: 0, damaged: atelierMech.condition < 100 }]);
     at3d.renderer.render(at3d.scene, at3d.camera);
     at3d.raf = requestAnimationFrame(tick3d);
   };
   at3d.raf = requestAnimationFrame(tick3d);
 }
 
+// ==== v0.9.2 : ZOOM PAR ZONE (atelier 3D) ====
+const AT3D_SHOTS = {
+  head:   { ly: 4.55, r: 4.2, phi: 1.18 },
+  torso:  { ly: 3.15, r: 5.2, phi: 1.15 },
+  legs:   { ly: 1.1,  r: 5.2, phi: 1.0 },
+  lsh:    { ly: 4.05, r: 4.4, phi: 1.15, th: -.85 },
+  rsh:    { ly: 4.05, r: 4.4, phi: 1.15, th: .85 },
+  arms:   { ly: 2.8,  r: 4.6, phi: 1.12, th: .8 },
+  weapon: { ly: 2.9,  r: 4.4, phi: 1.15, th: 1.05 }
+};
+function focusAt3DZone(zone){
+  if (!at3d.ok || at3d.mode !== '3d') return;
+  const shot = AT3D_SHOTS[zone]; if (!shot) return;
+  if (!at3d.saved) at3d.saved = { theta: at3d.theta, phi: at3d.phi, r: at3d.r, ly: at3d.ly };
+  at3d.anim = { t0: performance.now(), dur: 700,
+    from: { theta: at3d.theta, phi: at3d.phi, r: at3d.r, ly: at3d.ly },
+    to: { theta: shot.th !== undefined ? shot.th : at3d.theta, phi: shot.phi, r: shot.r, ly: shot.ly } };
+  at3d.lastUser = performance.now();
+  $('at-focus-reset').style.display = 'inline-block';
+}
+function resetAt3DView(){
+  const to = at3d.saved || { theta: .65, phi: 1.08, r: 10.5, ly: 2.1 };
+  at3d.anim = { t0: performance.now(), dur: 650,
+    from: { theta: at3d.theta, phi: at3d.phi, r: at3d.r, ly: at3d.ly }, to };
+  at3d.saved = null;
+  at3d.lastUser = performance.now();
+  $('at-focus-reset').style.display = 'none';
+}
+$('at-focus-reset').onclick = resetAt3DView;
+
+// ==== v0.9.2 : FX DE RÉPARATION (drone de soudure + étincelles, partagé atelier/garage) ====
+function mkRepairFX(scene){
+  const fx = { sparks: [], drone: null, light: null };
+  for (let i = 0; i < 16; i++){
+    const m = new THREE.Mesh(new THREE.BoxGeometry(.05, .05, .05), new THREE.MeshBasicMaterial({ color: 0xFFD9A0 }));
+    m.visible = false; scene.add(m); fx.sparks.push({ m, life: 0, v: null });
+  }
+  fx.drone = new THREE.Group();
+  fx.drone.add(new THREE.Mesh(new THREE.BoxGeometry(.24, .14, .28), new THREE.MeshStandardMaterial({ color: 0x232830, roughness: .6, metalness: .4 })));
+  const eye = new THREE.Mesh(new THREE.SphereGeometry(.045, 10, 8), new THREE.MeshBasicMaterial({ color: 0xD93432 }));
+  eye.position.set(0, .1, 0); fx.drone.add(eye);
+  fx.light = new THREE.PointLight(0xBFD9FF, 0, 6); fx.drone.add(fx.light);
+  fx.drone.visible = false; scene.add(fx.drone);
+  fx.update = (dt, t, anchors) => {
+    const act = (anchors || []).filter(a => a.damaged);
+    if (!act.length){ fx.drone.visible = false; fx.light.intensity = 0; }
+    else {
+      const a = act[Math.floor(t / 2600) % act.length]; // le drone passe d'un mech endommagé à l'autre
+      const an = t * .0021, rad = 1.9;
+      fx.drone.visible = true;
+      fx.drone.position.set(a.x + Math.cos(an) * rad, (a.y || 0) + 2.5 + Math.sin(t / 530) * .25, a.z + Math.sin(an) * rad);
+      fx.light.intensity = Math.random() < .22 ? (4 + Math.random() * 6) : 1.6; // arc de soudure
+      if (Math.random() < .4){ // étincelles
+        const sp = fx.sparks.find(x => x.life <= 0);
+        if (sp){ sp.life = .55 + Math.random() * .3; sp.m.visible = true;
+          sp.m.position.set(fx.drone.position.x, fx.drone.position.y - .1, fx.drone.position.z);
+          sp.v = { x: (Math.random() - .5) * 2.4, y: Math.random() * 1.6 + .4, z: (Math.random() - .5) * 2.4 }; }
+      }
+    }
+    fx.sparks.forEach(sp => { if (sp.life <= 0) return;
+      sp.life -= dt / 1000;
+      if (sp.life <= 0){ sp.m.visible = false; return; }
+      sp.v.y -= 4.2 * dt / 1000;
+      sp.m.position.x += sp.v.x * dt / 1000; sp.m.position.y += sp.v.y * dt / 1000; sp.m.position.z += sp.v.z * dt / 1000;
+      const sc = Math.max(.2, sp.life * 1.4); sp.m.scale.set(sc, sc, sc); });
+  };
+  return fx;
+}
+
+// ==== v0.9.2 : DÉCOR DE HANGAR — props CC0 Quaternius (modular sci-fi) via CDN, fallback procédural ====
+const PROPS_CDN = 'https://cdn.jsdelivr.net/gh/trebeljahr/quaternius-showcase@main/public/glb/modular_sci_fi/'; // packs Quaternius — CC0
+function hangarProps(scene, mode){
+  const M = mode === 'garage'
+    ? [['Props_ContainerFull.glb', -11, 0, -7, 1.6, .3], ['Props_Crate.glb', 6.5, 0, -6.2, 1.1, .2], ['Props_CrateLong.glb', 8.2, 0, -6.6, 1.1, -.15], ['Props_Pod.glb', -5.8, 0, -6.4, 1.2, .1], ['Props_Capsule.glb', 10.6, 0, -7.4, 1.2, .5], ['Column_1.glb', -14, 0, -8, 1.5, 0], ['Column_1.glb', 14, 0, -8, 1.5, 0], ['Pipes.glb', 0, 0, -9.5, 1.4, 0]]
+    : [['Props_Crate.glb', -4.6, 0, -3.6, 1.1, .3], ['Props_CrateLong.glb', -5.6, 0, -3.1, 1.1, .1], ['Props_ContainerFull.glb', 5.4, 0, -4.2, 1.3, .2], ['Props_Capsule.glb', 4.5, 0, -3.4, 1.1, -.3], ['Props_Pod.glb', -6.4, 0, -4.6, 1.1, .2]];
+  if (window.THREE && window.THREE.GLTFLoader){
+    const ld = new window.THREE.GLTFLoader();
+    M.forEach(([f, x, y, z, sc, ry]) => ld.load(PROPS_CDN + f, g => { const o = g.scene;
+      o.scale.setScalar(sc); o.position.set(x, y, z); o.rotation.y = ry; scene.add(o); }, undefined, () => {}));
+    return;
+  }
+  const mat = new THREE.MeshStandardMaterial({ color: 0x1A1F26, roughness: .85, metalness: .3 });
+  const mat2 = new THREE.MeshStandardMaterial({ color: 0x232830, roughness: .8, metalness: .35 });
+  M.forEach(([f, x, y, z, sc, ry]) => { const bx = new THREE.Mesh(new THREE.BoxGeometry(1.6 * sc, 1.2 * sc, 1.6 * sc), f.indexOf('Container') >= 0 ? mat2 : mat);
+    bx.position.set(x, .6 * sc, z); bx.rotation.y = ry; scene.add(bx); });
+}
+
+// ==== v0.9.2 : HANGAR 3D DU GARAGE — la flotte en fond du menu ====
+let gar3d = { ok: false, loading: false, active: true, renderer: null, scene: null, camera: null, groups: {}, fx: null, raf: 0, key: '', anchors: [] };
+function gar3dEnter(){
+  if (typeof window === 'undefined') return;
+  if (gar3d.ok){ gar3dStart(); return; }
+  if (gar3d.loading) return;
+  gar3d.loading = true;
+  ensureTHREE(ok => {
+    gar3d.loading = false;
+    if (!ok || state !== 'garage') return;
+    gar3d.ok = true;
+    buildGar3D();
+    gar3dStart();
+  });
+}
+function gar3dLeave(){ if (gar3d.raf){ cancelAnimationFrame(gar3d.raf); gar3d.raf = 0; } }
+function gar3dStart(){
+  if (!gar3d.ok || !gar3d.active) return;
+  buildGar3DFleet();
+  $('gar-3d-bg').style.display = 'block';
+  $('screen-garage').classList.add('gar3d');
+  $('gar-3d-tog').textContent = '▦ HANGAR 3D : ON';
+  if (gar3d.raf) return;
+  let last = 0;
+  const tick = t => {
+    gar3d.raf = 0;
+    if (state !== 'garage' || !gar3d.active) return;
+    const dt = last ? Math.min(50, t - last) : 16; last = t;
+    gar3d.camera.position.set(Math.sin(t / 9500) * 4.2, 2.9 + Math.sin(t / 7300) * .35, 10.8 - Math.cos(t / 9500) * .8);
+    gar3d.camera.lookAt(0, 2.2, -1.5);
+    Object.keys(gar3d.groups).forEach(id => { const g = gar3d.groups[id]; if (g.grp) g.grp.position.y = Math.sin(t / 700 + g.ph) * .04; });
+    if (gar3d.fx) gar3d.fx.update(dt, t, gar3d.anchors);
+    gar3d.renderer.render(gar3d.scene, gar3d.camera);
+    gar3d.raf = requestAnimationFrame(tick);
+  };
+  gar3d.raf = requestAnimationFrame(tick);
+}
+function buildGar3D(){
+  gar3d.renderer = new THREE.WebGLRenderer({ antialias: true });
+  gar3d.renderer.setPixelRatio(Math.min(2, (window.devicePixelRatio || 1)));
+  gar3d.renderer.setSize(window.innerWidth, window.innerHeight);
+  $('gar-3d-bg').textContent = '';
+  $('gar-3d-bg').appendChild(gar3d.renderer.domElement);
+  gar3d.scene = new THREE.Scene();
+  gar3d.scene.background = new THREE.Color(0x0B0E12);
+  gar3d.scene.fog = new THREE.Fog(0x0B0E12, 14, 40);
+  gar3d.camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, .1, 100);
+  gar3d.scene.add(new THREE.HemisphereLight(0x8FA3B8, 0x111418, .8));
+  const key = new THREE.DirectionalLight(0xE7EBEF, 1.05); key.position.set(6, 10, 7); gar3d.scene.add(key);
+  const rim = new THREE.DirectionalLight(0xD93432, .4); rim.position.set(-8, 5, -6); gar3d.scene.add(rim);
+  gar3d.scene.add(new THREE.GridHelper(34, 34, 0x2E3946, 0x161A20));
+  hangarProps(gar3d.scene, 'garage');
+  gar3d.fx = mkRepairFX(gar3d.scene);
+  window.addEventListener('resize', () => { if (!gar3d.renderer || !gar3d.camera) return;
+    gar3d.camera.aspect = window.innerWidth / window.innerHeight; gar3d.camera.updateProjectionMatrix();
+    gar3d.renderer.setSize(window.innerWidth, window.innerHeight); });
+}
+function buildGar3DFleet(){
+  if (!gar3d.ok) return;
+  const key = G.mechs.map(m => m.id + ':' + (m.chassis || m.preset) + ':' + JSON.stringify(m.loadout || {}) + ':' + m.proc + ':' + Math.round(m.condition)).join('|');
+  if (key === gar3d.key) return;
+  gar3d.key = key;
+  Object.keys(gar3d.groups).forEach(id => { const g = gar3d.groups[id]; gar3d.scene.remove(g.grp); g.grp.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); });
+  gar3d.groups = {}; gar3d.anchors = [];
+  const n = G.mechs.length, sp = 4.9;
+  G.mechs.forEach((m, i) => {
+    const lo = m.loadout || (PRESETS[m.preset] ? PRESETS[m.preset].loadout : {});
+    const chId = m.chassis || (PRESETS[m.preset] ? PRESETS[m.preset].mechId : 'hound_prime');
+    const built = mech3DGroup(m, lo, chId);
+    const x = (i - (n - 1) / 2) * sp;
+    built.grp.position.x = x;
+    built.grp.rotation.y = (i - (n - 1) / 2) * -.06;
+    gar3d.scene.add(built.grp);
+    gar3d.groups[m.id] = { grp: built.grp, parts: built.parts, ph: i * 1.7 };
+    const avail = mechAvailable(m);
+    const plate = new THREE.Mesh(new THREE.CylinderGeometry(2.1, 2.1, .16, 40), new THREE.MeshStandardMaterial({ color: 0x161A20, roughness: .9, metalness: .2 }));
+    plate.position.set(x, -.08, 0); gar3d.scene.add(plate);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(2.1, .04, 8, 48), new THREE.MeshStandardMaterial({ color: avail ? 0xD93432 : 0x3A434D, emissive: avail ? 0xD93432 : 0x000000, emissiveIntensity: .5 }));
+    ring.rotation.x = Math.PI / 2; ring.position.set(x, .02, 0); gar3d.scene.add(ring);
+    gar3d.anchors.push({ x, z: 0, y: 0, damaged: m.condition < 100 });
+  });
+}
+function gar3dHighlight(id, on){
+  const g = gar3d.groups[id]; if (!g || !g.grp) return;
+  g.grp.traverse(o => { const mm = o.material; if (!mm || !mm.emissive) return;
+    if (on){ if (o.userData.__em === undefined){ o.userData.__em = mm.emissive.getHex(); o.userData.__ei = mm.emissiveIntensity; }
+      mm.emissive.setHex(0xD93432); mm.emissiveIntensity = .4; }
+    else if (o.userData.__em !== undefined){ mm.emissive.setHex(o.userData.__em); mm.emissiveIntensity = o.userData.__ei; } });
+}
+$('gar-3d-tog').onclick = () => {
+  gar3d.active = !gar3d.active;
+  if (gar3d.active){ if (gar3d.ok) gar3dStart(); else gar3dEnter(); }
+  else { gar3dLeave(); $('gar-3d-bg').style.display = 'none'; $('screen-garage').classList.remove('gar3d'); $('gar-3d-tog').textContent = '▦ HANGAR 3D : OFF'; }
+};
 
 function renderHub(){
   $('hub-org').textContent = G.org.name;
@@ -2295,7 +2509,10 @@ function renderGarage(){
     bAt.onclick = () => openAtelier(m);
     row.appendChild(bProc); row.appendChild(bRep); row.appendChild(bAt);
     c.appendChild(row); box.appendChild(c);
+    c.onmouseenter = () => gar3dHighlight(m.id, true);
+    c.onmouseleave = () => gar3dHighlight(m.id, false);
   });
+  if (gar3d.active && gar3d.ok) buildGar3DFleet();
 }
 // ---- atelier (14 slots — module garage embarqué) ----
 const AT_SLOTS = SLOTS;
@@ -2325,12 +2542,14 @@ function openAtelier(m){
     sel.onchange = atelierRecompute;
     row.onmouseenter = () => { hotZone = zoneOfSlot(slot); atelierRecompute(); };
     row.onmouseleave = () => { hotZone = null; atelierRecompute(); };
+    row.onclick = () => focusAt3DZone(zoneOfSlot(slot));
     row.appendChild(lab); row.appendChild(sel); slotsBox.appendChild(row);
   });
   // valeurs courantes : loadout d'atelier ou preset d'origine
   const cur = m.loadout || (PRESETS[m.preset] ? PRESETS[m.preset].loadout : {});
   AT_SLOTS.forEach(slot => { const s = $('at-slot-' + slot); if (s) s.value = cur[slot] || ''; });
   atelierRecompute();
+  if (typeof window !== 'undefined' && at3d.mode !== '3d' && !at3d.autoTried){ at3d.autoTried = true; setHangarView('3d'); } // hangar 3D par défaut en ligne
 }
 function atelierCurrentLoadout(){ const lo = {}; AT_SLOTS.forEach(s => { const el = $('at-slot-' + s); if (el && el.value) lo[s] = el.value; }); return lo; }
 function atelierRecompute(){
@@ -2345,12 +2564,14 @@ function atelierRecompute(){
   $('at-budgets').innerHTML =
     '<div class="rowline"><span>MASSE</span><b style="color:' + (mass > ch.mass_max ? '#D93432' : '#4FAE6B') + '">' + mass + ' / ' + ch.mass_max + ' T</b></div>' +
     '<div class="rowline"><span>PUISSANCE (TIRAGE / BUDGET)</span><b style="color:' + (draw > power ? '#D93432' : '#4FAE6B') + '">' + draw + ' / ' + Math.max(1, power) + ' PW</b></div>' +
-    '<div class="rowline"><span>CHALEUR (ÉMISSION / DISSIPATION)</span><b style="color:' + (heat > cool ? '#D93432' : '#4FAE6B') + '">' + heat + ' / ' + Math.max(1, cool) + '</b></div>';
+    '<div class="rowline"><span>CHALEUR (ÉMISSION / DISSIPATION)</span><b style="color:' + (heat > cool ? '#D93432' : '#4FAE6B') + '">' + heat + ' / ' + Math.max(1, cool) + '</b></div>' +
+    '<div class="hint" style="margin:8px 0 0">Budgets du châssis : tout dépassement (masse, tirage de puissance, chaleur) s\'affiche en rouge et le build est refusé.</div>';
   const v = validateLoadout(chId, lo);
   const s = v.stats || { hp: 0, armor: 0, speed_mps: 0, shield: 0, accuracy_bonus: 0, stability: 0 };
   $('at-stats').innerHTML = '<div class="rowline"><span>INTÉGRITÉ</span><b>' + s.hp + ' HP</b></div><div class="rowline"><span>ARMURE</span><b>' + s.armor + '</b></div>' +
     '<div class="rowline"><span>VITESSE</span><b>' + s.speed_mps + ' M/S</b></div><div class="rowline"><span>BOUCLIER</span><b>' + s.shield + '</b></div>' +
-    '<div class="rowline"><span>PRÉCISION +</span><b>' + s.accuracy_bonus + '</b></div><div class="rowline"><span>STABILITÉ</span><b>' + s.stability + '</b></div>';
+    '<div class="rowline"><span>PRÉCISION +</span><b>' + s.accuracy_bonus + '</b></div><div class="rowline"><span>STABILITÉ</span><b>' + s.stability + '</b></div>' +
+    '<div class="hint" style="margin:8px 0 0">Stats appliquées en duel une fois le build validé puis appliqué.</div>';
   $('at-validation').innerHTML = v.ok ? '<div class="valid-ok">✔ BUILD VALIDE — appliquable</div>' : v.errors.map(e => '<div class="valid-err">✘ ' + esc(e) + '</div>').join('');
   $('at-hangar').innerHTML = mechView(atelierMech, 190, { loadout: lo, chassis: chId, hot: hotZone, live: true });
   if (at3d.mode === '3d' && at3d.ok) buildMech3D(lo, chId, hotZone);
@@ -2817,7 +3038,7 @@ function renderBattleBroadcast(){
   cx.font = '9px monospace'; cx.fillStyle = '#6E7780'; cx.textAlign = 'right';
   cx.fillText('CAM BROADCAST — GREYBOX — ' + divisionLabel(G.org.division), W - 12, H - 12);
   cx.textAlign = 'left';
-  cx.fillText('DUEL ' + (matchCtx.idx + 1) + '/' + matchCtx.duels.length + ' — [C] CAM — v0.9.1', 12, H - 12);
+  cx.fillText('DUEL ' + (matchCtx.idx + 1) + '/' + matchCtx.duels.length + ' — [C] CAM — v0.9.2', 12, H - 12);
 }
 
 // ==== NAVIGATION + BOOT ====
