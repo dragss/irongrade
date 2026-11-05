@@ -1,0 +1,2112 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IRONGRADE — Prototype manager v0.7.0</title>
+<style>
+  :root { font-family: 'Inter', system-ui, sans-serif; background: #0B0E12; color: #E7EBEF; }
+  * { box-sizing: border-box; margin: 0; }
+  body { height: 100vh; overflow: hidden; background: #0B0E12; }
+  .screen { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 18px; }
+  .screen.active { display: flex; }
+  h1 { font-size: 54px; letter-spacing: 12px; font-weight: 900; color: #E7EBEF; text-shadow: 0 0 30px rgba(217,52,50,.35); }
+  h1 .r { color: #D93432; }
+  .sub { color: #6E7780; letter-spacing: 4px; font-size: 11px; margin: 10px 0 34px; text-transform: uppercase; }
+  h2 { font-size: 17px; letter-spacing: 4px; margin-bottom: 4px; text-transform: uppercase; }
+  .hint { color: #6E7780; font-size: 12px; letter-spacing: 1px; margin-bottom: 16px; }
+  button { font-family: inherit; background: #111418; color: #E7EBEF; border: 1px solid #343B43; padding: 11px 20px; font-size: 14px; letter-spacing: 1.5px; cursor: pointer; transition: all .12s; }
+  button:hover { border-color: #D93432; background: #16191E; }
+  button.primary { border-color: #D93432; background: rgba(217,52,50,.14); font-weight: 700; }
+  button.small { padding: 7px 13px; font-size: 12px; }
+  button.ghost { background: transparent; }
+  button.active-tog { border-color: #D93432; background: rgba(217,52,50,.14); }
+  button:disabled { opacity: .38; cursor: default; }
+  .menu-col { display: flex; flex-direction: column; gap: 11px; margin-top: 8px; }
+  .menu-col button { min-width: 320px; text-align: left; }
+  .panel { background: #111418; border: 1px solid #343B43; padding: 18px; width: 100%; max-width: 900px; margin-bottom: 14px; }
+  .panel h3 { font-size: 13px; letter-spacing: 3px; color: #6E7780; margin-bottom: 12px; text-transform: uppercase; }
+  .tophead { display: flex; gap: 26px; align-items: baseline; width: 100%; max-width: 900px; padding: 6px 4px 14px; border-bottom: 1px solid #343B43; margin-bottom: 16px; flex-wrap: wrap; }
+  .tophead .org { font-size: 19px; font-weight: 900; letter-spacing: 3px; color: #E7EBEF; }
+  .tophead .res { color: #E3A23B; font-weight: 700; letter-spacing: 1px; font-size: 14px; }
+  .tophead .meta { color: #6E7780; font-size: 12px; letter-spacing: 2px; }
+  .navrow { display: flex; gap: 9px; margin: 16px auto 0; flex-wrap: wrap; justify-content: center; position: sticky; bottom: 8px; }
+  .navrow button { background: #0E1116; }
+  .navrow button.cur { border-color: #D93432; color: #D93432; }
+  .cards { display: flex; flex-wrap: wrap; gap: 12px; }
+  .card { background: #0E1116; border: 1px solid #343B43; padding: 14px; min-width: 252px; flex: 1; max-width: 284px; }
+  .card .t { font-weight: 800; letter-spacing: 2px; font-size: 14px; margin-bottom: 2px; }
+  .card .sub2 { color: #6E7780; font-size: 11px; letter-spacing: 1px; margin-bottom: 9px; }
+  .card .rowline { display: flex; justify-content: space-between; font-size: 12px; padding: 2.5px 0; color: #AAB2BA; }
+  .card .rowline b { color: #E7EBEF; font-weight: 600; }
+  .badge { display: inline-block; font-size: 10px; letter-spacing: 1.5px; padding: 2px 7px; border: 1px solid; margin-right: 5px; }
+  .badge.ok { color: #4FAE6B; border-color: #2C6B41; }
+  .badge.warn { color: #E3A23B; border-color: #7A5A1E; }
+  .badge.err { color: #D93432; border-color: #7A2422; }
+  .pbar { height: 5px; background: #16191E; border: 1px solid #343B43; margin: 5px 0; }
+  .pbar i { display: block; height: 100%; background: #D93432; }
+  .pbar i.amb { background: #E3A23B; } .pbar i.grn { background: #4FAE6B; }
+  select, input[type=text], input[type=number] { font-family: inherit; background: #0B0E12; color: #E7EBEF; border: 1px solid #343B43; padding: 7px; font-size: 13px; }
+  select { min-width: 130px; }
+  .slotrow { display: flex; gap: 8px; margin-bottom: 7px; align-items: center; }
+  .slotrow .tag { color: #6E7780; font-size: 10px; width: 122px; letter-spacing: 1px; text-transform: uppercase; }
+  .slotrow select { flex: 1; }
+  .duelrow { display: flex; gap: 12px; align-items: center; border: 1px solid #343B43; background: #0E1116; padding: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  .duelrow .vs { color: #D93432; font-weight: 900; letter-spacing: 2px; font-size: 15px; }
+  .duelrow label { display: block; font-size: 9px; color: #6E7780; letter-spacing: 2px; margin-bottom: 3px; text-transform: uppercase; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  th { color: #6E7780; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; text-align: left; padding: 6px 8px; border-bottom: 1px solid #343B43; }
+  td { padding: 6px 8px; border-bottom: 1px solid #16191E; color: #AAB2BA; }
+  tr.alpha td:first-child { color: #E7A6A4; } tr.omega td:first-child { color: #C6CDD4; }
+  td b { color: #E7EBEF; }
+  .bignum { font-size: 26px; font-weight: 900; letter-spacing: 4px; margin: 6px 0; }
+  .bignum.win { color: #4FAE6B; } .bignum.loss { color: #D93432; } .bignum.draw { color: #AAB2BA; }
+  /* battle */
+  .battlewrap { width: 100%; max-width: 1000px; }
+  .hud { display: flex; gap: 14px; align-items: center; width: 100%; margin-bottom: 8px; flex-wrap: wrap; }
+  .hud .hpbars { flex: 1; min-width: 200px; }
+  .hud .hpb { height: 13px; background: #16191E; border: 1px solid #343B43; margin: 3px 0; }
+  .hud .hpb i { display: block; height: 100%; }
+  .hud .hpb.a i { background: #D93432; } .hud .hpb.o i { background: #AAB2BA; }
+  .hud .lbl { font-size: 10px; letter-spacing: 2px; color: #6E7780; display: flex; justify-content: space-between; }
+  canvas { background: #07090C; border: 1px solid #343B43; max-width: 100%; }
+  .msscore { font-size: 13px; letter-spacing: 2px; color: #6E7780; text-align: center; margin: 8px 0 2px; }
+  .msscore b { color: #E7EBEF; font-size: 16px; }
+  .endbanner { font-size: 22px; font-weight: 900; letter-spacing: 6px; text-align: center; margin: 12px 0 6px; }
+  .footer { color: #3A434D; font-size: 10px; letter-spacing: 2px; margin-top: 18px; text-align: center; }
+  .valid-ok { color: #4FAE6B; font-size: 12px; margin: 6px 0; }
+  .valid-err { color: #D93432; font-size: 12px; margin: 3px 0; }
+</style>
+</head>
+<body>
+
+<!-- ÉCRAN D'ACCUEIL / CARRIÈRE -->
+<div class="screen" id="screen-boot">
+  <h1>IRONG<span class="r">RADE</span></h1>
+  <div class="sub">Prototype manager — Ligue pro de combat de mechs</div>
+  <div class="menu-col">
+    <input type="text" id="orgname" placeholder="NOM DE VOTRE ORGANISATION" maxlength="24" style="min-width:320px; padding:13px 16px; letter-spacing:2px;" />
+    <button class="primary" id="btn-new">▸ NOUVELLE CARRIÈRE</button>
+    <button id="btn-continue" style="display:none">▸ CONTINUER LA CARRIÈRE</button>
+    <button class="ghost" id="btn-rules">COMMENT JOUER</button>
+    <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
+  </div>
+  <div class="footer">IRONGRADE v0.7.0 — MOTEUR DE COMBAT v0.6.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
+</div>
+
+<!-- CENTRE DE COMMANDEMENT -->
+<div class="screen" id="screen-hub">
+  <div class="tophead"><span class="org" id="hub-org"></span><span class="res" id="hub-credits"></span><span class="meta" id="hub-division"></span><span class="meta" id="hub-rep"></span></div>
+  <div class="panel" id="hub-next"></div>
+  <div class="panel"><h3>Alertes de l'organisation</h3><div id="hub-alerts"></div></div>
+  <div class="panel"><h3>Classement</h3><div id="hub-standings"></div></div>
+  <div class="navrow" id="nav-hub"></div>
+</div>
+
+<!-- ROSTER -->
+<div class="screen" id="screen-roster">
+  <div class="tophead"><span class="org">ROSTER DES PILOTES</span><span class="meta" id="roster-meta"></span></div>
+  <div class="panel"><h3>Pilotes sous contrat (3 actifs + 2 réserves)</h3><div class="cards" id="roster-cards"></div></div>
+  <div class="panel"><h3>Agents libres — recrutement</h3><div class="cards" id="recruit-cards"></div></div>
+  <div class="navrow" id="nav-roster"></div>
+</div>
+
+<!-- GARAGE -->
+<div class="screen" id="screen-garage">
+  <div class="tophead"><span class="org">GARAGE</span><span class="res" id="gar-credits"></span></div>
+  <div class="panel"><h3>Mechs de l'organisation</h3><div class="cards" id="garage-mechs"></div></div>
+  <div class="panel" id="atelier-panel" style="display:none">
+    <h3>Atelier — <span id="at-title"></span></h3>
+    <div class="slotrow"><span class="tag">CHÂSSIS</span><select id="at-chassis"></select></div>
+    <div id="at-slots"></div>
+    <div id="at-budgets"></div>
+    <div id="at-stats"></div>
+    <div id="at-validation"></div>
+    <button class="primary small" id="at-apply">APPLIQUER LE BUILD</button>
+    <button class="small" id="at-cancel">ANNULER</button>
+  </div>
+  <div class="navrow" id="nav-garage"></div>
+</div>
+
+<!-- CHAMPIONNAT -->
+<div class="screen" id="screen-league">
+  <div class="tophead"><span class="org" id="lg-title"></span><span class="meta" id="lg-meta"></span></div>
+  <div class="panel"><h3>Classement</h3><div id="lg-standings"></div></div>
+  <div class="panel"><h3>Calendrier</h3><div id="lg-fixtures"></div></div>
+  <div class="navrow" id="nav-league"></div>
+</div>
+
+<!-- ANALYSE D'ADVERSAIRE -->
+<div class="screen" id="screen-analysis">
+  <div class="tophead"><span class="org">ANALYSE D'ADVERSAIRE</span><span class="meta" id="an-meta"></span></div>
+  <div class="panel" id="an-opp"></div>
+  <div class="panel"><h3>Lineups adverses (ordre d'engagement prévu)</h3><div id="an-lineups"></div></div>
+  <button class="primary" id="an-prepare">▸ PRÉPARER LE MATCH</button>
+  <button class="ghost small" id="an-back">← RETOUR</button>
+  <div class="navrow" id="nav-analysis"></div>
+</div>
+
+<!-- PRÉ-BATAILLE -->
+<div class="screen" id="screen-setup">
+  <div class="tophead"><span class="org">PRÉPARATION DU MATCH</span><span class="meta" id="su-meta"></span></div>
+  <div class="panel"><h3>Duels — choisissez vos engagements (le meilleur des 3 l'emporte)</h3><div id="su-duels"></div></div>
+  <button class="primary" id="su-confirm">▸ ENGAGER LES MECHS — GO !</button>
+  <button class="ghost small" id="su-back">← RETOUR</button>
+  <div class="footer">Rappel : en match vous êtes manager-observateur — les processeurs dirigent vos mechs (décision actée du projet).</div>
+</div>
+
+<!-- BATAILLE -->
+<div class="screen" id="screen-battle">
+  <div class="battlewrap">
+    <div class="hud">
+      <div class="hpbars">
+        <div class="lbl"><span id="hud-name-a">TON MECH</span><span id="hud-time">00:00</span></div>
+        <div class="hpb a"><i id="hp-a" style="width:100%"></i></div>
+        <div class="lbl"><span id="hud-name-o">ADVERSAIRE</span><span id="hud-tick">TICK 0</span></div>
+        <div class="hpb o"><i id="hp-o" style="width:100%"></i></div>
+      </div>
+      <button class="small" id="btn-pause">⏸ PAUSE</button>
+      <button class="small active-tog" data-spd="1">×1</button>
+      <button class="small" data-spd="2">×2</button>
+      <button class="small" data-spd="4">×4</button>
+      <button class="small ghost" id="btn-abandon">ABANDONNER LE DUEL</button>
+    </div>
+    <div class="msscore" id="ms-score"></div>
+    <canvas id="gcanvas" width="900" height="480"></canvas>
+    <div class="endbanner" id="bt-banner" style="display:none"></div>
+    <div style="text-align:center; margin: 8px 0 4px;">
+      <button class="primary" id="btn-next" style="display:none">DUEL SUIVANT ▸</button>
+    </div>
+  </div>
+</div>
+
+<!-- RAPPORT DE MATCH -->
+<div class="screen" id="screen-report">
+  <div class="tophead"><span class="org">RAPPORT DE MATCH</span><span class="meta" id="rp-meta"></span></div>
+  <div class="panel"><div class="bignum" id="rp-banner"></div><div id="rp-detail" style="color:#6E7780; font-size:13px; letter-spacing:1px;"></div></div>
+  <div class="panel"><h3>Duels</h3><div id="rp-duels"></div></div>
+  <div class="panel"><h3>Récompenses &amp; conséquences</h3><div id="rp-rewards"></div></div>
+  <div class="panel"><h3>Classement après la journée</h3><div id="rp-standings"></div></div>
+  <button class="primary" id="rp-done">▸ RETOUR AU CENTRE DE COMMANDEMENT</button>
+</div>
+
+<!-- FIN DE SAISON -->
+<div class="screen" id="screen-season">
+  <div class="tophead"><span class="org">FIN DE SAISON</span></div>
+  <div class="panel"><div class="bignum" id="se-banner"></div><div id="se-body"></div></div>
+  <div class="panel"><h3>Classement final</h3><div id="se-standings"></div></div>
+  <button class="primary" id="se-continue">▸ SAISON SUIVANTE</button>
+</div>
+
+<!-- RÈGLES -->
+<div class="screen" id="screen-rules">
+  <div class="tophead"><span class="org">COMMENT JOUER</span></div>
+  <div class="panel">
+    <h3>La boucle du manager</h3>
+    <table>
+      <tr><td><b>1. CENTRE DE COMMANDEMENT</b></td><td>Suivez les finances, la réputation, le prochain match et les alertes.</td></tr>
+      <tr><td><b>2. ROSTER</b></td><td>Recrutez et entraînez vos pilotes (3 actifs + 2 réserves). La précision et le sang-froid d'un pilote améliorent la visée et la stabilité de son mech.</td></tr>
+      <tr><td><b>3. GARAGE</b></td><td>Réparez vos mechs (crédits), changez le processeur, montez les modules à l'atelier (budgets masse/puissance/chaleur).</td></tr>
+      <tr><td><b>4. CHAMPIONNAT</b></td><td>Ligue à 6 équipes, 10 journées. Un match = 3 duels 1v1, un mech par duel — 2 victoires de duels = match gagné.</td></tr>
+      <tr><td><b>5. PRÉPARATION</b></td><td>Analysez l'adversaire, choisissez qui engage quel mech et avec quel processeur.</td></tr>
+      <tr><td><b>6. MATCH</b></td><td>Vous observez : les processeurs dirigent les mechs. Caméra tactique, pause, ×1/×2/×4.</td></tr>
+      <tr><td><b>7. RAPPORT</b></td><td>XP des pilotes, condition des mechs, crédits, classement. Les mechs détruits blessent leur pilote (1 journée).</td></tr>
+    </table>
+    <div class="footer" style="margin-top:12px">Règles du combat : portées, stabilisation avant tir, mêlée, fumigène, largage d'arme, épaves ramassables — détail complet dans l'écran À PROPOS et la spec du projet.</div>
+  </div>
+  <button class="ghost" id="btn-rules-back">← RETOUR</button>
+</div>
+
+<!-- À PROPOS -->
+<div class="screen" id="screen-about">
+  <div class="tophead"><span class="org">À PROPOS</span></div>
+  <div class="panel">
+    <h3>IRONGRADE — prototype manager v0.7.0</h3>
+    <div class="hint">Vertical slice de gestion : la boucle complète (roster, garage, ligue, matchs observés, rapport, sauvegarde) sur le moteur de combat v0.6.0 déterministe 15 Hz.</div>
+    <table>
+      <tr><td><b>MOTEUR</b></td><td>CombatSim v0.6.0 — spawns d'arène par point de largage / couloir d'entrée (D-027), précision &amp; stabilité par mech (D-026), 2v2 &amp; ciblage par profil (D-024), fumigène (D-025).</td></tr>
+      <tr><td><b>SAUVEGARDE</b></td><td>Locale (navigateur), une seule par appareil. « Nouvelle carrière » écrase la sauvegarde.</td></tr>
+      <tr><td><b>ÉCONOMIE</b></td><td>Monnaie unique (crédits). Toutes les récompenses, prix et barèmes XP de ce prototype sont des hypothèses d'équilibrage data-driven, à valider par l'owner avant tout contenu réel.</td></tr>
+      <tr><td><b>GOUVERNANCE</b></td><td>Aucune loot box, aucun achat, aucune probabilité de drop dans ce prototype — les taux restent une décision owner.</td></tr>
+      <tr><td><b>VISUELS</b></td><td>Greybox — placeholder assumé, pas d'art final.</td></tr>
+    </table>
+  </div>
+  <button class="ghost" id="btn-about-back">← RETOUR</button>
+</div>
+
+<script>
+// ==== SIMULATION v0.6.0 (spawns largage/couloir D-027 + câblage D-026) ====
+class SplitMix64 {
+  constructor(seed){ this.state = BigInt(seed) & 0xffffffffffffffffn; }
+  next(){ this.state = (this.state + 0x9E3779B97f4A7C15n) & 0xffffffffffffffffn; let z = this.state;
+    z = ((z ^ (z >> 30n)) * 0xBF58476D1CE4E5B9n) & 0xffffffffffffffffn;
+    z = ((z ^ (z >> 27n)) * 0x94D049BB133111EBn) & 0xffffffffffffffffn;
+    return z ^ (z >> 31n); }
+  unit(){ return Number(this.next() >> 11n) / Number(1n << 53n); }
+  chance(p){ if (p <= 0) return false; if (p >= 1) return true; return this.unit() < p; }
+  range(a, b){ return a + this.unit() * (b - a); }
+}
+
+class CombatSim {
+  constructor(ruleset, config, seed){
+    this.ruleset = JSON.parse(JSON.stringify(ruleset));
+    this.config = JSON.parse(JSON.stringify(config));
+    this.seed = seed >>> 0; this.rng = new SplitMix64(this.seed);
+    this.tickRate = ruleset.simulation.tick_hz; this.dt = 1 / this.tickRate;
+    this.timeoutTicks = ruleset.simulation.battle_timeout_seconds * this.tickRate;
+    this.arena = (ruleset.arenas && (config.arenaId ? ruleset.arenas[config.arenaId] : ruleset.arenas.proving_grounds)) || ruleset.arena; this.obstacles = this.arena.obstacles.map(o => ({ ...o })); // clone : les épaves ramassables sont retirées pendant la bataille
+    this.mechs = config.mechs.map((m, i) => this.makeMech(m, this.slotOf(config.mechs, i)));
+    this.projectiles = []; this.events = []; this.tick = 0; this.winner = null; this.ended = false;
+    this.smokes = []; // D-025 : nuages de fumigène actifs (bloquent la LOS, pas le déplacement)
+    this.log('battle_started', null, { seed: this.seed });
+  }
+  // D-027 : index du mech dans son équipe (pour la formation au point de largage / couloir)
+  slotOf(mechs, i){ let s = 0; for (let j = 0; j < i; j++) if (mechs[j].team === mechs[i].team) s++; return s; }
+  // D-027 : spawn dérivé — chaque côté de l'arène a un point de largage ou un couloir d'entrée ;
+  // sans `spawn` explicite dans le config, le mech entre par le côté de son équipe (côte à côte, écart `spread` = 4 m)
+  deriveSpawn(cfg, slotIdx){
+    const ss = this.arena.spawn_sides && this.arena.spawn_sides[cfg.side || (cfg.team === 0 ? 'alpha' : 'omega')];
+    if (!ss) throw new Error('SPAWN DÉRIVÉ IMPOSSIBLE : pas de spawn_sides pour cette arène');
+    const lat = [0, -1, 1, -2][slotIdx] * (ss.spread || 4);
+    return { x: ss.x + lat * Math.sin(ss.dir || 0), z: ss.z - lat * Math.cos(ss.dir || 0) };
+  }
+  makeMech(cfg, slotIdx = 0){ const r = this.ruleset;
+    const spawn = cfg.spawn || this.deriveSpawn(cfg, slotIdx);
+    const sideSS = !cfg.spawn && this.arena.spawn_sides && this.arena.spawn_sides[cfg.side || (cfg.team === 0 ? 'alpha' : 'omega')];
+    return { ...r.mechs[cfg.mechId], mechId: cfg.mechId, team: cfg.team, name: cfg.name,
+      weapon: r.weapons[cfg.weaponId], weaponId: cfg.weaponId, processorId: cfg.processorId, proc: r.processors[cfg.processorId],
+      weapons: [r.weapons[cfg.weaponId], r.weapons[cfg.secondaryWeaponId || 'fists']], secondaryWeaponId: cfg.secondaryWeaponId || 'fists',
+      meleeReach: Math.max(0, ...[r.weapons[cfg.weaponId], r.weapons[cfg.secondaryWeaponId || 'fists']].filter(w => w.type === 'melee').map(w => w.range)),
+      pos: { x: spawn.x, z: spawn.z }, heading: sideSS ? sideSS.dir : (cfg.team === 0 ? 0 : Math.PI), targetIdx: null,
+      hpNow: r.mechs[cfg.mechId].hp, shieldMax: r.mechs[cfg.mechId].shield, shieldNow: r.mechs[cfg.mechId].shield,
+      heat: 0, cooldown: 0, cooldown2: 0, meleeState: null, pinned: false, stunTicks: 0, staggeredTicks: 0, staggerImmunityTicks: 0,
+      damageDealt: 0, damageTaken: 0, shotsFired: 0, shotsHit: 0, crits: 0, dodges: 0, ticksMoved: 0, ticksStationary: 0,
+      improvShield: 0, improvLabel: null,
+      smokeUsed: false, loggedDead: false,
+      baseSpeedMps: r.mechs[cfg.mechId].speed_mps, droppedOnce: false, prevWeaponId: null,
+      vel: { x: 0, z: 0 }, lastHitTick: -999, passiveActive: false,
+      prevPos: { x: spawn.x, z: spawn.z } };
+  }
+  log(type, mech, data){ this.events.push({ tick: this.tick, type, mech, ...(data || {}) }); }
+  otherIdx(i){ return this.mechs.findIndex(m => m.team !== this.mechs[i].team); } // 1v1 rétrocompat
+  enemiesOf(i){ const out = []; for (let j = 0; j < this.mechs.length; j++) if (j !== i && this.mechs[j].team !== this.mechs[i].team && this.mechs[j].hpNow > 0) out.push(j); return out; }
+  // D-024 : sélection de cible — profil par processeur (data-driven), sticky (focus-fire), déterministe
+  targetOf(i){ const m = this.mechs[i]; const es = this.enemiesOf(i);
+    if (es.length === 0) return null;
+    const cur = m.targetIdx;
+    if (cur !== null && this.mechs[cur] && this.mechs[cur].hpNow > 0 && this.mechs[cur].team !== m.team){
+      // stickiness : on garde sa cible sauf 'threat' (guardian) qui re-cible sous hystérésis ×1,25
+      if (m.proc.targeting === 'threat' && this.tick % 30 === 0){
+        let best = cur, bd = this.mechs[cur].damageDealt;
+        for (const j of es){ if (this.mechs[j].damageDealt > bd * 1.25){ bd = this.mechs[j].damageDealt; best = j; } }
+        if (best !== cur) return best;
+      }
+      return cur;
+    }
+    const dist = j => this.distance(m.pos, this.mechs[j].pos);
+    if (es.length === 1) return es[0];
+    let pick = es[0];
+    if (m.proc.targeting === 'weakest'){ let bv = Infinity;
+      for (const j of es){ const v = this.mechs[j].hpNow + this.mechs[j].shieldNow; if (v < bv - 1e-9){ bv = v; pick = j; } } }
+    else if (m.proc.targeting === 'protector'){ // D-024 « peel » : cibler l'ennemi le plus proche du coéquipier le plus fragilisé
+      const mates = this.mechs.map((mm, j) => ({ mm, j })).filter(o => o.j !== i && o.mm.team === m.team && o.mm.hpNow > 0);
+      if (mates.length){ let frag = mates[0], fv = Infinity;
+        for (const o of mates){ const v = (o.mm.hpNow + o.mm.shieldNow) / o.mm.hp; if (v < fv - 1e-9){ fv = v; frag = o; } }
+        let bd = Infinity;
+        for (const j of es){ const dd = this.distance(this.mechs[j].pos, frag.mm.pos); if (dd < bd){ bd = dd; pick = j; } } }
+      else { let bd = Infinity; for (const j of es){ if (dist(j) < bd){ bd = dist(j); pick = j; } } } }
+    else if (m.proc.targeting === 'threat'){ let bv = -1;
+      for (const j of es){ const v = this.mechs[j].damageDealt; if (v > bv + 1e-9){ bv = v; pick = j; } }
+      if (bv <= 0){ let bd = Infinity; for (const j of es){ if (dist(j) < bd){ bd = dist(j); pick = j; } } } }
+    else { let bd = Infinity; // 'closest'
+      for (const j of es){ if (dist(j) < bd){ bd = dist(j); pick = j; } } }
+    return pick; }
+  // D-025 : fumigène — segment bloqué s'il croise un nuage actif (symétrique : dedans = aveugle aussi)
+  segBlockedBySmoke(a, b){ for (const s of this.smokes){
+      const dx = b.x - a.x, dz = b.z - a.z, l2 = dx * dx + dz * dz;
+      let t = l2 > 0 ? ((s.x - a.x) * dx + (s.z - a.z) * dz) / l2 : 0; t = Math.max(0, Math.min(1, t));
+      const px = a.x + dx * t - s.x, pz = a.z + dz * t - s.z;
+      if (px * px + pz * pz <= s.r * s.r) return true; } return false; }
+  distance(a, b){ const dx = a.x - b.x, dz = a.z - b.z; return Math.sqrt(dx * dx + dz * dz); }
+  losClear(a, b){ if (this.segBlockedBySmoke(a, b)) return false;
+    for (const o of this.obstacles){ if (!o.blocks_los) continue;
+      const x1 = o.x - o.w / 2, x2 = o.x + o.w / 2, z1 = o.z - o.h / 2, z2 = o.z + o.h / 2;
+      if (segRect(a, b, x1, z1, x2, z2)) return false; } return true; }
+  blockedAt(x, z){ for (const o of this.obstacles){
+      if (Math.abs(x - o.x) < o.w / 2 + 1.0 && Math.abs(z - o.z) < o.h / 2 + 1.0) return true; } return false; }
+
+  // --- passifs ---
+  checkPassive(i){ const m = this.mechs[i];
+    if (!m.passive || m.passiveActive) return;
+    if (m.passive.id === 'bulwark_protocol' && m.hpNow <= m.hp * m.passive.hp_threshold){
+      m.passiveActive = true; this.log('passive_triggered', i, { passive: m.passive.id, label: m.passive.label });
+    } }
+  applyPassiveMods(i, dmg){ const m = this.mechs[i]; let d = dmg;
+    if (m.passiveActive && m.passive.id === 'bulwark_protocol') d = d * (1 - m.passive.dr_bonus);
+    return d; }
+  regenShields(){ const c = this.ruleset.combat;
+    for (let i = 0; i < this.mechs.length; i++){ const m = this.mechs[i];
+      if (m.passive && m.passive.id === 'aegis_loop' && m.shieldMax > 0 &&
+          this.tick - m.lastHitTick > c.shield_regen_delay_ticks && m.shieldNow < m.shieldMax){
+        m.shieldNow = Math.min(m.shieldMax, m.shieldNow + c.shield_regen_per_s * this.dt);
+        if (m.shieldNow >= m.shieldMax) this.log('shield_restored', i, {}); } } }
+
+  step(){ if (this.ended) return; this.tick++;
+    for (let i = 0; i < this.mechs.length; i++) this.stepMech(i);
+    this.regenShields();
+    this.stepProjectiles();
+    // D-025 : expiration des fumigènes (compte à rebours déterministe)
+    for (const s of this.smokes) s.ticks--;
+    const expired = this.smokes.filter(s => s.ticks <= 0);
+    if (expired.length){ for (const s of expired) this.log('smoke_cleared', s.by, { x: s.x, z: s.z }); }
+    this.smokes = this.smokes.filter(s => s.ticks > 0);
+    // D-024 : fin de bataille par équipe — plus aucun mech debout d'un côté
+    const teams = [...new Set(this.mechs.map(m => m.team))];
+    const dead = this.mechs.filter(m => m.hpNow <= 0);
+    for (const d of dead) if (!d.loggedDead){ d.loggedDead = true; this.log('mech_disabled', this.mechs.indexOf(d), {}); }
+    const alive = t => this.mechs.some(m => m.team === t && m.hpNow > 0);
+    if (teams.some(t => !alive(t))){
+      const winner = alive(teams[0]) ? teams[0] : teams[1];
+      this.winner = winner; this.ended = true;
+      this.log('battle_ended', null, { winner, reason: 'disabled' }); }
+    else if (this.tick >= this.timeoutTicks){ // D-024 : timeout au score d'équipe (somme des fractions HP)
+      const score = t => this.mechs.filter(m => m.team === t).reduce((s, m) => s + m.hpNow / m.hp, 0);
+      const s0 = score(teams[0]), s1 = score(teams[1]);
+      this.winner = Math.abs(s0 - s1) < 1e-9 ? null : (s0 > s1 ? teams[0] : teams[1]); this.ended = true;
+      this.log('battle_ended', null, { winner: this.winner, reason: 'timeout' }); } }
+
+  // D-025 : fumigène — un mech sous le seuil HP de son profil lâche un rideau (1× par bataille), statique à sa position
+  checkSmoke(i){ const m = this.mechs[i]; const sm = this.ruleset.combat.smoke;
+    if (!sm || !sm.enabled || m.smokeUsed || m.hpNow <= 0) return;
+    const th = (m.proc.smoke_hp_threshold != null) ? m.proc.smoke_hp_threshold : sm.default_hp_threshold;
+    if (m.hpNow / m.hp <= th){
+      m.smokeUsed = true;
+      this.smokes.push({ x: m.pos.x, z: m.pos.z, r: sm.radius, ticks: sm.duration_ticks, by: i });
+      this.log('smoke_deployed', i, { x: +m.pos.x.toFixed(2), z: +m.pos.z.toFixed(2), r: sm.radius, ticks: sm.duration_ticks, threshold: th }); } }
+
+  stepMech(i){ const m = this.mechs[i];
+    m.prevPos = { ...m.pos };
+    if (m.stunTicks > 0){ m.stunTicks--; m.heat = Math.max(0, m.heat - this.ruleset.combat.overheat_threshold / (this.tickRate * this.ruleset.combat.overheat_stun_seconds)); return; }
+    if (m.staggeredTicks > 0){ m.staggeredTicks--; if (m.staggerImmunityTicks > 0) m.staggerImmunityTicks--; return; } // D-024 : le stagger fait perdre son tour, immunité décrémentée ensuite
+    if (m.staggerImmunityTicks > 0) m.staggerImmunityTicks--;
+    m.heat = Math.max(0, m.heat - m.cooling_per_s * this.dt);
+    if (m.cooldown > 0) m.cooldown--;
+    if (m.cooldown2 > 0) m.cooldown2--;
+    this.checkPassive(i);
+    this.checkSmoke(i);
+    const tIdx = this.targetOf(i); // D-024 : cible par profil de processeur, pas juste « l'autre »
+    if (tIdx === null) return;
+    const foe = this.mechs[tIdx];
+    if (m.targetIdx !== tIdx){ m.targetIdx = tIdx; this.log('target_acquired', i, { target: tIdx }); }
+    const dist = this.distance(m.pos, foe.pos);
+    if (m.meleeState){ m.meleeState.ticks--;
+      if (m.meleeState.ticks <= 0){
+        if (m.meleeState.phase === 'windup'){ const w = m.weapons[m.meleeState.slot || 0];
+          if (foe.hpNow <= 0){ m.meleeState = { phase: 'recovery', ticks: w.recovery_ticks }; return; } // D-024 : cible tombée entre-temps → coup dans le vide
+          const d = this.distance(m.pos, foe.pos);
+          const acc = Math.min(0.98, w.accuracy + 0.01 * 5);
+          if (d <= w.range * 1.15 && this.rng.chance(acc)){
+            const crit = this.rng.chance(w.crit_chance || 0);
+            const dmg = crit ? Math.round(w.damage * (w.crit_mult || 1)) : w.damage;
+            this.log('melee_attack', i, { target: m.targetIdx, damage: dmg, crit, weapon: m.meleeState.weaponId });
+            if (crit){ m.crits++; this.log('critical_hit', i, { target: m.targetIdx, damage: dmg }); }
+            this.applyDamage(i, m.targetIdx, dmg);
+            if (w.stagger && foe.hpNow > 0 && foe.staggerImmunityTicks <= 0){ // D-024 : immunité post-stagger — pas de verrouillage en chaîne
+              foe.staggeredTicks = 4; foe.staggerImmunityTicks = 4 + this.ruleset.combat.stagger_immunity_ticks; this.log('stagger', m.targetIdx, { by: i }); }
+          } else this.log('attack_missed', i, { kind: 'melee' });
+          m.heat += w.heat; this.checkOverheat(i, m);
+          m.meleeState = { phase: 'recovery', ticks: w.recovery_ticks };
+        } else m.meleeState = null; }
+      return; }
+    const isMelee = m.weapon.type === 'melee';
+    const inRange = isMelee ? dist <= m.weapon.range
+      : dist <= m.weapon.range && dist >= m.weapon.min_range && this.losClear(m.pos, foe.pos);
+    // D-026 : stabilité du châssis (garage D-019) accélère la visée — réduction plafonnée, déterministe
+    const cc = this.ruleset.combat;
+    const stabRed = Math.min(cc.stability_ticks_cap || 2, Math.floor((m.stability || 0) / (cc.stability_ticks_per || 15)));
+    const stab = isMelee ? 0 : Math.max(0, (m.weapon.stabilization_ticks || 0) - stabRed); // D-021 : on s'immobilise pour tirer
+    if (inRange && m.cooldown === 0 && m.ticksStationary >= stab && (!isMelee || this.rng.chance(m.proc.aggression))){
+      if (isMelee){ m.meleeState = { phase: 'windup', ticks: m.weapon.windup_ticks, slot: 0, weaponId: m.weaponId }; return; }
+      this.fireProjectile(i, this.otherIdx(i));
+      return; }
+    const bracing = !isMelee && inRange && m.cooldown === 0 && m.ticksStationary < stab; // D-021 : tracking shot — on ralentit pour épauler, pas d'arrêt total
+    const sec = m.weapons[1];
+    const wantSecMelee = sec && sec.type === 'melee' && m.weapon.type !== 'melee' &&
+      (m.proc.preferred_range <= sec.range + 1.5 || m.pinned);
+    if (wantSecMelee && dist <= sec.range && m.cooldown2 === 0 && this.rng.chance(m.proc.aggression)){
+      m.meleeState = { phase: 'windup', ticks: sec.windup_ticks, slot: 1, weaponId: m.secondaryWeaponId }; return; }
+    // bouclier improvisé (D-020) : un mech capable de mêlée ramasse une épave à portée de main
+    if (!m.improvShield && (isMelee || wantSecMelee) && dist > m.meleeReach * 2){
+      const pi = this.obstacles.findIndex(o => o.pickable &&
+        Math.hypot(o.x - m.pos.x, o.z - m.pos.z) < o.w / 2 + 2.2);
+      if (pi !== -1){ const prop = this.obstacles[pi];
+        if (prop.weaponId && prop.droppedBy === i && m.weaponId === 'fists'){
+          // récupération (D-022) : il reprend son arme larguée
+          m.weaponId = prop.weaponId; m.weapon = this.ruleset.weapons[prop.weaponId]; m.weapons[0] = m.weapon;
+          m.speed_mps = m.baseSpeedMps; m.ticksStationary = 0;
+          this.obstacles.splice(pi, 1);
+          this.log('weapon_recovered', i, { weapon: m.weaponId });
+        } else {
+          m.improvShield = prop.prop_hp; m.improvLabel = prop.weaponId ? 'ARME ENNEMIE' : (prop.label || 'ÉPAVE');
+          this.obstacles.splice(pi, 1);
+          this.log('prop_picked_up', i, { label: m.improvLabel, hp: prop.prop_hp }); } } }
+    // largage d'arme (D-022) : un tireur acculé largue son arme pour s'alléger — l'arme devient un prop ramassable
+    if (m.weapon.type === 'ranged' && !m.droppedOnce && m.pinned && dist < foe.meleeReach + 3){
+      const fux = (foe.pos.x - m.pos.x) / (dist || 1), fuz = (foe.pos.z - m.pos.z) / (dist || 1);
+      const dwx = m.pos.x + fux * 1.6, dwz = m.pos.z + fuz * 1.6;
+      if (!this.blockedAt(dwx, dwz)){
+        this.obstacles.push({ id: 'dropped_weapon_' + i, x: dwx, z: dwz, w: 1.5, h: 1.5,
+          blocks_los: false, kind: 'prop', pickable: true, prop_hp: 12, label: 'ARME LARGUÉE',
+          weaponId: m.weaponId, droppedBy: i });
+        m.prevWeaponId = m.weaponId; m.droppedOnce = true;
+        m.weaponId = 'fists'; m.weapon = this.ruleset.weapons.fists; m.weapons[0] = this.ruleset.weapons.fists;
+        m.meleeReach = Math.max(m.meleeReach, this.ruleset.weapons.fists.range);
+        m.speed_mps = m.baseSpeedMps * (1 + (this.ruleset.combat.drop_speed_bonus || 0.25));
+        m.cooldown = 0; m.meleeState = null; m.ticksStationary = 0;
+        this.log('weapon_dropped', i, { weapon: m.prevWeaponId }); } }
+    const evade = bracing ? false : this.rng.chance(m.proc.evasion_frequency * 0.15);
+    const pref = m.proc.preferred_range;
+    let nx = m.pos.x, nz = m.pos.z;
+    // objectif intermédiaire (D-020) : un mêlée qui affronte un tireur fait un détour par une épave ramassable
+    let tgtX = foe.pos.x, tgtZ = foe.pos.z;
+    if (!m.improvShield && (isMelee || wantSecMelee) && foe.weapon.type === 'ranged' && dist > m.meleeReach + 3){
+      let bd = 14 * 14, bw = null; // rayon de détour = hypothèse D-020
+      for (const o of this.obstacles){ if (!o.pickable) continue;
+        const dd = (o.x - m.pos.x) ** 2 + (o.z - m.pos.z) ** 2;
+        if (dd < bd){ bd = dd; bw = o; } }
+      if (bw){ tgtX = bw.x; tgtZ = bw.z; } }
+    const tdist = Math.hypot(tgtX - m.pos.x, tgtZ - m.pos.z) || 1;
+    const ux = (tgtX - m.pos.x) / tdist, uz = (tgtZ - m.pos.z) / tdist;
+    const bmf = (m.proc.brace_move_factor != null ? m.proc.brace_move_factor : (this.ruleset.combat.brace_move_factor || 0.5)); // tracking shot : visée en mouvement lent
+    if (dist > pref + 1.5 || (isMelee && dist > m.weapon.range) ||
+        (wantSecMelee && dist > sec.range)){
+      if (m.ticksMoved === 0) this.log('movement_started', i, { toward: m.targetIdx });
+      const sf = bracing ? bmf : 1;
+      nx += ux * m.speed_mps * this.dt * sf; nz += uz * m.speed_mps * this.dt * sf; m.ticksMoved++;
+    } else if (dist < pref - 1.5){ const rsf = this.ruleset.combat.retreat_speed_factor; const sf = bracing ? bmf : 1;
+      // D-024 : repli multi-menaces — on s'écarte du centre de gravité des poursuivants proches (pas de recul tout droit dans le 2e chasseur)
+      let rx = -ux, rz = -uz;
+      const rar = this.ruleset.combat.retreat_aware_radius || 20;
+      const near = this.mechs.filter(o => o.team !== m.team && o.hpNow > 0 && this.distance(o.pos, m.pos) < rar);
+      if (near.length >= 2){ let sx = 0, sz = 0;
+        for (const o of near){ const dd = this.distance(o.pos, m.pos) || 1; sx += (m.pos.x - o.pos.x) / dd; sz += (m.pos.z - o.pos.z) / dd; }
+        const sl = Math.hypot(sx, sz) || 1; rx = sx / sl; rz = sz / sl; }
+      nx += rx * m.speed_mps * this.dt * rsf * sf; nz += rz * m.speed_mps * this.dt * rsf * sf; m.ticksMoved++; }
+    if (evade){ nx += -uz * m.speed_mps * this.dt * 2; nz += ux * m.speed_mps * this.dt * 2; }
+    // couvert actif (D-020) : pendant son rechargement, un profil avec cover_usage se replace hors LOS (peek-shooting)
+    if (!bracing && !isMelee && foe.weapon.type === "ranged" && m.cooldown > 3 && dist <= m.weapon.range && (m.proc.cover_usage || 0) >= 0.25 && this.losClear(m.pos, foe.pos)){
+      const cp = this.coverPoint(m, foe);
+      if (cp){ const cdx = cp.x - m.pos.x, cdz = cp.z - m.pos.z, cd = Math.hypot(cdx, cdz) || 1;
+        nx = m.pos.x + cdx / cd * m.speed_mps * this.dt; nz = m.pos.z + cdz / cd * m.speed_mps * this.dt; m.ticksMoved++; } }
+    const W = this.arena.width / 2, D = this.arena.depth / 2;
+    const clampA = (x, z) => [Math.max(-W + 1, Math.min(W - 1, x)), Math.max(-D + 1, Math.min(D - 1, z))];
+    // glissement déterministe le long des obstacles (contournement sans pathfinding complet)
+    const dxm = nx - m.pos.x, dzm = nz - m.pos.z;
+    const len = Math.hypot(dxm, dzm);
+    if (len > 1e-9){
+      const baseAng = Math.atan2(dzm, dxm);
+      const sgn = (i % 2 === 0) ? 1 : -1; // asymétrie par mech : évite les blocages symétriques face à face
+      for (const da of [0, 0.7, -0.7, 1.4, -1.4, 2.1, -2.1]){
+        const a = baseAng + da * sgn;
+        const [cx, cz] = clampA(m.pos.x + Math.cos(a) * len, m.pos.z + Math.sin(a) * len);
+        if (!this.blockedAt(cx, cz)){ m.pos.x = cx; m.pos.z = cz; break; }
+      }
+    }
+    const mdx = m.pos.x - m.prevPos.x, mdz = m.pos.z - m.prevPos.z;
+    m.ticksStationary = bracing ? m.ticksStationary + 1 : 0; // D-021 : chaque tick de visée compte (tracking shot), reset sinon
+    m.vel = { x: mdx / this.dt, z: mdz / this.dt };
+    const rsf2 = this.ruleset.combat.retreat_speed_factor;
+    m.pinned = (dist < pref - 1.5) && ((mdx * -ux + mdz * -uz) < 0.3 * m.speed_mps * this.dt * rsf2);
+    if (mdx * mdx + mdz * mdz > 1e-6) m.heading = Math.atan2(mdz, mdx);
+  }
+
+  // --- projectiles avec temps de vol + esquive physique ---
+  fireProjectile(i, targetIdx){
+    const m = this.mechs[i], foe = this.mechs[targetIdx];
+    const w = m.weapon, c = this.ruleset.combat;
+    const dist = this.distance(m.pos, foe.pos);
+    const ft = dist / w.proj_speed_mps; // temps de vol
+    // visée prédictive : position prévue de la cible + erreur de visée
+    const lead = c.aim_lead_factor;
+    let ax = foe.pos.x + (foe.vel.x || 0) * ft * lead, az = foe.pos.z + (foe.vel.z || 0) * ft * lead;
+    // D-026 : précision du châssis (garage D-019) resserre l'erreur de visée — tireurs seulement
+    const acc = Math.min(0.98, w.accuracy + (m.accuracy_bonus || 0));
+    const err = (1 - acc) * dist * c.aim_error_factor;
+    const ang = this.rng.range(-Math.PI, Math.PI), rad = this.rng.range(0, err);
+    ax += Math.cos(ang) * rad; az += Math.sin(ang) * rad;
+    ax = Math.max(-this.arena.width / 2 + 1, Math.min(this.arena.width / 2 - 1, ax));
+    az = Math.max(-this.arena.depth / 2 + 1, Math.min(this.arena.depth / 2 - 1, az));
+    const aim = { x: ax, z: az };
+    const total = this.distance(m.pos, aim);
+    this.projectiles.push({ team: m.team, fromIdx: i, weaponId: m.weaponId,
+      x: m.pos.x, z: m.pos.z, dx: (aim.x - m.pos.x) / (total || 1), dz: (aim.z - m.pos.z) / (total || 1),
+      speed: w.proj_speed_mps, traveled: 0, maxDist: total,
+      damage: w.damage, crit_chance: w.crit_chance || 0, crit_mult: w.crit_mult || 1 });
+    m.shotsFired++;
+    this.log('weapon_fired', i, { target: targetIdx, weapon: m.weaponId, fx: m.pos.x, fz: m.pos.z, tx: aim.x, tz: aim.z, proj_speed: w.proj_speed_mps });
+    m.cooldown = w.cooldown_ticks; m.heat += w.heat; this.checkOverheat(i, m);
+  }
+  stepProjectiles(){ const c = this.ruleset.combat;
+    for (const p of this.projectiles){
+      const step = p.speed * this.dt;
+      if (p.traveled + step >= p.maxDist){
+        p.x += p.dx * (p.maxDist - p.traveled); p.z += p.dz * (p.maxDist - p.traveled); p.traveled = p.maxDist; p.arrived = true;
+      } else { p.x += p.dx * step; p.z += p.dz * step; p.traveled += step; } }
+    // résolution des projectiles arrivés
+    const still = [];
+    for (const p of this.projectiles){
+      if (!p.arrived){ still.push(p); continue; }
+      const targetIdx = this.mechs.findIndex(m => m.team !== p.team && m.hpNow > 0 &&
+        this.distance(m.pos, { x: p.x, z: p.z }) <= c.proj_hit_radius);
+      const shooter = this.mechs[p.fromIdx];
+      if (targetIdx !== -1){
+        const crit = this.rng.chance(p.crit_chance);
+        const dmg = crit ? Math.round(p.damage * p.crit_mult) : p.damage;
+        shooter.shotsHit++;
+        this.log('projectile_impact', p.fromIdx, { target: targetIdx, weapon: p.weaponId, damage: dmg, crit });
+        if (crit){ shooter.crits++; this.log('critical_hit', p.fromIdx, { target: targetIdx, damage: dmg }); }
+        this.applyDamage(p.fromIdx, targetIdx, dmg);
+      } else {
+        let foe = -1, bd = Infinity; // D-024 : l'esquive est attribuée à l'ennemi vivant le plus proche du point d'impact
+        for (let j = 0; j < this.mechs.length; j++){ const mm = this.mechs[j];
+          if (mm.team === p.team || mm.hpNow <= 0) continue;
+          const dd = this.distance(mm.pos, { x: p.x, z: p.z }); if (dd < bd){ bd = dd; foe = j; } }
+        if (foe !== -1){ this.mechs[foe].dodges++; }
+        this.log('attack_missed', p.fromIdx, { kind: 'dodge', weapon: p.weaponId, x: p.x, z: p.z });
+      } }
+    this.projectiles = still;
+  }
+
+  applyDamage(fromIdx, toIdx, dmg){ const m = this.mechs[toIdx]; let d = dmg;
+    d = this.applyPassiveMods(toIdx, d);
+    if (m.improvShield > 0){ const absorbed = Math.min(m.improvShield, Math.round(d)); m.improvShield -= absorbed; d -= absorbed;
+      if (m.improvShield <= 0){ this.log('prop_destroyed', toIdx, { by: fromIdx }); m.improvLabel = null; } }
+    if (m.shieldNow > 0){ const absorbed = Math.min(m.shieldNow, Math.round(d)); m.shieldNow -= absorbed; d -= absorbed;
+      if (m.shieldNow === 0) this.log('shield_break', toIdx, {}); }
+    if (d > 0){ const after = Math.max(this.ruleset.combat.min_damage_after_armor, Math.round(d - m.armor * 0.25));
+      m.hpNow = Math.max(0, m.hpNow - after);
+      m.lastHitTick = this.tick;
+      this.log('armor_damaged', toIdx, { by: fromIdx, damage: after, hp: m.hpNow });
+      this.mechs[fromIdx].damageDealt += after; m.damageTaken += after; } }
+  // point derrière un couvert, côté opposé à l'ennemi — ordre de balayage fixe = déterministe
+  coverPoint(m, foe){ let best = null, bestD = Infinity;
+    const W = this.arena.width / 2, D = this.arena.depth / 2;
+    for (const o of this.obstacles){ if (!o.blocks_los) continue;
+      const dx = o.x - foe.pos.x, dz = o.z - foe.pos.z, dd = Math.hypot(dx, dz) || 1;
+      const px = o.x + dx / dd * (Math.max(o.w, o.h) / 2 + 1.8), pz = o.z + dz / dd * (Math.max(o.w, o.h) / 2 + 1.8);
+      if (Math.abs(px) > W - 1 || Math.abs(pz) > D - 1) continue;
+      if (this.losClear({ x: px, z: pz }, foe.pos)) continue; // ne casse pas la LOS → inutile
+      if (this.blockedAt(px, pz)) continue;
+      const d = Math.hypot(px - m.pos.x, pz - m.pos.z);
+      if (d < bestD && d > 0.5){ bestD = d; best = { x: px, z: pz }; } }
+    return best; }
+  checkOverheat(i, m){ if (m.heat >= this.ruleset.combat.overheat_threshold){
+      m.heat = this.ruleset.combat.overheat_threshold;
+      m.stunTicks = this.ruleset.combat.overheat_stun_seconds * this.tickRate; m.meleeState = null;
+      this.log('overheated', i, { stun_ticks: m.stunTicks }); } }
+}
+
+function segRect(a, b, x1, z1, x2, z2){
+  const dx = b.x - a.x, dz = b.z - a.z; let t0 = 0, t1 = 1;
+  const p = [-dx, dx, -dz, dz], q = [a.x - x1, x2 - a.x, a.z - z1, z2 - a.z];
+  for (let k = 0; k < 4; k++){ if (p[k] === 0){ if (q[k] < 0) return false; }
+    else { const r = q[k] / p[k]; if (p[k] < 0){ if (r > t1) return false; if (r > t0) t0 = r; }
+      else { if (r < t0) return false; if (r < t1) t1 = r; } } }
+  return true;
+}
+const RULESET = {
+  "version": "0.6.0",
+  "simulation": {
+    "tick_hz": 15,
+    "battle_timeout_seconds": 120
+  },
+  "arenas": {
+    "proving_grounds": {
+      "label": "TERRAIN D'ESSAI",
+      "width": 80,
+      "depth": 40,
+      "spawns": [
+        {
+          "x": -30,
+          "z": -10
+        },
+        {
+          "x": 30,
+          "z": 10
+        }
+      ],
+      "spawn_sides": {
+        "alpha": { "type": "drop", "x": -36, "z": 0, "dir": 0 },
+        "omega": { "type": "drop", "x": 36, "z": 0, "dir": 3.14159 }
+      },
+      "obstacles": [
+        {
+          "id": "cover_left",
+          "x": -18,
+          "z": 2,
+          "w": 6,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "cover"
+        },
+        {
+          "id": "cover_right",
+          "x": 18,
+          "z": -2,
+          "w": 6,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "cover"
+        },
+        {
+          "id": "crate_mid",
+          "x": 0,
+          "z": 12,
+          "w": 4,
+          "h": 4,
+          "blocks_los": true,
+          "kind": "crate"
+        },
+        {
+          "id": "pillar_high",
+          "x": -5,
+          "z": -12,
+          "w": 3,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "pillar"
+        },
+        {
+          "id": "wreck_a",
+          "x": -24,
+          "z": -14,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        },
+        {
+          "id": "wreck_b",
+          "x": 24,
+          "z": 14,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        }
+      ]
+    },
+    "open_field": {
+      "label": "PLAINE OUVERTE",
+      "width": 90,
+      "depth": 30,
+      "spawns": [
+        {
+          "x": -40,
+          "z": 0
+        },
+        {
+          "x": 40,
+          "z": 0
+        }
+      ],
+      "spawn_sides": {
+        "alpha": { "type": "corridor", "x": -41, "z": 0, "dir": 0 },
+        "omega": { "type": "corridor", "x": 41, "z": 0, "dir": 3.14159 }
+      },
+      "obstacles": [
+        {
+          "id": "crate_a",
+          "x": -25,
+          "z": 9,
+          "w": 4,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "crate"
+        },
+        {
+          "id": "crate_b",
+          "x": 25,
+          "z": -9,
+          "w": 4,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "crate"
+        },
+        {
+          "id": "wreck_a",
+          "x": -15,
+          "z": -8,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        },
+        {
+          "id": "wreck_b",
+          "x": 15,
+          "z": 8,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        }
+      ]
+    },
+    "industrial_complex": {
+      "label": "COMPLEXE INDUSTRIEL",
+      "width": 70,
+      "depth": 50,
+      "spawns": [
+        {
+          "x": -30,
+          "z": 0
+        },
+        {
+          "x": 30,
+          "z": 0
+        }
+      ],
+      "spawn_sides": {
+        "alpha": { "type": "corridor", "x": -31, "z": 0, "dir": 0 },
+        "omega": { "type": "corridor", "x": 31, "z": 0, "dir": 3.14159 }
+      },
+      "obstacles": [
+        {
+          "id": "pillar_a",
+          "x": -15,
+          "z": 15,
+          "w": 3,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "pillar"
+        },
+        {
+          "id": "pillar_b",
+          "x": -15,
+          "z": -15,
+          "w": 3,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "pillar"
+        },
+        {
+          "id": "pillar_c",
+          "x": 15,
+          "z": 15,
+          "w": 3,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "pillar"
+        },
+        {
+          "id": "pillar_d",
+          "x": 15,
+          "z": -15,
+          "w": 3,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "pillar"
+        },
+        {
+          "id": "core_block",
+          "x": 0,
+          "z": 0,
+          "w": 5,
+          "h": 5,
+          "blocks_los": true,
+          "kind": "crate"
+        },
+        {
+          "id": "catwalk_n",
+          "x": 0,
+          "z": 22,
+          "w": 4,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "crate"
+        },
+        {
+          "id": "catwalk_s",
+          "x": 0,
+          "z": -22,
+          "w": 4,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "crate"
+        },
+        {
+          "id": "wreck_a",
+          "x": -25,
+          "z": 8,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        },
+        {
+          "id": "wreck_b",
+          "x": 25,
+          "z": -8,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        }
+      ]
+    },
+    "canyon_run": {
+      "label": "DÉFILÉ",
+      "width": 100,
+      "depth": 24,
+      "spawns": [
+        {
+          "x": -45,
+          "z": 0
+        },
+        {
+          "x": 45,
+          "z": 0
+        }
+      ],
+      "spawn_sides": {
+        "alpha": { "type": "drop", "x": -45, "z": 0, "dir": 0 },
+        "omega": { "type": "drop", "x": 45, "z": 0, "dir": 3.14159 }
+      },
+      "obstacles": [
+        {
+          "id": "plat_left",
+          "x": -10,
+          "z": 8.5,
+          "w": 8,
+          "h": 3,
+          "blocks_los": false,
+          "kind": "platform"
+        },
+        {
+          "id": "plat_right",
+          "x": 10,
+          "z": -8.5,
+          "w": 8,
+          "h": 3,
+          "blocks_los": false,
+          "kind": "platform"
+        },
+        {
+          "id": "spire_mid",
+          "x": 0,
+          "z": 0,
+          "w": 3,
+          "h": 4,
+          "blocks_los": true,
+          "kind": "pillar"
+        },
+        {
+          "id": "wreck_a",
+          "x": -20,
+          "z": -9,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        },
+        {
+          "id": "wreck_b",
+          "x": 20,
+          "z": 9,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        }
+      ]
+    }
+  },
+  "combat": {
+    "overheat_threshold": 100,
+    "overheat_stun_seconds": 3,
+    "min_damage_after_armor": 1,
+    "proj_hit_radius": 1.5,
+    "aim_error_factor": 0.18,    "aim_lead_factor": 0.75,
+    "retreat_speed_factor": 0.7,
+    "brace_move_factor": 0.6,
+    "drop_speed_bonus": 0.25,
+    "shield_regen_delay_ticks": 60,
+    "shield_regen_per_s": 4,
+    "stagger_immunity_ticks": 30,
+    "stability_ticks_per": 15,
+    "stability_ticks_cap": 2,
+    "retreat_aware_radius": 20,
+    "smoke": {
+      "enabled": true,
+      "radius": 8,
+      "duration_ticks": 105,
+      "default_hp_threshold": 0.5,
+      "phantom_hp_threshold": 0.85,
+      "charges": 1
+    }
+  },
+  "weapons": {
+    "autocannon_mk1": {
+      "type": "ranged",
+      "range": 40,
+      "min_range": 0,
+      "damage": 12,
+      "cooldown_ticks": 13,
+      "heat": 5,
+      "accuracy": 0.85,
+      "proj_speed_mps": 100,
+      "crit_chance": 0.1,
+      "crit_mult": 1.5,
+      "stabilization_ticks": 2,
+      "label": "AUTOCANON MK1"
+    },
+    "seraph_lrm_pod": {
+      "type": "ranged",
+      "range": 70,
+      "min_range": 15,
+      "damage": 36,
+      "cooldown_ticks": 26,
+      "heat": 9,
+      "accuracy": 0.75,
+      "proj_speed_mps": 70,
+      "crit_chance": 0.15,
+      "crit_mult": 1.75,
+      "stabilization_ticks": 2,
+      "label": "SERAPH LRM"
+    },
+    "reaver_blade": {
+      "type": "melee",
+      "range": 3,
+      "damage": 24,
+      "windup_ticks": 8,
+      "recovery_ticks": 12,
+      "heat": 10,
+      "accuracy": 0.85,
+      "crit_chance": 0.2,
+      "crit_mult": 2,
+      "stagger": true,
+      "label": "LAME REAVER"
+    },
+    "impact_ram": {
+      "type": "melee",
+      "range": 2.5,
+      "damage": 14,
+      "windup_ticks": 3,
+      "recovery_ticks": 6,
+      "heat": 6,
+      "accuracy": 0.85,
+      "crit_chance": 0.1,
+      "crit_mult": 1.75,
+      "stagger": true,
+      "label": "BÉLIER D'IMPACT"
+    },
+    "rail_gun_mk1": {
+      "type": "ranged",
+      "range": 80,
+      "min_range": 18,
+      "damage": 42,
+      "cooldown_ticks": 34,
+      "heat": 12,
+      "accuracy": 0.9,
+      "proj_speed_mps": 150,
+      "crit_chance": 0.2,
+      "crit_mult": 2,
+      "stabilization_ticks": 4,
+      "label": "RAILLARD MK1"
+    },
+    "scatter_gun_mk1": {
+      "type": "ranged",
+      "range": 18,
+      "min_range": 0,
+      "damage": 15,
+      "cooldown_ticks": 12,
+      "heat": 5,
+      "accuracy": 0.8,
+      "proj_speed_mps": 60,
+      "crit_chance": 0.1,
+      "crit_mult": 1.5,
+      "stabilization_ticks": 1,
+      "label": "FUSIL À ÉCLATS"
+    },
+    "war_pike_mk1": {
+      "type": "melee",
+      "range": 3.8,
+      "damage": 18,
+      "windup_ticks": 5,
+      "recovery_ticks": 9,
+      "heat": 5,
+      "accuracy": 0.8,
+      "crit_chance": 0.15,
+      "crit_mult": 1.75,
+      "stagger": true,
+      "label": "PIQUE D'ASSAUT"
+    },
+    "grinder_mk1": {
+      "type": "melee",
+      "range": 2,
+      "damage": 11,
+      "windup_ticks": 2,
+      "recovery_ticks": 2,
+      "heat": 2,
+      "accuracy": 0.9,
+      "crit_chance": 0.1,
+      "crit_mult": 1.25,
+      "stagger": false,
+      "label": "BROYEUR À CHAÎNES"
+    },
+    "fists": {
+      "type": "melee",
+      "range": 1.8,
+      "damage": 8,
+      "windup_ticks": 3,
+      "recovery_ticks": 5,
+      "heat": 2,
+      "accuracy": 0.8,
+      "crit_chance": 0.05,
+      "crit_mult": 1.5,
+      "stagger": false,
+      "hidden": true,
+      "label": "POINGS"
+    }
+  },
+  "mechs": {
+    "hound_prime": {
+      "class": "heavy",
+      "speed_mps": 3.6,
+      "hp": 200,
+      "armor": 22,
+      "shield": 0,
+      "cooling_per_s": 8,
+      "passive": {
+        "id": "bulwark_protocol",
+        "label": "PROTOCOLE BASTION",
+        "hp_threshold": 0.5,
+        "dr_bonus": 0.25
+      },
+      "label": "HOUND PRIME (HEAVY)"
+    },
+    "longbow_mk1": {
+      "class": "artillery",
+      "speed_mps": 4.2,
+      "hp": 160,
+      "armor": 18,
+      "shield": 40,
+      "cooling_per_s": 6,
+      "passive": {
+        "id": "aegis_loop",
+        "label": "BOUCLE ÉGIDE",
+        "regen_delay_ticks": 60,
+        "regen_per_s": 4
+      },
+      "label": "LONGBOW MK1 (ARTILLERY)"
+    },
+    "warden_x1": {
+      "class": "assault",
+      "speed_mps": 3.8,
+      "hp": 180,
+      "armor": 20,
+      "shield": 20,
+      "cooling_per_s": 7,
+      "passive": {
+        "id": "bulwark_protocol",
+        "label": "PROTOCOLE BASTION",
+        "hp_threshold": 0.5,
+        "dr_bonus": 0.25
+      },
+      "label": "WARDEN X1 (ASSAUT)"
+    },
+    "ghost_lt": {
+      "class": "scout",
+      "speed_mps": 4.6,
+      "hp": 150,
+      "armor": 15,
+      "shield": 35,
+      "cooling_per_s": 5,
+      "passive": {
+        "id": "aegis_loop",
+        "label": "BOUCLE ÉGIDE",
+        "regen_delay_ticks": 60,
+        "regen_per_s": 4
+      },
+      "label": "GHOST LT (ÉCLAIREUR)"
+    }
+  },
+  "processors": {
+    "berserker": {
+      "preferred_range": 3,
+      "aggression": 0.9,
+      "risk_tolerance": 0.8,
+      "cover_usage": 0,
+      "evasion_frequency": 0.1,
+      "retreat_threshold": 0.05,
+      "targeting": "closest",
+      "smoke_hp_threshold": 0.5,
+      "label": "BERSERKER"
+    },
+    "tactician": {
+      "preferred_range": 35,
+      "aggression": 0.5,
+      "risk_tolerance": 0.4,
+      "cover_usage": 0.6,
+      "evasion_frequency": 0.3,
+      "retreat_threshold": 0.3,
+      "targeting": "weakest",
+      "smoke_hp_threshold": 0.5,
+      "label": "TACTICIAN"
+    },
+    "guardian": {
+      "preferred_range": 25,
+      "aggression": 0.35,
+      "risk_tolerance": 0.2,
+      "cover_usage": 0.8,
+      "evasion_frequency": 0.2,
+      "retreat_threshold": 0.5,
+      "targeting": "protector",
+      "smoke_hp_threshold": 0.5,
+      "label": "GUARDIAN"
+    },
+    "phantom": {
+      "preferred_range": 18,
+      "aggression": 0.6,
+      "risk_tolerance": 0.5,
+      "cover_usage": 0.3,
+      "evasion_frequency": 0.7,
+      "retreat_threshold": 0.25,
+      "targeting": "weakest",
+      "smoke_hp_threshold": 0.85,
+      "label": "PHANTOM"
+    }
+  }
+};
+
+// ==== MODULE GARAGE v0.5.1 (presets + stats dérivées) ====
+const SLOTS = ['head','torso','left_arm','right_arm','left_leg','right_leg',
+  'left_shoulder','right_shoulder','weapon_primary','weapon_secondary','engine','shield','cooling','utility'];
+
+const CHASSIS = {
+  hound_prime: { family: 'humanoid_alpha', mass_max: 140, base_speed: 3.4, label: 'HOUND PRIME (HEAVY)' },
+  longbow_mk1: { family: 'humanoid_alpha', mass_max: 125, base_speed: 4.0, label: 'LONGBOW MK1 (ARTILLERY)' },
+  warden_x1:   { family: 'humanoid_alpha', mass_max: 130, base_speed: 3.8, label: 'WARDEN X1 (ASSAUT)' },
+  ghost_lt:     { family: 'humanoid_alpha', mass_max: 108, base_speed: 4.6, label: 'GHOST LT (ÉCLAIREUR)' }
+};
+
+// Armes existantes (ruleset sim) + slots autorisés + masse (hypothèse D-019)
+const WEAPONS_GARAGE = {
+  autocannon_mk1: { slots: ['weapon_primary', 'weapon_secondary'], mass: 8 },
+  seraph_lrm_pod:  { slots: ['weapon_primary'], mass: 12 },
+  reaver_blade:    { slots: ['weapon_primary', 'weapon_secondary'], mass: 5 },
+  impact_ram:      { slots: ['weapon_primary', 'weapon_secondary'], mass: 7 },
+  rail_gun_mk1:    { slots: ['weapon_primary'], mass: 13 },
+  scatter_gun_mk1: { slots: ['weapon_primary', 'weapon_secondary'], mass: 6 },
+  war_pike_mk1:    { slots: ['weapon_primary', 'weapon_secondary'], mass: 6 },
+  grinder_mk1:     { slots: ['weapon_primary', 'weapon_secondary'], mass: 4 },
+  fists:           { slots: ['weapon_secondary'], mass: 0 }
+};
+
+// Chaque module : slot unique, familles compatibles, fonctionnel vs cosmétique
+// (explicite, assembly_rules #4), attributs issus de module_attributes (spec).
+const MODULES = {
+  torso_standard:  { slot:'torso', families:['humanoid_alpha'], functional:true, mass:30, durability:120, armor:10, power_draw:4, heat_generation:2, label:'TORSE STANDARD' },
+  torso_fortified: { slot:'torso', families:['humanoid_alpha'], functional:true, mass:38, durability:160, armor:14, power_draw:5, heat_generation:3, mobility_modifier:0.95, label:'TORSE RENFORCÉ' },
+  head_sensor_mk1: { slot:'head', families:['humanoid_alpha'], functional:true, mass:4, durability:30, armor:3, power_draw:2, accuracy_modifier:0.02, label:'CAPTEURS MK1' },
+  head_targeter:   { slot:'head', families:['humanoid_alpha'], functional:true, mass:5, durability:25, armor:2, power_draw:3, accuracy_modifier:0.05, label:'VISEUR CIBLE' },
+  arm_left_standard:  { slot:'left_arm',  families:['humanoid_alpha'], functional:true, mass:8, durability:40, armor:4, stability:5, power_draw:1, label:'BRAS G. STANDARD' },
+  arm_right_standard: { slot:'right_arm', families:['humanoid_alpha'], functional:true, mass:8, durability:40, armor:4, stability:5, power_draw:1, label:'BRAS D. STANDARD' },
+  leg_left_standard:  { slot:'left_leg',  families:['humanoid_alpha'], functional:true, mass:12, durability:50, armor:5, mobility_modifier:1.0, power_draw:2, label:'JAMBE G. STANDARD' },
+  leg_right_standard: { slot:'right_leg', families:['humanoid_alpha'], functional:true, mass:12, durability:50, armor:5, mobility_modifier:1.0, power_draw:2, label:'JAMBE D. STANDARD' },
+  leg_left_sprint:    { slot:'left_leg',  families:['humanoid_alpha'], functional:true, mass:10, durability:40, armor:3, mobility_modifier:1.15, power_draw:2, label:'JAMBE G. SPRINT' },
+  leg_right_sprint:    { slot:'right_leg', families:['humanoid_alpha'], functional:true, mass:10, durability:40, armor:3, mobility_modifier:1.15, power_draw:2, label:'JAMBE D. SPRINT' },
+  shoulder_plate_L: { slot:'left_shoulder',  families:['humanoid_alpha'], functional:true, mass:6, durability:35, armor:6, stability:10, label:'PAULDRON G.' },
+  shoulder_plate_R: { slot:'right_shoulder', families:['humanoid_alpha'], functional:true, mass:6, durability:35, armor:6, stability:10, label:'PAULDRON D.' },
+  engine_vx4: { slot:'engine', families:['humanoid_alpha'], functional:true, mass:14, power_budget:40, heat_generation:4, mobility_modifier:1.0, label:'MOTEUR VX4' },
+  engine_vx6: { slot:'engine', families:['humanoid_alpha'], functional:true, mass:18, power_budget:55, heat_generation:6, mobility_modifier:1.05, label:'MOTEUR VX6' },
+  shield_basic: { slot:'shield', families:['humanoid_alpha'], functional:true, mass:6, shield_capacity:40, power_draw:8, heat_generation:2, label:'BOUCLIER BASIQUE' },
+  cooling_standard: { slot:'cooling', families:['humanoid_alpha'], functional:true, mass:8, cooling_capacity:6, power_draw:2, label:'DISSIPATION STD' },
+  cooling_deluxe:   { slot:'cooling', families:['humanoid_alpha'], functional:true, mass:11, cooling_capacity:11, power_draw:3, label:'DISSIPATION+' },
+  utility_gyro:     { slot:'utility', families:['humanoid_alpha'], functional:true, mass:3, stability:15, power_draw:2, label:'GYROSTABILISATEUR' },
+  utility_targeting: { slot:'utility', families:['humanoid_alpha'], functional:true, mass:2, accuracy_modifier:0.03, power_draw:2, label:'ASSIST. VISÉE' },
+  // module cosmétique — explicite (assembly_rules #4), aucun effet gameplay
+  decal_stripes: { slot:'torso', families:['humanoid_alpha'], functional:false, mass:0.5, label:'DECAL RAYURES (COSMÉTIQUE)' }
+};
+
+// ---- validation (assembly_rules #2 masse/puissance/chaleur/slots, #5 messages) ----
+// loadout : objet { slot: moduleId } — weapon_secondary omis = POINGS par défaut
+function validateLoadout(chassisId, loadout){
+  const errors = [];
+  const ch = CHASSIS[chassisId];
+  if (!ch) return { ok:false, errors:['CHÂSSIS INCONNU : '+chassisId], stats:null };
+  const bySlot = {};
+  for (const slot in loadout){
+    const id = loadout[slot];
+    if (!SLOTS.includes(slot)){ errors.push('SLOT INCONNU : '+slot); continue; }
+    if (WEAPONS_GARAGE[id]){ // arme
+      if (!WEAPONS_GARAGE[id].slots.includes(slot))
+        errors.push('SLOT D\'ARME INVALIDE : '+id+' ne se monte que sur '+WEAPONS_GARAGE[id].slots.join(' / ')+' — pas sur '+slot);
+      if (bySlot[slot]) errors.push('SLOT DÉJÀ OCCUPÉ : '+slot+' ('+bySlot[slot]+' vs '+id+')');
+      bySlot[slot] = id;
+      continue;
+    }
+    const mod = MODULES[id];
+    if (!mod){ errors.push('MODULE INCONNU : '+id+' (slot '+slot+')'); continue; }
+    if (mod.slot !== slot){ errors.push('SLOT INVALIDE : '+id+' se monte sur '+mod.slot+', pas sur '+slot); continue; }
+    if (!mod.families.includes(ch.family))
+      errors.push('INCOMPATIBILITÉ FAMILLE : '+id+' (families '+mod.families.join(',')+') incompatible avec '+chassisId+' ('+ch.family+')');
+    bySlot[slot] = id;
+  }
+  if (!bySlot.weapon_primary) errors.push('ARME PRINCIPALE REQUISE : le slot weapon_primary doit être équipé');
+  if (!bySlot.torso) errors.push('TORSE REQUIS : le slot torso doit être équipé');
+  if (!bySlot.engine) errors.push('MOTEUR REQUIS : le slot engine doit être équipé');
+  if (bySlot.weapon_secondary === undefined) bySlot.weapon_secondary = 'fists'; // défaut spec v0.2.1
+  if (bySlot.weapon_primary && bySlot.weapon_primary === bySlot.weapon_secondary)
+    errors.push('DOUBLON D\'ARME : weapon_primary et weapon_secondary ne peuvent pas être identiques');
+
+  // budgets (hypothèses D-019)
+  let mass = 0, draw = 0, powerBudget = 0, heatGen = 0, coolingCap = 0;
+  for (const slot in bySlot){
+    if (WEAPONS_GARAGE[bySlot[slot]]){ mass += WEAPONS_GARAGE[bySlot[slot]].mass; continue; }
+    const m = MODULES[bySlot[slot]]; if (!m) continue;
+    mass += m.mass; draw += m.power_draw || 0; powerBudget += m.power_budget || 0;
+    heatGen += m.heat_generation || 0; coolingCap += m.cooling_capacity || 0;
+  }
+  if (mass > ch.mass_max)
+    errors.push('MASSE DÉPASSÉE : '+mass.toFixed(1)+'t / '+ch.mass_max+'t (dépassement +'+(mass-ch.mass_max).toFixed(1)+'t)');
+  if (draw > powerBudget)
+    errors.push('PUISSANCE INSUFFISANTE : modules '+draw+' PW consommés / moteur '+powerBudget+' PW fournis (déficit -'+(powerBudget-draw)+' PW)');
+  if (heatGen > coolingCap)
+    errors.push('CHALEUR STRUCTURELLE : émission '+heatGen+' / dissipation '+coolingCap+' — surchauffe au ralenti impossible à tenir');
+
+  return { ok: errors.length === 0, errors, stats: deriveStats(chassisId, bySlot) };
+}
+
+// ---- stats dérivées → surcharge ruleset.mechs (aucun changement CombatSim requis) ----
+function deriveStats(chassisId, bySlot){
+  const ch = CHASSIS[chassisId];
+  let hp = 0, armorSum = 0, armorN = 0, mob = 0, mobN = 0, accMod = 0, stability = 0, shield = 0, mass = 0;
+  for (const slot in bySlot){
+    const id = bySlot[slot];
+    if (WEAPONS_GARAGE[id]){ mass += WEAPONS_GARAGE[id].mass; continue; }
+    const m = MODULES[id]; if (!m) continue;
+    mass += m.mass;
+    if (!m.functional) continue;
+    if (slot === 'torso') hp += m.durability; else hp += (m.durability || 0) * 0.35;
+    if (m.armor){ armorSum += m.armor; armorN++; }
+    if (m.mobility_modifier){ mob += m.mobility_modifier; mobN++; }
+    accMod += m.accuracy_modifier || 0; stability += m.stability || 0; shield += m.shield_capacity || 0;
+  }
+  return { hp: Math.round(hp), armor: armorN ? Math.round(armorSum / armorN) : 0,
+    speed_mps: Math.round(ch.base_speed * (mobN ? mob / mobN : 1) * 100) / 100,
+    shield, accuracy_bonus: Math.round(accMod * 100) / 100, stability, mass: Math.round(mass * 10) / 10 };
+}
+
+// ---- presets (builds valides par construction) ----
+const PRESETS = {
+  bulwark: { label:'BASTION', mechId:'hound_prime', weapon:'impact_ram', loadout:{
+    head:'head_sensor_mk1', torso:'torso_fortified', left_arm:'arm_left_standard', right_arm:'arm_right_standard',
+    left_leg:'leg_left_standard', right_leg:'leg_right_standard', left_shoulder:'shoulder_plate_L', right_shoulder:'shoulder_plate_R',
+    weapon_primary:'impact_ram', engine:'engine_vx4', shield:'shield_basic', cooling:'cooling_deluxe', utility:'utility_gyro' }},
+  skirmisher: { label:'ÉCLAIREUR', mechId:'longbow_mk1', weapon:'autocannon_mk1', loadout:{
+    head:'head_targeter', torso:'torso_standard', left_arm:'arm_left_standard', right_arm:'arm_right_standard',
+    left_leg:'leg_left_sprint', right_leg:'leg_right_sprint',
+    weapon_primary:'autocannon_mk1', engine:'engine_vx6', shield:'shield_basic', cooling:'cooling_deluxe', utility:'utility_targeting' }},
+  linebreaker: { label:'BRISERIE', mechId:'hound_prime', weapon:'reaver_blade', loadout:{
+    head:'head_sensor_mk1', torso:'torso_standard', left_arm:'arm_left_standard', right_arm:'arm_right_standard',
+    left_leg:'leg_left_standard', right_leg:'leg_right_standard', left_shoulder:'shoulder_plate_L', right_shoulder:'shoulder_plate_R',
+    weapon_primary:'reaver_blade', weapon_secondary:'impact_ram', engine:'engine_vx6', shield:'shield_basic', cooling:'cooling_deluxe', utility:'utility_gyro' }},
+  artillery: { label:'ARTILLERIE', mechId:'longbow_mk1', weapon:'seraph_lrm_pod', loadout:{
+    head:'head_targeter', torso:'torso_standard', left_arm:'arm_left_standard', right_arm:'arm_right_standard',
+    left_leg:'leg_left_standard', right_leg:'leg_right_standard',
+    weapon_primary:'seraph_lrm_pod', engine:'engine_vx4', shield:'shield_basic', cooling:'cooling_deluxe', utility:'utility_targeting' }},
+  marksman: { label:'CELLULE', mechId:'ghost_lt', weapon:'rail_gun_mk1', loadout:{
+    head:'head_targeter', torso:'torso_standard', left_arm:'arm_left_standard', right_arm:'arm_right_standard',
+    left_leg:'leg_left_sprint', right_leg:'leg_right_sprint',
+    weapon_primary:'rail_gun_mk1', engine:'engine_vx4', cooling:'cooling_standard', utility:'utility_targeting' }},
+  sweeper: { label:'NETTOYEUR', mechId:'warden_x1', weapon:'scatter_gun_mk1', loadout:{
+    head:'head_sensor_mk1', torso:'torso_fortified', left_arm:'arm_left_standard', right_arm:'arm_right_standard',
+    left_leg:'leg_left_standard', right_leg:'leg_right_standard',
+    weapon_primary:'scatter_gun_mk1', weapon_secondary:'war_pike_mk1', engine:'engine_vx4', shield:'shield_basic', cooling:'cooling_deluxe', utility:'utility_gyro' }}
+};
+
+// surcharge du ruleset : presets → entrées mechs (stats dérivées), prêtes pour CombatSim
+// D-026 (v0.5.1) : accuracy_bonus et stability sont désormais branchés dans CombatSim
+// (précision additive clampée 0,98 pour les tireurs ; réduction de stabilisation
+// stabRed = min(cap 2, stabilité/15 ticks) — voir sim v0.5.1).
+function buildSimOverrides(ruleset, presets = PRESETS){
+  const rs = JSON.parse(JSON.stringify(ruleset));
+  for (const id in presets){ const p = presets[id]; const v = validateLoadout(p.mechId, p.loadout);
+    if (!v.ok) throw new Error('preset invalide '+id+' : '+v.errors.join(' | '));
+    const s = v.stats;
+    rs.mechs[id] = { class: rs.mechs[p.mechId].class, speed_mps: s.speed_mps, hp: s.hp, armor: s.armor,
+      shield: s.shield, cooling_per_s: rs.mechs[p.mechId].cooling_per_s,
+      accuracy_bonus: s.accuracy_bonus, stability: s.stability, // D-026 : branchés au moteur v0.5.1
+      passive: rs.mechs[p.mechId].passive, label: p.label + ' (' + id + ')' };
+  }
+  return rs;
+}
+
+// ==== MANAGER v0.7.0 — la vraie boucle de jeu (D-029) ====
+// Centre de commandement → roster → garage → championnat → analyse → pré-bataille → match observé → rapport.
+// ⚠️ GOUVERNANCE : toutes les valeurs économiques/XP/fatigue ci-dessous sont des HYPOTHÈSES
+// data-driven (const GAME), balance-testables par audit, à valider par l'owner (règle spec :
+// « All prices and rewards must be data-driven and balance-tested »). Aucune loot box, aucun taux.
+const $ = id => document.getElementById(id);
+const RSG = buildSimOverrides(RULESET); // presets → entrées mechs (stats + champs D-026 câblés)
+const ARENA_IDS = Object.keys(RULESET.arenas);
+const PROC_IDS = Object.keys(RULESET.processors);
+const TEAMCOL = { 0: '#D93432', 1: '#AAB2BA' };
+const store = { get(k){ try { return localStorage.getItem(k); } catch (e){ return null; } }, set(k, v){ try { localStorage.setItem(k, v); } catch (e){} }, del(k){ try { localStorage.removeItem(k); } catch (e){} } };
+const SAVE_KEY = 'irongrade_v070';
+
+const GAME = { // HYPOTHÈSES d'équilibrage (D-029) — data-driven, à valider par l'owner
+  credits_depart: 2500, cr_victoire_match: 260, cr_defaite_match: 90, cr_duel_gagne: 20,
+  cr_reparation_par_hp: 2, condition_indisponible: 50,
+  xp_duel_gagne: 30, xp_duel_perdu: 12, xp_niveau: 100, stat_cap: 10,
+  fatigue_par_duel: 18, fatigue_reflexes_mod: 1, fatigue_repos_journee: 9, fatigue_max_alignable: 80,
+  blessure_journees: 1, moral_duel_gagne: 6, moral_duel_perdu: 7,
+  rep_match_gagne: 3, rep_duel: 1,
+  recompenses_saison_fer: [800, 500, 350, 250, 150, 100], prime_promotion: 500,
+  journees: 10, duels_par_match: 3
+};
+// effet pilote → moteur (symétrique joueur/IA, champs D-026 uniquement — zéro changement moteur) : HYPOTHÈSES
+const PILOT_ACC_PER_PT = 0.004, PILOT_STAB_PER_PT = 3;
+
+// ---- données de départ (data-driven, déterministes) ----
+const PILOT_POOL = [
+  { id: 'p1', nom: 'VERA SOL', origine: 'Ceinture de Tycho', traits: 'MÉTHODIQUE', prec: 7, calme: 6, ref: 4, actif: true },
+  { id: 'p2', nom: 'MAREK VOSS', origine: 'Docks de Novograd', traits: 'IMPULSIF', prec: 4, calme: 3, ref: 8, actif: true },
+  { id: 'p3', nom: 'IRIS KANTA', origine: 'Archipel Kessari', traits: 'PATIENTE', prec: 6, calme: 8, ref: 5, actif: true },
+  { id: 'p4', nom: 'DJO BÂ', origine: 'Région du Fer', traits: 'COMPÉTITIF', prec: 5, calme: 5, ref: 6, actif: false },
+  { id: 'p5', nom: 'LENA OSTROV', origine: 'Vallée des Treilles', traits: 'PRUDENTE', prec: 6, calme: 6, ref: 4, actif: false }
+];
+const AGENTS = [ // agents libres : pool de recrutement MVP (prix = hypothèse)
+  { id: 'a1', nom: 'TEO KAMAN', origine: 'Terres Hautes', traits: 'Ressourceux', prec: 7, calme: 5, ref: 6, prix: 450 },
+  { id: 'a2', nom: 'NOOR HALLAN', origine: 'Port d\'Anaïs', traits: 'Protectrice', prec: 5, calme: 8, ref: 5, prix: 700 }
+];
+const STARTING_MECHS = [ // 3 mechs de départ de l'orga (presets garage, processeur COHÉRENT avec l'arme — audit ligue v0.7.0)
+  { id: 'm1', label: 'REMPART', preset: 'bulwark', proc: 'berserker' },
+  { id: 'm2', label: 'VIF-ARGENT', preset: 'skirmisher', proc: 'tactician' },
+  { id: 'm3', label: 'TONNERRE', preset: 'artillery', proc: 'tactician' }
+];
+const IA_TEAMS = { // organisations adverses (ligue pro médiatisée — univers hybride sport/militaire)
+  fer: [
+    { id: 'forge_rouge', nom: 'FORGE ROUGE', style: 'RUSH — mêlée et pression',
+      pilotes: [{ nom: 'BARZA', prec: 4, calme: 3, ref: 7 }, { nom: 'OXEL', prec: 5, calme: 4, ref: 6 }, { nom: 'RUDYA', prec: 5, calme: 5, ref: 5 }],
+      lineups: [{ preset: 'linebreaker', proc: 'berserker' }, { preset: 'skirmisher', proc: 'berserker' }, { preset: 'sweeper', proc: 'berserker' }] },
+    { id: 'ecurie_kessler', nom: 'ÉCURIE KESSLER', style: 'SNIPER — tir de précision',
+      pilotes: [{ nom: 'HALLDAN K.', prec: 8, calme: 8, ref: 4 }, { nom: 'SAWYER', prec: 8, calme: 7, ref: 5 }, { nom: 'MIRELLE', prec: 7, calme: 8, ref: 5 }],
+      lineups: [{ preset: 'marksman', proc: 'phantom' }, { preset: 'marksman', proc: 'tactician' }, { preset: 'artillery', proc: 'tactician' }] },
+    { id: 'heritiers', nom: 'LES HÉRITIERS', style: 'POLYVALENTE — bloc et tir',
+      pilotes: [{ nom: 'AUREL', prec: 6, calme: 6, ref: 5 }, { nom: 'NADIA V.', prec: 6, calme: 7, ref: 5 }, { nom: 'CASSIAN', prec: 7, calme: 6, ref: 4 }],
+      lineups: [{ preset: 'bulwark', proc: 'guardian' }, { preset: 'sweeper', proc: 'tactician' }, { preset: 'artillery', proc: 'tactician' }] },
+    { id: 'compagnie_vulcain', nom: 'COMPAGNIE VULCAIN', style: 'LOURDE — assaut blindé',
+      pilotes: [{ nom: 'GORAN', prec: 5, calme: 5, ref: 6 }, { nom: 'TESSA R.', prec: 6, calme: 5, ref: 6 }, { nom: 'IDRIS', prec: 5, calme: 6, ref: 6 }],
+      lineups: [{ preset: 'bulwark', proc: 'guardian' }, { preset: 'linebreaker', proc: 'berserker' }, { preset: 'sweeper', proc: 'guardian' }] },
+    { id: 'megabolt', nom: 'MEGABOLT', style: 'ÉNERGIE — vitesse et éclats',
+      pilotes: [{ nom: 'JUNO', prec: 6, calme: 5, ref: 7 }, { nom: 'RAVI K.', prec: 6, calme: 6, ref: 6 }, { nom: 'SIX-K', prec: 7, calme: 4, ref: 7 }],
+      lineups: [{ preset: 'skirmisher', proc: 'phantom' }, { preset: 'sweeper', proc: 'tactician' }, { preset: 'marksman', proc: 'phantom' }] }
+  ],
+  acier: null // généré depuis fer (stats IA +1) à la promotion — même structure
+};
+function iaTeamsFor(division){
+  if (division === 'acier') return IA_TEAMS.fer.map(t => ({
+    ...t, pilotes: t.pilotes.map(p => ({ ...p, prec: Math.min(10, p.prec + 1), calme: Math.min(10, p.calme + 1), ref: Math.min(10, p.ref + 1) })) }));
+  return IA_TEAMS.fer;
+}
+
+// ---- état global ----
+let state = 'boot', sim = null, playing = true, speed = 1, accT = 0, lastT = 0;
+let G = null;           // sauvegarde (l'état de la carrière)
+let matchCtx = null;    // match en cours
+let atelierMech = null; // mech en édition à l'atelier
+
+const SCREENS = ['boot', 'hub', 'roster', 'garage', 'league', 'analysis', 'setup', 'battle', 'report', 'season', 'rules', 'about'];
+function show(name){ SCREENS.forEach(s => { const el = $('screen-' + s); if (el) el.classList.toggle('active', s === name); }); state = name; }
+function save(){ if (G) store.set(SAVE_KEY, JSON.stringify(G)); }
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+// ---- helpers ----
+function mechById(id){ return G.mechs.find(m => m.id === id); }
+function pilotById(id){ return G.pilots.find(p => p.id === id); }
+function mechAvailable(m){ return m.condition >= GAME.condition_indisponible; }
+function pilotAvailable(p){ return p.blessure === 0 && p.fatigue < GAME.fatigue_max_alignable; }
+function repairCost(m){ const base = mechBaseHp(m); return Math.round((100 - m.condition) / 100 * base * GAME.cr_reparation_par_hp); }
+function mechBaseHp(m){
+  if (m.loadout){ const v = validateLoadout(m.chassis, m.loadout); return v.stats ? v.stats.hp : 100; }
+  return RSG.mechs[m.preset] ? RSG.mechs[m.preset].hp : 100;
+}
+function mechLabel(m){ return m.label + (m.loadout ? ' [custom]' : ' [' + (PRESETS[m.preset] ? PRESETS[m.preset].label : m.preset) + ']'); }
+function accBonus(p){ return (p.prec - 5) * PILOT_ACC_PER_PT; }
+function stabBonus(p){ return (p.calme - 5) * PILOT_STAB_PER_PT; }
+function divisionLabel(d){ return d === 'acier' ? 'LIGUE ACIER' : 'LIGUE FER'; }
+
+// ---- nouvelle carrière / fixtures ----
+function roundRobin(ids){ // méthode du cercle, 2 tours = 10 journées
+  const arr = [...ids], n = arr.length, rounds = [];
+  for (let r = 0; r < n - 1; r++){ const pairs = [];
+    for (let i = 0; i < n / 2; i++) pairs.push(r % 2 === 0 ? [arr[i], arr[n - 1 - i]] : [arr[n - 1 - i], arr[i]]);
+    rounds.push(pairs); arr.splice(1, 0, arr.pop());
+  }
+  return rounds.concat(rounds.map(rd => rd.map(([a, b]) => [b, a])));
+}
+function blankStandings(ids){ const s = {}; ids.forEach(id => s[id] = { w: 0, l: 0, pts: 0, df: 0, da: 0 }); return s; }
+function newGame(orgName){
+  const ia = iaTeamsFor('fer');
+  G = {
+    org: { name: (orgName || 'ORGANISATION SANS NOM').toUpperCase(), credits: GAME.credits_depart, rep: 0, division: 'fer', saison: 1, journee: 1 },
+    pilots: PILOT_POOL.map(p => ({ ...p, xp: 0, niveau: 1, moral: 60, fatigue: 0, blessure: 0, mechId: null })),
+    mechs: STARTING_MECHS.map(m => ({ ...m, condition: 100, chassis: null, loadout: null })),
+    agents: AGENTS.map(a => ({ ...a })),
+    teams: ia.map(t => ({ ...t })),
+    fixtures: roundRobin(['you'].concat(ia.map(t => t.id))),
+    standings: blankStandings(['you'].concat(ia.map(t => t.id))),
+    lastResults: []
+  };
+  // assignations de départ : les 3 actifs prennent les 3 mechs
+  G.mechs.forEach((m, i) => { if (G.pilots[i]) { G.pilots[i].mechId = m.id; m.pilotId = G.pilots[i].id; } });
+  save();
+}
+function oppTeam(oppId){ return G.teams.find(t => t.id === oppId); }
+function fixtureOfDay(day){ return G.fixtures[day - 1]; }
+function playerFixtureOfDay(day){ const fx = fixtureOfDay(day); return fx ? fx.find(pr => pr[0] === 'you' || pr[1] === 'you') : null; }
+function arenaOfDay(day){ return ARENA_IDS[(day - 1) % ARENA_IDS.length]; }
+
+// ---- construction d'un duel (moteur v0.6.0, spawns dérivés D-027, bonus pilote via champs D-026) ----
+function mechEntryFor(rs, mech, pilot){
+  let entry;
+  if (mech.loadout){ // build d'atelier : stats dérivées du garage
+    const v = validateLoadout(mech.chassis, mech.loadout), s = v.stats;
+    entry = { class: rs.mechs[mech.chassis].class, speed_mps: s.speed_mps, hp: s.hp, armor: s.armor, shield: s.shield,
+      accuracy_bonus: s.accuracy_bonus, stability: s.stability, cooling_per_s: rs.mechs[mech.chassis].cooling_per_s,
+      passive: rs.mechs[mech.chassis].passive, label: mech.label };
+  } else entry = { ...rs.mechs[mech.preset], label: mech.label };
+  if (pilot){ entry.accuracy_bonus = (entry.accuracy_bonus || 0) + accBonus(pilot); entry.stability = (entry.stability || 0) + stabBonus(pilot); }
+  return entry;
+}
+function duelRS(duel){
+  const rs = JSON.parse(JSON.stringify(RSG));
+  rs.mechs.p0 = mechEntryFor(rs, duel.mech, duel.pilot);
+  rs.mechs.o0 = mechEntryFor(rs, duel.oppMech, duel.oppPilot);
+  return rs;
+}
+function duelCfg(duel){
+  const wOf = m => m.loadout ? m.loadout.weapon_primary : PRESETS[m.preset].weapon;
+  return { arenaId: duel.arenaId, mechs: [
+    { team: 0, name: duel.pilot ? duel.pilot.nom + ' — ' + duel.mech.label : duel.mech.label, mechId: 'p0', weaponId: wOf(duel.mech), processorId: duel.proc },
+    { team: 1, name: duel.oppPilot.nom + ' — ' + duel.oppMech.label, mechId: 'o0', weaponId: wOf(duel.oppMech), processorId: duel.oppProc } ] };
+}
+function runDuelSilent(duel, seed){ // pour l'audit / les matchs IA-IA : sim complète sans rendu
+  const rs = duelRS(duel), cfg = duelCfg(duel);
+  const s = new CombatSim(rs, cfg, seed);
+  let g = 0; while (!s.ended && g++ < 3000) s.step();
+  return s;
+}
+function duelSeed(day, idx){ return (G.org.saison * 100000 + day * 100 + idx) % 999983; }
+
+// ---- match du joueur ----
+function startMatch(lineup){ // lineup: [{ mechId, pilotId, proc }] × 3, opposé à l'équipe IA
+  const day = G.org.journee, fx = playerFixtureOfDay(day), oppId = fx[0] === 'you' ? fx[1] : fx[0];
+  const opp = oppTeam(oppId), arenaId = arenaOfDay(day);
+  const duels = lineup.map((slot, i) => ({
+    idx: i, arenaId,
+    mech: mechById(slot.mechId), pilot: pilotById(slot.pilotId), proc: slot.proc,
+    oppMech: { id: 'o' + i, label: PRESETS[opp.lineups[i].preset].label, preset: opp.lineups[i].preset, loadout: null, condition: 100 },
+    oppPilot: opp.pilotes[i], oppProc: opp.lineups[i].proc,
+    seed: duelSeed(day, i), result: null, sim: null
+  }));
+  matchCtx = { day, oppId, duels, winsYou: 0, winsOpp: 0, idx: 0 };
+}
+function launchDuel(duel){
+  const rs = duelRS(duel), cfg = duelCfg(duel);
+  sim = new CombatSim(rs, cfg, duel.seed);
+  $('hud-name-a').textContent = cfg.mechs[0].name; $('hud-name-o').textContent = cfg.mechs[1].name;
+  $('bt-banner').style.display = 'none'; $('btn-next').style.display = 'none';
+  playing = true; speed = 1; accT = 0; $('btn-pause').textContent = '⏸ PAUSE';
+  updateMsScore(); show('battle'); lastT = performance.now(); requestAnimationFrame(loop);
+}
+function updateMsScore(){
+  $('ms-score').innerHTML = 'DUEL ' + (matchCtx.idx + 1) + '/' + matchCtx.duels.length +
+    ' — SÉRIE <b>' + matchCtx.winsYou + '</b> — <b>' + matchCtx.winsOpp + '</b> ' + oppTeam(matchCtx.oppId).nom;
+}
+function duelFinished(forfeit){
+  const duel = matchCtx.duels[matchCtx.idx];
+  const w = forfeit ? 1 : sim.winner;
+  duel.result = { winner: w, forfeit: !!forfeit, hpA: Math.max(0, Math.round(sim.mechs[0].hpNow)),
+    hpB: Math.max(0, Math.round(sim.mechs[1].hpNow)), ticks: sim.tick, reason: sim.ended ? (sim.events.length && sim.events[sim.events.length - 1].reason) : 'forfait' };
+  duel.sim = sim;
+  if (w === 0) matchCtx.winsYou++; else if (w === 1) matchCtx.winsOpp++;
+  updateMsScore();
+  const banner = $('bt-banner');
+  banner.style.display = 'block';
+  banner.textContent = forfeit ? 'DUEL ABANDONNÉ — DÉFAITE' :
+    (w === null ? 'DUEL NUL' : (w === 0 ? 'DUEL GAGNÉ' : 'DUEL PERDU'));
+  banner.style.color = w === 0 ? '#4FAE6B' : (w === null ? '#AAB2BA' : '#D93432');
+  const remaining = matchCtx.duels.length - matchCtx.idx - 1;
+  const decided = matchCtx.winsYou > matchCtx.duels.length / 2 || matchCtx.winsOpp > matchCtx.duels.length / 2;
+  $('btn-next').style.display = 'block';
+  $('btn-next').textContent = (remaining > 0 && !decided) ? 'DUEL SUIVANT ▸' : 'RAPPORT DE MATCH ▸';
+}
+function nextDuel(){
+  const remaining = matchCtx.duels.length - matchCtx.idx - 1;
+  const decided = matchCtx.winsYou > matchCtx.duels.length / 2 || matchCtx.winsOpp > matchCtx.duels.length / 2;
+  if (remaining > 0 && !decided){ matchCtx.idx++; launchDuel(matchCtx.duels[matchCtx.idx]); }
+  else finishMatch();
+}
+
+// ---- application des résultats du match joueur + matchs IA de la journée ----
+function applyDuelToPlayer(duel){
+  const r = duel.result, you = r.winner === 0;
+  // condition du mech (les dégâts persistent — spec condition_system)
+  const hpMax = mechBaseHp(duel.mech), frac = Math.max(0, r.hpA) / hpMax;
+  duel.mech.condition = Math.max(0, Math.round(duel.mech.condition * frac));
+  // pilote : XP, fatigue, moral, blessure si mech détruit
+  const p = duel.pilot;
+  if (p){
+    p.xp += you ? GAME.xp_duel_gagne : GAME.xp_duel_perdu;
+    p.fatigue = Math.min(100, p.fatigue + Math.max(6, Math.round(GAME.fatigue_par_duel - p.ref * GAME.fatigue_reflexes_mod * 0.5)));
+    p.moral = Math.min(100, Math.max(0, p.moral + (you ? GAME.moral_duel_gagne : -GAME.moral_duel_perdu)));
+    if (r.hpA <= 0) p.blessure = GAME.blessure_journees; // récupérable — spec pilots design_rules
+    while (p.xp >= GAME.xp_niveau){ // niveau : +1 dans la stat la plus basse (déterministe)
+      p.xp -= GAME.xp_niveau; p.niveau++;
+      const stats = [['prec', p.prec], ['calme', p.calme], ['ref', p.ref]].sort((a, b) => a[1] - b[1]);
+      if (p[stats[0][0]] < GAME.stat_cap) p[stats[0][0]]++;
+    }
+  }
+  return you;
+}
+function simulateOtherMatches(day){ // les 2 matchs IA-IA de la journée (même moteur, même format 3 duels)
+  const fx = fixtureOfDay(day);
+  fx.forEach(pr => {
+    if (pr[0] === 'you' || pr[1] === 'you') return;
+    const A = oppTeam(pr[0]), B = oppTeam(pr[1]), arenaId = arenaOfDay(day);
+    let wa = 0, wb = 0, dfa = 0, dda = 0;
+    for (let i = 0; i < GAME.duels_par_match; i++){
+      const duel = {
+        mech: { label: PRESETS[A.lineups[i].preset].label, preset: A.lineups[i].preset, loadout: null },
+        pilot: A.pilotes[i], proc: A.lineups[i].proc,
+        oppMech: { label: PRESETS[B.lineups[i].preset].label, preset: B.lineups[i].preset, loadout: null },
+        oppPilot: B.pilotes[i], oppProc: B.lineups[i].proc, arenaId
+      };
+      const s = runDuelSilent(duel, duelSeed(day, 10 + i * 7 + pr[0].length));
+      const fA = s.mechs[0].hpNow / s.mechs[0].hp, fB = s.mechs[1].hpNow / s.mechs[1].hp;
+      dfa += Math.round(fA * 100); dda += Math.round(fB * 100);
+      if (s.winner === 0) wa++; else if (s.winner === 1) wb++;
+    }
+    recordMatchResult(pr[0], pr[1], wa, wb, dfa, dda);
+  });
+}
+function recordMatchResult(idA, idB, winsA, winsB, dA, dB){
+  const s = G.standings;
+  const winA = winsA > winsB, winB = winsB > winsA; // points : victoire 3, défaite 0 (hypothèse GAME)
+  if (winA){ s[idA].pts += 3; s[idA].w++; s[idB].l++; }
+  else if (winB){ s[idB].pts += 3; s[idB].w++; s[idA].l++; }
+  s[idA].df += dA; s[idA].da += dB; s[idB].df += dB; s[idB].da += dA;
+}
+function finishMatch(){
+  const winsYou = matchCtx.winsYou, winsOpp = matchCtx.winsOpp;
+  const won = winsYou > winsOpp;
+  // duels du joueur : XP/condition/fatigue/blessure
+  matchCtx.duels.forEach(applyDuelToPlayer);
+  // classement : match joueur
+  const fx = playerFixtureOfDay(matchCtx.day), oppId = fx[0] === 'you' ? fx[1] : fx[0];
+  const dfYou = matchCtx.duels.reduce((n, d) => n + Math.round(100 * d.result.hpA / mechBaseHp(d.mech)), 0);
+  const daOpp = matchCtx.duels.reduce((n, d) => n + d.result.hpB, 0);
+  recordMatchResult('you', oppId, winsYou, winsOpp, dfYou, daOpp);
+  // matchs IA de la journée
+  simulateOtherMatches(matchCtx.day);
+  // récompenses (HYPOTHÈSES GAME)
+  const creditsWon = won ? GAME.cr_victoire_match : GAME.cr_defaite_match;
+  G.org.credits += creditsWon;
+  G.org.rep += won ? GAME.rep_match_gagne : 0;
+  G.org.rep += matchCtx.duels.filter(d => d.result.winner === 0).length * GAME.rep_duel;
+  // avance la ligue : journée, repos, blessures
+  G.org.journee++;
+  G.pilots.forEach(p => { p.fatigue = Math.max(0, p.fatigue - GAME.fatigue_repos_journee); if (p.blessure > 0) p.blessure--; });
+  G.lastResults.push({ day: matchCtx.day, opp: oppTeam(oppId).nom, winsYou, winsOpp, won });
+  matchCtx.report = { creditsWon, won, winsYou, winsOpp };
+  save();
+  renderReport(); show('report');
+}
+
+// ---- fin de saison / promotion ----
+function standingsSorted(){
+  return Object.keys(G.standings).sort((a, b) => {
+    const sa = G.standings[a], sb = G.standings[b];
+    return (sb.pts - sa.pts) || ((sb.df - sb.da) - (sa.df - sa.da)) || (sb.df - sa.df);
+  });
+}
+function teamName(id){ return id === 'you' ? G.org.name : oppTeam(id).nom; }
+function endOfSeason(){
+  const order = standingsSorted(), pos = order.indexOf('you') + 1;
+  const rewards = GAME.recompenses_saison_fer;
+  const prize = rewards[pos - 1] || 0;
+  G.org.credits += prize;
+  let promoted = false;
+  if (pos === 1 && G.org.division === 'fer'){ promoted = true; G.org.credits += GAME.prime_promotion; G.org.division = 'acier'; }
+  else if (pos === 1 && G.org.division === 'acier'){ G.org.credits += GAME.prime_promotion; } // champion d'acier : prime, reste en acier
+  G.org.saison++;
+  G.org.journee = 1;
+  G.org.rep += pos === 1 ? 10 : (pos <= 3 ? 5 : 0);
+  // nouvelle saison : adversaires régénérés (tier division), fixtures et classement neufs, repos
+  const ia = iaTeamsFor(G.org.division);
+  G.teams = ia.map(t => ({ ...t }));
+  const ids = ['you'].concat(ia.map(t => t.id));
+  G.fixtures = roundRobin(ids);
+  G.standings = blankStandings(ids);
+  G.lastResults = [];
+  G.pilots.forEach(p => { p.fatigue = 0; p.moral = Math.min(100, p.moral + 10); });
+  save();
+  return { pos, prize, promoted };
+}
+
+// ==== RENDU DES ÉCRANS ====
+function standingsTableHTML(max){
+  const order = standingsSorted();
+  const rows = order.slice(0, max || order.length).map((id, i) => {
+    const s = G.standings[id];
+    return '<tr' + (id === 'you' ? ' class="alpha"' : '') + '><td>' + (i + 1) + '</td><td><b>' + esc(teamName(id)) + '</b></td><td>' + s.w + '</td><td>' + s.l + '</td><td>' + s.pts + '</td></tr>';
+  });
+  return '<table><tr><th>#</th><th>ÉQUIPE</th><th>V</th><th>D</th><th>PTS</th></tr>' + rows.join('') + '</table>';
+}
+function alertHTML(){
+  const out = [];
+  G.mechs.forEach(m => { if (m.condition < 100) out.push('<div class="badge ' + (mechAvailable(m) ? 'warn' : 'err') + '">' + (mechAvailable(m) ? 'RÉPARATION' : 'HORS SERVICE') + '</div><span style="font-size:12px">' + esc(m.label) + ' — état ' + m.condition + '%' + (mechAvailable(m) ? ' (réparation : ' + repairCost(m) + ' cr)' : '') + '</span>'); });
+  G.pilots.forEach(p => {
+    if (p.blessure > 0) out.push('<div class="badge err">BLESSÉ</div><span style="font-size:12px">' + esc(p.nom) + ' — indisponible encore ' + p.blessure + ' journée(s)</span>');
+    else if (p.fatigue >= GAME.fatigue_max_alignable) out.push('<div class="badge err">ÉPUISÉ</div><span style="font-size:12px">' + esc(p.nom) + ' — fatigue ' + Math.round(p.fatigue) + ' : repos requis</span>');
+    else if (p.fatigue >= 50) out.push('<div class="badge warn">FATIGUÉ</div><span style="font-size:12px">' + esc(p.nom) + ' — fatigue ' + Math.round(p.fatigue) + '</span>');
+  });
+  return out.length ? out.map(l => '<div style="margin-bottom:6px">' + l + '</div>').join('') : '<span style="color:#4FAE6B;font-size:13px">✔ Aucune alerte — l\'organisation est prête.</span>';
+}
+function renderHub(){
+  $('hub-org').textContent = G.org.name;
+  $('hub-credits').textContent = Math.round(G.org.credits) + ' CRÉDITS';
+  $('hub-division').textContent = divisionLabel(G.org.division) + ' — SAISON ' + G.org.saison + ' — JOURNÉE ' + Math.min(G.org.journee, GAME.journees) + '/' + GAME.journees;
+  $('hub-rep').textContent = 'RÉPUTATION ' + G.org.rep;
+  const day = Math.min(G.org.journee, GAME.journees);
+  const fx = playerFixtureOfDay(day);
+  const oppId = fx[0] === 'you' ? fx[1] : fx[0], opp = oppTeam(oppId);
+  $('hub-next').innerHTML = '<h3>Prochain match</h3>' +
+    '<div class="card" style="max-width:none"><div class="t">' + esc(opp.nom) + '</div>' +
+    '<div class="sub2">' + esc(opp.style) + '</div>' +
+    '<div class="rowline"><span>ARÈNE</span><b>' + RULESET.arenas[arenaOfDay(day)].label + '</b></div>' +
+    '<div class="rowline"><span>FORMAT</span><b>' + GAME.duels_par_match + ' duels 1v1 — un mech par duel</b></div>' +
+    '<div style="margin-top:12px"><button class="primary small" id="btn-hub-play">ANALYSER &amp; PRÉPARER ▸</button></div></div>';
+  $('btn-hub-play').onclick = () => { renderAnalysis(); show('analysis'); };
+  $('hub-alerts').innerHTML = alertHTML();
+  $('hub-standings').innerHTML = standingsTableHTML();
+}
+
+// ---- roster ----
+function renderRoster(){
+  $('roster-meta').textContent = Math.round(G.org.credits) + ' CRÉDITS — ' + G.pilots.length + ' PILOTES (MAX 5)';
+  const box = $('roster-cards'); box.innerHTML = '';
+  G.pilots.forEach(p => {
+    const c = document.createElement('div'); c.className = 'card';
+    const st = (l, v) => '<div class="rowline"><span>' + l + '</span><b>' + v + '</b></div>';
+    const xpPct = Math.min(100, 100 * p.xp / GAME.xp_niveau);
+    let innerHTML = '<div class="t">' + esc(p.nom) + (p.actif ? ' <span class="badge ok">ACTIF</span>' : ' <span class="badge">RÉSERVE</span>');
+    if (p.blessure > 0) innerHTML += ' <span class="badge err">BLESSÉ ' + p.blessure + 'J</span>';
+    else if (p.fatigue >= GAME.fatigue_max_alignable) innerHTML += ' <span class="badge err">ÉPUISÉ</span>';
+    innerHTML += '</div><div class="sub2">' + esc(p.origine) + ' — ' + esc(p.traits) + ' — NIVEAU ' + p.niveau + '</div>' +
+      st('PRÉCISION', p.prec + '/10 (visée +' + (accBonus(p) >= 0 ? '+' : '') + (accBonus(p) * 100).toFixed(1) + '%)') +
+      st('SANG-FROID', p.calme + '/10 (stabilité +' + stabBonus(p) + ')') +
+      st('RÉFLEXES', p.ref + '/10 (fatigue −)') +
+      '<div class="pbar"><i style="width:' + xpPct + '%"></i></div><div class="sub2">XP ' + p.xp + '/' + GAME.xp_niveau + ' — MORAL ' + p.moral + ' — FATIGUE ' + Math.round(p.fatigue) + '</div>' +
+      '<div class="rowline"><span>MECH</span><b>' + (p.mechId ? esc(mechById(p.mechId).label) : '—') + '</b></div>';
+    c.innerHTML = innerHTML;
+    const row = document.createElement('div');
+    const sel = document.createElement('select');
+    G.mechs.forEach(m => { const o = document.createElement('option'); o.value = m.id; o.textContent = m.label + (mechAvailable(m) ? '' : ' (HS)'); sel.appendChild(o); });
+    sel.value = p.mechId || '';
+    sel.onchange = () => {
+      if (p.mechId && mechById(p.mechId)) mechById(p.mechId).pilotId = null;
+      p.mechId = sel.value || null;
+      if (p.mechId) mechById(p.mechId).pilotId = p.id;
+      save(); renderRoster();
+    };
+    const lab = document.createElement('span'); lab.className = 'tag'; lab.textContent = ' ASSIGNER :'; lab.style.cssText = 'font-size:10px;color:#6E7780;letter-spacing:1px;margin-right:6px';
+    row.appendChild(lab); row.appendChild(sel); c.appendChild(row);
+    const bFree = document.createElement('button'); bFree.className = 'small ghost'; bFree.textContent = 'LIBÉRER';
+    bFree.style.marginLeft = '8px';
+    bFree.onclick = () => {
+      if (p.mechId && mechById(p.mechId)) mechById(p.mechId).pilotId = null;
+      G.pilots = G.pilots.filter(x => x.id !== p.id);
+      save(); renderRoster();
+    };
+    c.appendChild(bFree);
+    box.appendChild(c);
+  });
+  // agents libres
+  const rbox = $('recruit-cards'); rbox.innerHTML = '';
+  G.agents.forEach(a => {
+    const c = document.createElement('div'); c.className = 'card';
+    c.innerHTML = '<div class="t">' + esc(a.nom) + '</div><div class="sub2">' + esc(a.origine) + ' — ' + esc(a.traits) + '</div>' +
+      '<div class="rowline"><span>PRÉCISION / SANG-FROID / RÉFLEXES</span><b>' + a.prec + ' / ' + a.calme + ' / ' + a.ref + '</b></div>' +
+      '<div class="rowline"><span>SALAIRE DE SIGNATURE</span><b>' + a.prix + ' CR</b></div>';
+    const b = document.createElement('button'); b.className = 'primary small'; b.textContent = 'SIGNER';
+    b.disabled = G.pilots.length >= 5 || G.org.credits < a.prix;
+    b.onclick = () => {
+      if (G.org.credits < a.prix || G.pilots.length >= 5) return;
+      G.org.credits -= a.prix;
+      G.pilots.push({ ...a, id: 'r' + (G.pilots.length + 1) + '_' + Date.now() % 1000, xp: 0, niveau: 1, moral: 60, fatigue: 0, blessure: 0, mechId: null, actif: G.pilots.length < 3 });
+      G.agents = G.agents.filter(x => x.id !== a.id);
+      save(); renderRoster();
+    };
+    c.appendChild(b); rbox.appendChild(c);
+  });
+  if (!G.agents.length) rbox.innerHTML = '<span style="color:#6E7780;font-size:12px">Aucun agent libre disponible — le marché se renouvelle à la prochaine saison.</span>';
+  if (G.pilots.length >= 5) rbox.innerHTML += '<div class="valid-err">Roster complet (5/5) — libérez un pilote à la fin de saison pour recruter.</div>';
+}
+
+// ---- garage ----
+function renderGarage(){
+  $('gar-credits').textContent = Math.round(G.org.credits) + ' CRÉDITS';
+  const box = $('garage-mechs'); box.innerHTML = '';
+  G.mechs.forEach(m => {
+    const c = document.createElement('div'); c.className = 'card';
+    const base = RSG.mechs[m.preset];
+    const hp = mechBaseHp(m);
+    const st = (l, v) => '<div class="rowline"><span>' + l + '</span><b>' + v + '</b></div>';
+    const condColor = m.condition >= 80 ? 'grn' : (mechAvailable(m) ? 'amb' : '');
+    c.innerHTML = '<div class="t">' + esc(m.label) + '</div><div class="sub2">' + (m.loadout ? 'BUILD ATELIER' : 'SÉRIE ' + (PRESETS[m.preset] ? PRESETS[m.preset].label : m.preset)) + '</div>' +
+      st('INTÉGRITÉ', hp + ' HP — ' + (m.loadout ? 'custom' : (base ? base.speed_mps + ' m/s' : ''))) +
+      st('PROCESSEUR', RULESET.processors[m.proc] ? RULESET.processors[m.proc].label : m.proc) +
+      st('PILOTE', m.pilotId && pilotById(m.pilotId) ? esc(pilotById(m.pilotId).nom) : '—') +
+      '<div class="pbar"><i class="' + condColor + '" style="width:' + Math.max(0, m.condition) + '%"></i></div>' +
+      '<div class="sub2">ÉTAT ' + Math.max(0, Math.round(m.condition)) + '%' + (mechAvailable(m) ? '' : ' — INDISPONIBLE (<' + GAME.condition_indisponible + '%)') + '</div>';
+    const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap';
+    const bProc = document.createElement('select');
+    PROC_IDS.forEach(pr => { const o = document.createElement('option'); o.value = pr; o.textContent = RULESET.processors[pr].label; bProc.appendChild(o); });
+    bProc.value = m.proc; bProc.onchange = () => { m.proc = bProc.value; save(); };
+    if (m.loadout){ // un build d'atelier peut redevenir son preset d'origine
+      const bReset = document.createElement('button'); bReset.className = 'small ghost'; bReset.textContent = 'REVENIR AU SÉRIE';
+      bReset.onclick = () => { m.loadout = null; m.chassis = null; save(); renderGarage(); };
+      row.appendChild(bReset);
+    }
+    const bRep = document.createElement('button'); bRep.className = 'small'; bRep.textContent = 'RÉPARER (' + repairCost(m) + ' CR)';
+    bRep.disabled = m.condition >= 100 || G.org.credits < repairCost(m);
+    bRep.onclick = () => { const cost = repairCost(m); if (G.org.credits < cost || m.condition >= 100) return; G.org.credits -= cost; m.condition = 100; save(); renderGarage(); };
+    const bAt = document.createElement('button'); bAt.className = 'small primary'; bAt.textContent = 'ATELIER';
+    bAt.onclick = () => openAtelier(m);
+    row.appendChild(bProc); row.appendChild(bRep); row.appendChild(bAt);
+    c.appendChild(row); box.appendChild(c);
+  });
+}
+// ---- atelier (14 slots — module garage embarqué) ----
+const AT_SLOTS = SLOTS;
+function openAtelier(m){
+  atelierMech = m;
+  $('atelier-panel').style.display = 'block';
+  $('at-title').textContent = m.label;
+  const chassisSel = $('at-chassis');
+  if (!chassisSel._populated){ const first = document.createElement('option'); first.value = ''; first.textContent = '—'; chassisSel.appendChild(first);
+    for (const c in CHASSIS){ const o = document.createElement('option'); o.value = c; o.textContent = CHASSIS[c].label + ' — ' + CHASSIS[c].mass_max + 'T'; chassisSel.appendChild(o); }
+    chassisSel._populated = true; }
+  chassisSel.value = m.loadout ? m.chassis : (PRESETS[m.preset] ? PRESETS[m.preset].mechId : '');
+  const slotsBox = $('at-slots'); slotsBox.innerHTML = '';
+  AT_SLOTS.forEach(slot => {
+    const row = document.createElement('div'); row.className = 'slotrow';
+    const lab = document.createElement('span'); lab.className = 'tag'; lab.textContent = slot.replace(/_/g, ' ');
+    const sel = document.createElement('select'); sel.id = 'at-slot-' + slot; sel.dataset.slot = slot;
+    const eo = document.createElement('option'); eo.value = ''; eo.textContent = slot === 'weapon_secondary' ? '— VIDE (POINGS) —' : '— VIDE —'; sel.appendChild(eo);
+    if (slot === 'weapon_primary' || slot === 'weapon_secondary'){
+      for (const w in WEAPONS_GARAGE){ if (!WEAPONS_GARAGE[w].slots.includes(slot)) continue;
+        const o = document.createElement('option'); o.value = w; o.textContent = ((RULESET.weapons[w] && RULESET.weapons[w].label) || w) + ' — ' + WEAPONS_GARAGE[w].mass + 'T'; sel.appendChild(o); }
+    } else {
+      for (const md in MODULES){ if (MODULES[md].slot !== slot) continue;
+        const o = document.createElement('option'); o.value = md; o.textContent = MODULES[md].label + ' — ' + MODULES[md].mass + 'T' + (MODULES[md].functional ? '' : ' [COSMÉTIQUE]'); sel.appendChild(o); }
+    }
+    sel.onchange = atelierRecompute;
+    row.appendChild(lab); row.appendChild(sel); slotsBox.appendChild(row);
+  });
+  // valeurs courantes : loadout d'atelier ou preset d'origine
+  const cur = m.loadout || (PRESETS[m.preset] ? PRESETS[m.preset].loadout : {});
+  AT_SLOTS.forEach(slot => { const s = $('at-slot-' + slot); if (s) s.value = cur[slot] || ''; });
+  atelierRecompute();
+}
+function atelierCurrentLoadout(){ const lo = {}; AT_SLOTS.forEach(s => { const el = $('at-slot-' + s); if (el && el.value) lo[s] = el.value; }); return lo; }
+function atelierRecompute(){
+  const lo = atelierCurrentLoadout();
+  const chId = $('at-chassis').value || (PRESETS[atelierMech.preset] ? PRESETS[atelierMech.preset].mechId : 'hound_prime');
+  const ch = CHASSIS[chId] || CHASSIS.hound_prime;
+  let mass = 0, draw = 0, power = 0, heat = 0, cool = 0;
+  for (const s in lo){ const id = lo[s];
+    if (WEAPONS_GARAGE[id]){ mass += WEAPONS_GARAGE[id].mass; continue; }
+    const md = MODULES[id]; if (!md) continue;
+    mass += md.mass; draw += md.power_draw || 0; power += md.power_budget || 0; heat += md.heat_generation || 0; cool += md.cooling_capacity || 0; }
+  $('at-budgets').innerHTML =
+    '<div class="rowline"><span>MASSE</span><b style="color:' + (mass > ch.mass_max ? '#D93432' : '#4FAE6B') + '">' + mass + ' / ' + ch.mass_max + ' T</b></div>' +
+    '<div class="rowline"><span>PUISSANCE (TIRAGE / BUDGET)</span><b style="color:' + (draw > power ? '#D93432' : '#4FAE6B') + '">' + draw + ' / ' + Math.max(1, power) + ' PW</b></div>' +
+    '<div class="rowline"><span>CHALEUR (ÉMISSION / DISSIPATION)</span><b style="color:' + (heat > cool ? '#D93432' : '#4FAE6B') + '">' + heat + ' / ' + Math.max(1, cool) + '</b></div>';
+  const v = validateLoadout(chId, lo);
+  const s = v.stats || { hp: 0, armor: 0, speed_mps: 0, shield: 0, accuracy_bonus: 0, stability: 0 };
+  $('at-stats').innerHTML = '<div class="rowline"><span>INTÉGRITÉ</span><b>' + s.hp + ' HP</b></div><div class="rowline"><span>ARMURE</span><b>' + s.armor + '</b></div>' +
+    '<div class="rowline"><span>VITESSE</span><b>' + s.speed_mps + ' M/S</b></div><div class="rowline"><span>BOUCLIER</span><b>' + s.shield + '</b></div>' +
+    '<div class="rowline"><span>PRÉCISION +</span><b>' + s.accuracy_bonus + '</b></div><div class="rowline"><span>STABILITÉ</span><b>' + s.stability + '</b></div>';
+  $('at-validation').innerHTML = v.ok ? '<div class="valid-ok">✔ BUILD VALIDE — appliquable</div>' : v.errors.map(e => '<div class="valid-err">✘ ' + esc(e) + '</div>').join('');
+}
+$('at-apply').onclick = () => {
+  const lo = atelierCurrentLoadout(), chId = $('at-chassis').value;
+  const v = validateLoadout(chId, lo);
+  if (!v.ok) return;
+  atelierMech.loadout = lo; atelierMech.chassis = chId; save();
+  $('atelier-panel').style.display = 'none'; renderGarage();
+};
+$('at-cancel').onclick = () => { $('atelier-panel').style.display = 'none'; };
+
+// ---- championnat ----
+function renderLeague(){
+  $('lg-title').textContent = divisionLabel(G.org.division);
+  $('lg-meta').textContent = 'SAISON ' + G.org.saison + ' — JOURNÉE ' + Math.min(G.org.journee, GAME.journees) + '/' + GAME.journees;
+  $('lg-standings').innerHTML = standingsTableHTML();
+  const fx = G.fixtures.slice(0, GAME.journees).map((pairs, d) => {
+    const played = d + 1 < G.org.journee;
+    const mine = pairs.find(pr => pr[0] === 'you' || pr[1] === 'you');
+    const oppId = mine ? (mine[0] === 'you' ? mine[1] : mine[0]) : null;
+    const res = G.lastResults.find(r => r.day === d + 1);
+    let detail = '';
+    if (played && res) detail = res.won ? '<b style="color:#4FAE6B">V ' + res.winsYou + '-' + res.winsOpp + '</b>' : '<b style="color:#D93432">D ' + res.winsYou + '-' + res.winsOpp + '</b>';
+    else if (d + 1 === G.org.journee) detail = '<b style="color:#E3A23B">PROCHAIN — ' + (oppId ? esc(oppTeam(oppId).nom) : '') + '</b>';
+    return '<div class="rowline"><span>J' + (d + 1) + ' — ' + RULESET.arenas[arenaOfDay(d + 1)].label + '</span><b>' + (oppId ? esc(oppTeam(oppId).nom) : 'EXEMPT') + '</b></div>' + (detail ? '<div class="sub2" style="margin:-4px 0 8px">' + detail + '</div>' : '');
+  });
+  $('lg-fixtures').innerHTML = fx.join('');
+}
+
+// ---- analyse d'adversaire ----
+function renderAnalysis(){
+  const day = Math.min(G.org.journee, GAME.journees), fx = playerFixtureOfDay(day);
+  const oppId = fx[0] === 'you' ? fx[1] : fx[0], opp = oppTeam(oppId);
+  const s = G.standings[oppId] || { w: 0, l: 0, pts: 0 };
+  $('an-meta').textContent = 'JOURNÉE ' + day + ' — ' + RULESET.arenas[arenaOfDay(day)].label;
+  $('an-opp').innerHTML = '<h3>' + esc(opp.nom) + '</h3><div class="hint">' + esc(opp.style) + ' — bilan ' + s.w + ' V / ' + s.l + ' D — ' + s.pts + ' pts</div>';
+  const box = $('an-lineups'); box.innerHTML = '';
+  opp.lineups.forEach((lu, i) => {
+    const p = opp.pilotes[i], pr = PRESETS[lu.preset];
+    const d = document.createElement('div'); d.className = 'duelrow';
+    d.innerHTML = '<label style="min-width:60px">DUEL ' + (i + 1) + '</label><div><label>PILOTE</label><b>' + esc(p.nom) + '</b></div>' +
+      '<div><label>MECH</label><b>' + esc(pr.label) + '</b></div><div><label>ARME</label><b>' + esc(RULESET.weapons[pr.weapon].label) + '</b></div>' +
+      '<div><label>PROCESSEUR</label><b>' + esc(RULESET.processors[lu.proc].label) + '</b></div>' +
+      '<div><label>STATS (PR/CALME/RÉF)</label><b>' + p.prec + '/' + p.calme + '/' + p.ref + '</b></div>';
+    box.appendChild(d);
+  });
+}
+$('an-prepare').onclick = () => { renderSetup(); show('setup'); };
+$('an-back').onclick = () => show('hub');
+
+// ---- pré-bataille ----
+function renderSetup(){
+  const day = Math.min(G.org.journee, GAME.journees), fx = playerFixtureOfDay(day);
+  const oppId = fx[0] === 'you' ? fx[1] : fx[0], opp = oppTeam(oppId);
+  $('su-meta').textContent = 'VS ' + opp.nom + ' — ' + RULESET.arenas[arenaOfDay(day)].label + ' — J' + day;
+  const box = $('su-duels'); box.innerHTML = '';
+  matchCtx = { day, oppId, duels: [], winsYou: 0, winsOpp: 0, idx: 0 };
+  for (let i = 0; i < GAME.duels_par_match; i++){
+    const lu = opp.lineups[i], pr = PRESETS[lu.preset];
+    const d = document.createElement('div'); d.className = 'duelrow';
+    const selM = document.createElement('select'); selM.id = 'su-mech-' + i;
+    G.mechs.forEach(m => { if (!mechAvailable(m)) return; const o = document.createElement('option'); o.value = m.id; o.textContent = m.label + ' (' + m.condition + '%)'; selM.appendChild(o); });
+    const selP = document.createElement('select'); selP.id = 'su-pilot-' + i;
+    G.pilots.forEach(p => { if (!pilotAvailable(p)) return; const o = document.createElement('option'); o.value = p.id; o.textContent = p.nom; selP.appendChild(o); });
+    const selR = document.createElement('select'); selR.id = 'su-proc-' + i;
+    PROC_IDS.forEach(prid => { const o = document.createElement('option'); o.value = prid; o.textContent = RULESET.processors[prid].label; selR.appendChild(o); });
+    d.innerHTML = '<label style="min-width:60px">DUEL ' + (i + 1) + '</label><span class="vs">VS</span>' +
+      '<div><label>TON MECH</label></div><div><label>PILOTE</label></div><div><label>PROCESSEUR</label></div>' +
+      '<div><label>ADVERSAIRE</label><b>' + esc(pr.label) + ' — ' + esc(RULESET.weapons[pr.weapon].label) + ' (' + esc(RULESET.processors[lu.proc].label) + ')</b></div>';
+    d.appendChild(selM); d.appendChild(selP); d.appendChild(selR);
+    // défauts sains : méchs dispo dans l'ordre, pilotes assignés si possible, processeur courant du mech
+    selM.onchange = () => { const m = mechById(selM.value); if (m && m.pilotId && pilotById(m.pilotId) && pilotAvailable(pilotById(m.pilotId))) selP.value = m.pilotId; };
+    box.appendChild(d);
+  }
+  // défauts : 1er mech libre + son pilote assigné + son processeur
+  const usedM = [], usedP = [];
+  for (let i = 0; i < GAME.duels_par_match; i++){
+    const selM = $('su-mech-' + i), selP = $('su-pilot-' + i), selR = $('su-proc-' + i);
+    const free = G.mechs.find(m => mechAvailable(m) && !usedM.includes(m.id)); if (free){ selM.value = free.id; usedM.push(free.id); selR.value = free.proc; }
+    const pid = free && free.pilotId ? free.pilotId : null;
+    const pFree = (pid && pilotById(pid) && pilotAvailable(pilotById(pid)) ? G.pilots.find(p => p.id === pid) : null) ||
+      G.pilots.find(p => pilotAvailable(p) && !usedP.includes(p.id));
+    if (pFree){ selP.value = pFree.id; usedP.push(pFree.id); }
+  }
+}
+$('su-confirm').onclick = () => {
+  const lineup = [];
+  for (let i = 0; i < GAME.duels_par_match; i++){
+    const mechId = $('su-mech-' + i).value, pilotId = $('su-pilot-' + i).value, proc = $('su-proc-' + i).value;
+    if (!mechId || !pilotId){ $('su-meta').textContent = '⚠ chaque duel exige un mech ET un pilote disponibles'; return; }
+    lineup.push({ mechId, pilotId, proc });
+  }
+  const ids = new Set(lineup.map(l => l.mechId));
+  if (ids.size < lineup.length){ $('su-meta').textContent = '⚠ un mech ne peut pas engager deux duels'; return; }
+  startMatch(lineup);
+  launchDuel(matchCtx.duels[0]);
+};
+$('su-back').onclick = () => show('analysis');
+
+// ---- rapport de match ----
+function renderReport(){
+  const rep = matchCtx.report, opp = oppTeam(matchCtx.oppId);
+  $('rp-meta').textContent = 'JOURNÉE ' + matchCtx.day + ' — ' + divisionLabel(G.org.division) + ' — SAISON ' + G.org.saison;
+  const b = $('rp-banner');
+  b.textContent = rep.won ? 'VICTOIRE ' + rep.winsYou + '–' + rep.winsOpp : 'DÉFAITE ' + rep.winsYou + '–' + rep.winsOpp;
+  b.className = 'bignum ' + (rep.won ? 'win' : 'loss');
+  $('rp-detail').textContent = 'CONTRE ' + opp.nom + ' — ARÈNE ' + RULESET.arenas[arenaOfDay(matchCtx.day)].label + ' — GAINS : ' + rep.creditsWon + ' CR';
+  const rows = matchCtx.duels.map((d, i) => {
+    const r = d.result, you = r.winner === 0;
+    return '<tr' + (you ? ' class="alpha"' : '') + '><td><b>' + esc(d.pilot ? d.pilot.nom : '—') + '</b></td><td>' + esc(d.mech.label) + '</td><td>' + esc(d.proc ? RULESET.processors[d.proc].label : '') + '</td>' +
+      '<td>' + esc(d.oppPilot.nom) + '</td><td>' + esc(d.oppMech.label) + '</td><td>' + r.hpA + ' HP</td><td>' + r.hpB + ' HP</td>' +
+      '<td style="color:' + (you ? '#4FAE6B' : '#D93432') + '"><b>' + (you ? 'GAGNÉ' : (r.winner === null ? 'NUL' : 'PERDU')) + '</b></td></tr>';
+  });
+  $('rp-duels').innerHTML = '<table><tr><th>PILOTE</th><th>MECH</th><th>PROC.</th><th>ADVERSAIRE</th><th>SON MECH</th><th>TON HP</th><th>SON HP</th><th>DUEL</th></tr>' + rows.join('') + '</table>';
+  $('rp-rewards').innerHTML =
+    '<div class="rowline"><span>CRÉDITS GAGNÉS</span><b>+' + rep.creditsWon + ' CR</b></div>' +
+    '<div class="rowline"><span>TRÉSORERIE</span><b>' + Math.round(G.org.credits) + ' CR</b></div>' +
+    '<div class="rowline"><span>RÉPUTATION</span><b>' + G.org.rep + '</b></div>' +
+    '<div class="rowline"><span>XP PILOTES</span><b>+' + GAME.xp_duel_gagne + ' par duel gagné, +' + GAME.xp_duel_perdu + ' par duel perdu</b></div>' +
+    '<div class="rowline"><span>ÉTAT DES MECHS</span><b>' + G.mechs.map(m => m.label + ' ' + Math.max(0, Math.round(m.condition)) + '%').join(' · ') + '</b></div>' +
+    '<div class="hint" style="margin-top:6px">Les mechs endommagés se réparent au garage. Un mech détruit a blessé son pilote (1 journée).</div>';
+  $('rp-standings').innerHTML = standingsTableHTML();
+}
+$('rp-done').onclick = () => {
+  if (G.org.journee > GAME.journees){ // fin de saison
+    const se = endOfSeason();
+    $('se-banner').textContent = se.promoted ? 'PROMOTION — LIGUE ACIER !' : ('SAISON TERMINÉE — ' + se.pos + (se.pos === 1 ? 'ᵉʳ' : 'ᵉ') + ' DE LIGUE FER');
+    $('se-banner').className = 'bignum ' + (se.pos <= 2 ? 'win' : (se.pos <= 4 ? 'draw' : 'loss'));
+    $('se-body').innerHTML = '<div class="rowline"><span>PRIME DE CLASSEMENT</span><b>+' + se.prize + ' CR</b></div>' +
+      (se.promoted ? '<div class="rowline"><span>PRIME DE PROMOTION</span><b>+' + GAME.prime_promotion + ' CR</b></div>' : '') +
+      '<div class="rowline"><span>TRÉSORERIE</span><b>' + Math.round(G.org.credits) + ' CR</b></div>' +
+      '<div class="hint" style="margin-top:8px">Nouvelle saison : adversaires régénérés, pilotes reposés, réparations à ta charge.</div>';
+    show('season'); return;
+  }
+  renderHub(); show('hub');
+};
+$('se-continue').onclick = () => { renderHub(); show('hub'); };
+
+// ==== BATAILLE : boucle + rendu tactique (identique v0.6.0 — greybox, spawns D-027 dessinés) ====
+$('btn-pause').onclick = e => { playing = !playing; e.target.textContent = playing ? '⏸ PAUSE' : '▶ REPRENDRE'; };
+[1, 2, 4].forEach(v => { const b = document.querySelector('[data-spd="' + v + '"]'); if (b) b.onclick = () => { speed = v; [1, 2, 4].forEach(x => { const e2 = document.querySelector('[data-spd="' + x + '"]'); if (e2) e2.classList.toggle('active-tog', x === v); }); }; });
+$('btn-abandon').onclick = () => duelFinished(true);
+$('btn-next').onclick = () => nextDuel();
+function loop(now){
+  if (state !== 'battle') return;
+  const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now;
+  if (playing && !sim.ended){ accT += dt * sim.tickRate * speed;
+    while (accT >= 1 && !sim.ended){ sim.step(); accT--; } }
+  renderBattle(); updateHUD();
+  if (sim.ended){ duelFinished(false); return; }
+  requestAnimationFrame(loop);
+}
+function updateHUD(){
+  const teamFrac = t => { const ms = sim.mechs.filter(m => m.team === t); return ms.reduce((s, m) => s + Math.max(0, m.hpNow) / m.hp, 0) / ms.length; };
+  $('hp-a').style.width = Math.max(0, 100 * teamFrac(0)) + '%'; $('hp-o').style.width = Math.max(0, 100 * teamFrac(1)) + '%';
+  const secs = Math.floor(sim.tick / sim.tickRate);
+  $('hud-time').textContent = String(Math.floor(secs / 60)).padStart(2, '0') + ':' + String(secs % 60).padStart(2, '0');
+  $('hud-tick').textContent = 'TICK ' + sim.tick + '/' + sim.timeoutTicks;
+}
+const cv = $('gcanvas'), cx = cv.getContext('2d');
+function tScale(){ return Math.min(10.5, (cv.width - 60) / sim.arena.width, (cv.height - 40) / sim.arena.depth); }
+function tp(x){ return cv.width / 2 + x * tScale(); } function tz(z){ return cv.height / 2 + z * tScale(); }
+function drawSpawnSide(sideId){ const ss = sim.arena.spawn_sides && sim.arena.spawn_sides[sideId]; if (!ss) return;
+  const team = sideId === 'alpha' ? 0 : 1, col = TEAMCOL[team], x = tp(ss.x), z = tz(ss.z);
+  cx.strokeStyle = col; cx.globalAlpha = 0.55;
+  if (ss.type === 'drop'){ // pad de largage : cercle + croix
+    cx.setLineDash([5, 4]); cx.beginPath(); cx.arc(x, z, 3.2 * tScale(), 0, Math.PI * 2); cx.stroke(); cx.setLineDash([]);
+    cx.beginPath(); cx.moveTo(x - 8, z); cx.lineTo(x + 8, z); cx.moveTo(x, z - 8); cx.lineTo(x, z + 8); cx.stroke();
+    cx.font = 'bold 10px monospace'; cx.textAlign = 'center'; cx.fillText('LARGAGE', x, z + 3.2 * tScale() + 14);
+  } else { // couloir d'entrée : encoche + chevron vers l'arène
+    const w = 5 * tScale(), d = 2.2 * tScale() * (ss.dir === 0 ? 1 : -1);
+    cx.setLineDash([5, 4]); cx.strokeRect(x - (ss.dir === 0 ? w : 0), z - w, w, w * 2); cx.setLineDash([]);
+    cx.beginPath(); cx.moveTo(x + d * 4, z); cx.lineTo(x + d, z - 7); cx.moveTo(x + d * 4, z); cx.lineTo(x + d, z + 7); cx.stroke();
+    cx.font = 'bold 10px monospace'; cx.textAlign = 'center'; cx.fillText('COULOIR', x, z + w + 16);
+  }
+  cx.globalAlpha = 1;
+}
+function drawObstacle(o){
+  const plat = o.kind === 'platform', prop = !!o.pickable;
+  cx.fillStyle = prop ? 'rgba(227,162,59,.18)' : (plat ? 'rgba(126,182,193,.08)' : 'rgba(52,59,67,.55)');
+  cx.strokeStyle = prop ? '#E3A23B' : (plat ? '#7EB6C1' : '#3A434D');
+  if (plat) cx.setLineDash([4, 3]);
+  cx.beginPath(); cx.rect(tp(o.x - o.w / 2), tz(o.z - o.d / 2), o.w * tScale(), o.d * tScale());
+  cx.fill(); cx.stroke(); cx.setLineDash([]);
+  if (prop){ cx.fillStyle = '#E3A23B'; cx.font = '8px monospace'; cx.textAlign = 'center'; cx.fillText('ÉPAVE', tp(o.x), tz(o.z) + 3); }
+}
+function renderBattle(){
+  cx.clearRect(0, 0, cv.width, cv.height); cx.fillStyle = '#07090C'; cx.fillRect(0, 0, cv.width, cv.height);
+  cx.strokeStyle = '#2E3946'; cx.lineWidth = 2;
+  cx.strokeRect(tp(-sim.arena.width / 2), tz(-sim.arena.depth / 2), sim.arena.width * tScale(), sim.arena.depth * tScale());
+  cx.strokeStyle = '#161A20'; cx.lineWidth = 1;
+  for (let gx = -sim.arena.width / 2; gx <= sim.arena.width / 2; gx += 10){ cx.beginPath(); cx.moveTo(tp(gx), tz(-sim.arena.depth / 2)); cx.lineTo(tp(gx), tz(sim.arena.depth / 2)); cx.stroke(); }
+  for (let gz = -sim.arena.depth / 2; gz <= sim.arena.depth / 2; gz += 10){ cx.beginPath(); cx.moveTo(tp(-sim.arena.width / 2), tz(gz)); cx.lineTo(tp(sim.arena.width / 2), tz(gz)); cx.stroke(); }
+  drawSpawnSide('alpha'); drawSpawnSide('omega');
+  sim.obstacles.forEach(drawObstacle);
+  for (const s of sim.smokes){ cx.fillStyle = 'rgba(148,158,168,.3)'; cx.beginPath(); cx.arc(tp(s.x), tz(s.z), s.r * tScale(), 0, Math.PI * 2); cx.fill(); }
+  sim.mechs.forEach(m => {
+    const x = tp(m.pos.x), z = tz(m.pos.z), col = TEAMCOL[m.team];
+    if (m.hpNow <= 0){ cx.strokeStyle = '#3A434D'; cx.globalAlpha = .6; cx.beginPath(); cx.arc(x, z, 1.6 * tScale(), 0, Math.PI * 2); cx.stroke();
+      cx.beginPath(); cx.moveTo(x - 6, z - 6); cx.lineTo(x + 6, z + 6); cx.moveTo(x + 6, z - 6); cx.lineTo(x - 6, z + 6); cx.stroke(); cx.globalAlpha = 1; return; }
+    cx.fillStyle = m.improvShield > 0 ? 'rgba(227,162,59,.25)' : col;
+    cx.beginPath(); cx.arc(x, z, 1.6 * tScale(), 0, Math.PI * 2); cx.fill();
+    cx.strokeStyle = '#E7EBEF'; cx.lineWidth = 1.5; // nez orienté selon le heading (D-027)
+    cx.beginPath(); cx.moveTo(x + Math.cos(m.heading) * 1.6 * tScale(), z + Math.sin(m.heading) * 1.6 * tScale());
+    cx.lineTo(x + Math.cos(m.heading) * 2.6 * tScale(), z + Math.sin(m.heading) * 2.6 * tScale()); cx.stroke();
+    cx.fillStyle = '#16191E'; cx.strokeStyle = '#343B43';
+    cx.fillRect(x - 14, z - 1.6 * tScale() - 12, 28, 5); cx.strokeRect(x - 14, z - 1.6 * tScale() - 12, 28, 5);
+    cx.fillStyle = col; cx.fillRect(x - 13, z - 1.6 * tScale() - 11, 26 * Math.max(0, m.hpNow / m.hp), 3);
+    cx.fillStyle = '#E7EBEF'; cx.font = 'bold 9px monospace'; cx.textAlign = 'center';
+    cx.fillText(m.name, x, z - 1.6 * tScale() - 16);
+  });
+  cx.fillStyle = '#E3A23B';
+  for (const p of sim.projectiles){ cx.beginPath(); cx.arc(tp(p.x), tz(p.z), 3, 0, Math.PI * 2); cx.fill(); }
+  cx.fillStyle = '#6E7780'; cx.font = '9px monospace'; cx.textAlign = 'left';
+  cx.fillText('GREYBOX — VISUEL DE PROTOTYPE', 12, cv.height - 12);
+}
+
+// ==== NAVIGATION + BOOT ====
+const NAV = [['hub', 'COMMANDEMENT'], ['roster', 'ROSTER'], ['garage', 'GARAGE'], ['league', 'CHAMPIONNAT']];
+function buildNav(){
+  ['hub', 'roster', 'garage', 'league', 'analysis'].forEach(screenId => {
+    const row = $('nav-' + screenId); if (!row) return;
+    NAV.forEach(([target, label]) => {
+      const b = document.createElement('button'); b.className = 'small' + (target === screenId ? ' cur' : '');
+      b.textContent = label;
+      b.onclick = () => { if (target === 'hub') renderHub(); if (target === 'roster') renderRoster(); if (target === 'garage') renderGarage(); if (target === 'league') renderLeague(); show(target); };
+      row.appendChild(b);
+    });
+  });
+}
+$('btn-new').onclick = () => { newGame($('orgname').value); renderHub(); show('hub'); };
+$('btn-continue').onclick = () => { const raw = store.get(SAVE_KEY); if (raw){ try { G = JSON.parse(raw); renderHub(); show('hub'); } catch (e){} } };
+$('btn-rules').onclick = () => show('rules');
+$('btn-about').onclick = () => show('about');
+$('btn-rules-back').onclick = () => show('boot');
+$('btn-about-back').onclick = () => show('boot');
+
+buildNav();
+if (store.get(SAVE_KEY)) $('btn-continue').style.display = 'block';
+
+</script>
+</body>
+</html>
