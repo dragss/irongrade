@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IRONGRADE — Prototype manager v0.7.0</title>
+<title>IRONGRADE — Prototype manager v0.7.1</title>
 <style>
   :root { font-family: 'Inter', system-ui, sans-serif; background: #0B0E12; color: #E7EBEF; }
   * { box-sizing: border-box; margin: 0; }
@@ -2106,6 +2106,8 @@ $('btn-about-back').onclick = () => show('boot');
 
 buildNav();
 if (store.get(SAVE_KEY)) $('btn-continue').style.display = 'block';
+
+show('boot'); // HOTFIX v0.7.1 : sans cet appel, toutes les screens restent display:none → écran noir au chargement
 
 </script>
 </body>
