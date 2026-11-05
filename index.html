@@ -6,7 +6,7 @@
 <script type="importmap">
 { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/" } }
 </script>
-<title>IRONGRADE — Prototype manager v0.10.0</title>
+<title>IRONGRADE — Prototype manager v0.10.1</title>
 <style>
   :root { font-family: 'Inter', system-ui, sans-serif; background: #0B0E12; color: #E7EBEF; }
   * { box-sizing: border-box; margin: 0; }
@@ -145,7 +145,7 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.10.0 — MECHCORE v1.1.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
+  <div class="footer">IRONGRADE v0.10.1 — MECHCORE v1.1.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -168,7 +168,7 @@
 <!-- GARAGE -->
 <div class="screen" id="screen-garage">
   <div id="gar-3d-bg"></div>
-  <div class="tophead"><span class="org">GARAGE</span><span class="res" id="gar-credits"></span><button class="small" id="gar-3d-tog">▦ HANGAR 3D</button></div>
+  <div class="tophead"><span class="org">GARAGE</span><span class="res" id="gar-credits"></span><span class="hint" id="gar-tripo" style="color:#D93432;letter-spacing:1px"></span><button class="small" id="gar-3d-tog">▦ HANGAR 3D</button></div>
   <div class="panel"><h3>Mechs de l'organisation</h3><div class="hint" style="margin:-6px 0 12px">Réparez après les matchs (sous le seuil de condition = mech indisponible), changez le processeur, ouvrez l'ATELIER pour le build complet. En ligne : hangar 3D de la flotte en fond, drones de réparation sur les mechs endommagés.</div><div class="cards" id="garage-mechs"></div></div>
   <div class="panel" id="atelier-panel" style="display:none">
     <h3>Atelier — <span id="at-title"></span><span style="float:right;color:#3A434D;font-size:9px;letter-spacing:2px">HANGAR 3D — SURVOL = SURLIGNER · CLIC SLOT = ZOOM ZONE</span></h3>
@@ -288,14 +288,14 @@
 <div class="screen" id="screen-about">
   <div class="tophead"><span class="org">À PROPOS</span></div>
   <div class="panel">
-    <h3>IRONGRADE — prototype manager v0.10.0</h3>
+    <h3>IRONGRADE — prototype manager v0.10.1</h3>
     <div class="hint">Vertical slice de gestion : la boucle complète (roster, garage, ligue, matchs observés, rapport, sauvegarde) sur MECHCORE v1.1.0 déterministe 15 Hz.</div>
     <table>
       <tr><td><b>MOTEUR</b></td><td>MECHCORE v1.1.0 — spawns d'arène par point de largage / couloir d'entrée (D-027), précision &amp; stabilité par mech (D-026), ciblage par profil (D-024), fumigène (D-025), affinités d'escouade bloc/origine (D-035).</td></tr>      <tr><td><b>FORMAT</b></td><td>Un match = UNE bataille d'équipe 3v3 simultanée (6 mechs sur le terrain), résultat collectif décliné par slot. Les pilotes partagent des origines et blocs régionaux → liaisons de visée vivantes + PHALANX (v0.10.0).</td></tr>
       <tr><td><b>SAUVEGARDE</b></td><td>Locale (navigateur), une seule par appareil. « Nouvelle carrière » écrase la sauvegarde.</td></tr>
       <tr><td><b>ÉCONOMIE</b></td><td>Monnaie unique (crédits). Toutes les récompenses, prix et barèmes XP de ce prototype sont des hypothèses d'équilibrage data-driven, à valider par l'owner avant tout contenu réel.</td></tr>
       <tr><td><b>GOUVERNANCE</b></td><td>Aucune loot box, aucun achat, aucune probabilité de drop dans ce prototype — les taux restent une décision owner.</td></tr>
-      <tr><td><b>VISUELS</b></td><td>Greybox stylisé — direction artistique hybride TITANFALL × PACIFIC RIM (proportions héroïques, plaques, réacteur pectoral concentrique, weathering déterministe) en v0.9.1 ; en v0.9.2 : <b>hangar 3D de la flotte en fond du garage</b> (caméra qui dérive, drones de réparation + étincelles de soudure sur les mechs endommagés), <b>atelier 3D par défaut</b> avec zoom caméra sur la zone cliquée (survol = surlignage) et décor de hangar <b>CC0 Quaternius</b> (modular sci-fi, chargé via CDN, fallback procédural hors-ligne). Three.js + GLTFLoader en modules (import map), fallback maquette SVG hors-ligne. Pipeline prêt pour modèles 3D Tripo (GLB). Placeholder assumé, pas d'art final pour les mechs.</td></tr>
+      <tr><td><b>VISUELS</b></td><td>Greybox stylisé — direction artistique hybride TITANFALL × PACIFIC RIM (proportions héroïques, plaques, réacteur pectoral concentrique, weathering déterministe) en v0.9.1 ; en v0.9.2 : <b>hangar 3D de la flotte en fond du garage</b> (caméra qui dérive, drones de réparation + étincelles de soudure sur les mechs endommagés), <b>atelier 3D par défaut</b> avec zoom caméra sur la zone cliquée (survol = surlignage) et décor de hangar <b>CC0 Quaternius</b> (modular sci-fi, chargé via CDN, fallback procédural hors-ligne). Three.js + GLTFLoader en modules (import map), fallback maquette SVG hors-ligne. En v0.10.1 : <b>vitrine Tripo</b> — les GLB du dépôt sont montés automatiquement dans le hangar 3D du garage (models/mch_&lt;châssis&gt;.glb + models/wep_&lt;arme&gt;.glb, normalisation auto, arme au socket main droite / dos pour les pods, fallback procédural intégral). L'atelier garde la maquette par zones (zoom/survol). Placeholder procédural assumé tant que les GLB Tripo ne sont pas dans le dépôt.</td></tr>
     </table>
   </div>
   <button class="ghost" id="btn-about-back">← RETOUR</button>
@@ -2355,6 +2355,51 @@ function hangarProps(scene, mode){
 
 // ==== v0.9.2 : HANGAR 3D DU GARAGE — la flotte en fond du menu ====
 let gar3d = { ok: false, loading: false, active: true, renderer: null, scene: null, camera: null, groups: {}, fx: null, raf: 0, key: '', anchors: [] };
+// ==== v0.10.1 — VITRINE TRIPO : GLB du dépôt montés automatiquement (D-036) ====
+// Convention (spec owner) : 1 GLB par châssis models/mch_<id>.glb, 1 par arme models/wep_<id>.glb,
+// Y-up, origine au sol entre les pieds, canon d'arme vers +Z. Normalisation auto (hauteur châssis 4.8, arme 2.4 en Z),
+// matériaux clonés par instance (highlight hover), fallback procédural intégral si absent (404 / hors-ligne / file://).
+const TRIPO_CHASSIS = ['hound_prime', 'longbow_mk1', 'warden_x1', 'ghost_lt'];
+const TRIPO_SOCKET = { hound_prime: { x: 1.225, y: 2.75 }, longbow_mk1: { x: 1.225, y: 3.0 }, warden_x1: { x: 1.4, y: 2.6 }, ghost_lt: { x: 1.225, y: 2.75 } };
+let tripo = { done: false, chassis: {}, weapons: {}, n: 0 };
+function loadTripo(){ // tente de charger tous les GLB une fois par session — silencieux si le dossier models/ est vide
+  if (tripo.done || !window.THREE || !window.THREE.GLTFLoader) return;
+  tripo.done = true; // marque immédiatement : une seule tentative par session, le rebuild se fera au retour
+  const ld = new window.THREE.GLTFLoader();
+  const wanted = TRIPO_CHASSIS.map(ch => ['chassis', 'mch_' + ch, ch]).concat(Object.keys(RSG.weapons).filter(w => w !== 'fists').map(w => ['weapons', 'wep_' + w, w]));
+  let left = wanted.length;
+  const done = () => {
+    if (tripo.n && state === 'garage' && gar3d.ok){ gar3d.key = ''; buildGar3DFleet(); }
+    if (tripo.n && $('gar-tripo')) $('gar-tripo').textContent = '◆ TRIPO : ' + tripo.n + ' MODÈLE' + (tripo.n > 1 ? 'S' : '');
+  };
+  wanted.forEach(([kind, file, id]) => ld.load('models/' + file + '.glb', g => {
+    const obj = g.scene;
+    const box = new THREE.Box3().setFromObject(obj);
+    const target = kind === 'chassis' ? 4.8 : 2.4; // châssis : hauteur totale ; arme : longueur (Z)
+    const size = kind === 'chassis' ? Math.max(1e-4, box.max.y - box.min.y) : Math.max(1e-4, box.max.z - box.min.z, (box.max.x - box.min.x) * .8);
+    obj.scale.setScalar(target / size);
+    const b2 = new THREE.Box3().setFromObject(obj);
+    obj.position.set(-(b2.min.x + b2.max.x) / 2, -b2.min.y, -(b2.min.z + b2.max.z) / 2);
+    tripo[kind][id] = obj; tripo.n++;
+    if (--left === 0) done();
+  }, undefined, () => { if (--left === 0) done(); }));
+}
+function tripoMech(m, lo, chId){ // vitrine : GLB châssis (+ arme au socket) si dispo, sinon null → procédural
+  if (!tripo.chassis[chId]) return null;
+  const grp = new THREE.Group();
+  const body = tripo.chassis[chId].clone(true);
+  body.traverse(o => { if (o.material && o.material.isMaterial) o.material = o.material.clone(); }); // highlight hover par mech
+  grp.add(body);
+  const wid = lo.weapon_primary || (PRESETS[m.preset] ? PRESETS[m.preset].weapon : null);
+  if (wid && tripo.weapons[wid]){
+    const w = tripo.weapons[wid].clone(true);
+    w.traverse(o => { if (o.material && o.material.isMaterial) o.material = o.material.clone(); });
+    if (wid === 'seraph_lrm_pod'){ w.position.set(0, 3.85, -.6); } // pods dorsaux — socket dos
+    else { const sk = TRIPO_SOCKET[chId] || TRIPO_SOCKET.hound_prime; w.position.set(sk.x, sk.y, .2); } // main droite, canon +Z
+    grp.add(w);
+  }
+  return grp;
+}
 function gar3dEnter(){
   if (typeof window === 'undefined') return;
   if (gar3d.ok){ gar3dStart(); return; }
@@ -2366,6 +2411,7 @@ function gar3dEnter(){
     gar3d.ok = true;
     buildGar3D();
     gar3dStart();
+    loadTripo(); // v0.10.1 : vitrine Tripo (rebuild auto du hangar à l'arrivée des GLB)
   });
 }
 function gar3dLeave(){ if (gar3d.raf){ cancelAnimationFrame(gar3d.raf); gar3d.raf = 0; } }
@@ -2421,7 +2467,8 @@ function buildGar3DFleet(){
   G.mechs.forEach((m, i) => {
     const lo = m.loadout || (PRESETS[m.preset] ? PRESETS[m.preset].loadout : {});
     const chId = m.chassis || (PRESETS[m.preset] ? PRESETS[m.preset].mechId : 'hound_prime');
-    const built = mech3DGroup(m, lo, chId);
+    const glb = tripoMech(m, lo, chId); // v0.10.1 : GLB Tripo si présent, sinon procédural
+    const built = glb ? { grp: glb, parts: [] } : mech3DGroup(m, lo, chId);
     const x = (i - (n - 1) / 2) * sp;
     built.grp.position.x = x;
     built.grp.rotation.y = (i - (n - 1) / 2) * -.06;
@@ -3101,7 +3148,7 @@ function renderBattleBroadcast(){
   cx.font = '9px monospace'; cx.fillStyle = '#6E7780'; cx.textAlign = 'right';
   cx.fillText('CAM BROADCAST — GREYBOX — ' + divisionLabel(G.org.division), W - 12, H - 12);
   cx.textAlign = 'left';
-  cx.fillText('BATAILLE D' + String.fromCharCode(39) + 'ESCOUADE 3v3 — [C] CAM — v0.10.0', 12, H - 12);
+  cx.fillText('BATAILLE D' + String.fromCharCode(39) + 'ESCOUADE 3v3 — [C] CAM — v0.10.1', 12, H - 12);
 }
 
 // ==== NAVIGATION + BOOT ====
