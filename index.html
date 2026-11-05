@@ -6,7 +6,7 @@
 <script type="importmap">
 { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/" } }
 </script>
-<title>IRONGRADE — Prototype manager v0.11.0</title>
+<title>IRONGRADE — Prototype manager v0.12.0</title>
 <style>
   :root { font-family: 'Inter', system-ui, sans-serif; background: #0B0E12; color: #E7EBEF; }
   * { box-sizing: border-box; margin: 0; }
@@ -145,7 +145,7 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.11.0 — MECHCORE v1.2.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
+  <div class="footer">IRONGRADE v0.12.0 — MECHCORE v1.3.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -274,7 +274,7 @@
       <tr><td><b>1. CENTRE DE COMMANDEMENT</b></td><td>Suivez les finances, la réputation, le prochain match et les alertes.</td></tr>
       <tr><td><b>2. ROSTER</b></td><td>Recrutez et entraînez vos pilotes (3 actifs + 2 réserves). La précision et le sang-froid d'un pilote améliorent la visée et la stabilité de son mech.</td></tr>
       <tr><td><b>3. GARAGE</b></td><td>Réparez vos mechs (crédits), changez le processeur, montez les modules à l'atelier (budgets masse/puissance/chaleur).</td></tr>
-      <tr><td><b>4. CHAMPIONNAT</b></td><td>Ligue à 6 équipes, 10 journées. Un match = UNE bataille d'équipe 3v3 SIMULTANÉE : les 6 mechs sont sur le terrain en même temps, chaque processeur choisit sa cible. Victoire collective par destruction totale ou score HP au timeout (D-035).</td></tr><tr><td><b>4b. AFFINITÉS</b></td><td>Liaisons d'escouade : deux pilotes de la même origine → +3% visée chacun par liaison VIVANTE ; même bloc régional → +2%. Escouade 100% même bloc → PHALANX : +3 stabilité chacun. Les liaisons s'éteignent quand le coéquipier tombe.</td></tr><tr><td><b>4c. TERRAINS</b></td><td>7 arènes en rotation : les batailles traversent des terrains de campagne — <b>CENTRE-VILLE DE KESTREL</b> (bâtiments), <b>FORÊT DE FER-NOIR</b> (arbres, rochers), <b>DELTA DE KESSARI</b> (eau : déplacement ralenti, pontons) + les 4 d'origine. Un mech bloqué par un obstacle <b>saute par-dessus</b> (1,2 s en vol, recharge 6 s — ni tir ni mêlée en l'air, et une cible en vol est intouchable en mêlée).</td></tr>
+      <tr><td><b>4. CHAMPIONNAT</b></td><td>Ligue à 6 équipes, 10 journées. Un match = UNE bataille d'équipe 3v3 SIMULTANÉE : les 6 mechs sont sur le terrain en même temps, chaque processeur choisit sa cible. Victoire collective par destruction totale ou score HP au timeout (D-035).</td></tr><tr><td><b>4b. AFFINITÉS</b></td><td>Liaisons d'escouade : deux pilotes de la même origine → +3% visée chacun par liaison VIVANTE ; même bloc régional → +2%. Escouade 100% même bloc → PHALANX : +3 stabilité chacun. Les liaisons s'éteignent quand le coéquipier tombe.</td></tr><tr><td><b>4c. TERRAINS</b></td><td>7 arènes en rotation : les batailles traversent des terrains de campagne — <b>CENTRE-VILLE DE KESTREL</b> (bâtiments), <b>FORÊT DE FER-NOIR</b> (arbres, rochers), <b>DELTA DE KESSARI</b> (eau : déplacement ralenti, pontons) + les 4 d'origine. Un mech bloqué par un obstacle <b>saute par-dessus</b> (1,2 s en vol, recharge 6 s — ni tir ni mêlée en l'air, et une cible en vol est intouchable en mêlée).</td></tr><tr><td><b>4d. HAUTEUR</b></td><td>Les plateformes marquées <b>▲</b> (pontons du delta, tour du centre-ville, rochers de la forêt) s'<b>escaladent</b> : un tireur en rechargement à portée de marche prend la hauteur (0,4 s/m, recharge 3 s). Perché : <b>+4% visée</b> sur une cible au sol, ligne de tir <b>par-dessus les obstacles</b> — mais <b>intouchable en mêlée</b>, et une cible entrée dans sa portée minimale le force à redescendre. Un saut peut aussi y atterrir directement.</td></tr>
       <tr><td><b>5. PRÉPARATION</b></td><td>Analysez l'adversaire, choisissez qui engage quel mech et avec quel processeur.</td></tr>
       <tr><td><b>6. MATCH</b></td><td>Vous observez : les processeurs dirigent les mechs. Caméra tactique, pause, ×1/×2/×4.</td></tr>
       <tr><td><b>7. RAPPORT</b></td><td>XP des pilotes, condition des mechs, crédits, classement. Les mechs détruits blessent leur pilote (1 journée).</td></tr>
@@ -288,10 +288,10 @@
 <div class="screen" id="screen-about">
   <div class="tophead"><span class="org">À PROPOS</span></div>
   <div class="panel">
-    <h3>IRONGRADE — prototype manager v0.11.0</h3>
-    <div class="hint">Vertical slice de gestion : la boucle complète (roster, garage, ligue, matchs observés, rapport, sauvegarde) sur MECHCORE v1.2.0 déterministe 15 Hz.</div>
+    <h3>IRONGRADE — prototype manager v0.12.0</h3>
+    <div class="hint">Vertical slice de gestion : la boucle complète (roster, garage, ligue, matchs observés, rapport, sauvegarde) sur MECHCORE v1.3.0 déterministe 15 Hz.</div>
     <table>
-      <tr><td><b>MOTEUR</b></td><td>MECHCORE v1.2.0 — spawns d'arène (D-027), précision &amp; stabilité (D-026), ciblage par profil (D-024), fumigène (D-025), affinités d'escouade (D-035), saut d'obstacles + zones d'eau + arènes de campagne (D-037). Rétrocompatible bit-à-bit sans config.</td></tr>      <tr><td><b>FORMAT</b></td><td>Un match = UNE bataille d'équipe 3v3 simultanée (6 mechs sur le terrain), résultat collectif décliné par slot. Les pilotes partagent des origines et blocs régionaux → liaisons de visée vivantes + PHALANX (v0.10.0).</td></tr>
+      <tr><td><b>MOTEUR</b></td><td>MECHCORE v1.3.0 — spawns d'arène (D-027), précision &amp; stabilité (D-026), ciblage par profil (D-024), fumigène (D-025), affinités d'escouade (D-035), saut d'obstacles + zones d'eau + arènes de campagne (D-037), élévation réelle : escalade des plateformes + perchoirs (D-038). Rétrocompatible bit-à-bit sans plateformes.</td></tr>      <tr><td><b>FORMAT</b></td><td>Un match = UNE bataille d'équipe 3v3 simultanée (6 mechs sur le terrain), résultat collectif décliné par slot. Les pilotes partagent des origines et blocs régionaux → liaisons de visée vivantes + PHALANX (v0.10.0).</td></tr>
       <tr><td><b>SAUVEGARDE</b></td><td>Locale (navigateur), une seule par appareil. « Nouvelle carrière » écrase la sauvegarde.</td></tr>
       <tr><td><b>ÉCONOMIE</b></td><td>Monnaie unique (crédits). Toutes les récompenses, prix et barèmes XP de ce prototype sont des hypothèses d'équilibrage data-driven, à valider par l'owner avant tout contenu réel.</td></tr>
       <tr><td><b>GOUVERNANCE</b></td><td>Aucune loot box, aucun achat, aucune probabilité de drop dans ce prototype — les taux restent une décision owner.</td></tr>
@@ -323,6 +323,7 @@ class CombatSim {
     this.timeoutTicks = ruleset.simulation.battle_timeout_seconds * this.tickRate;
     this.arena = (ruleset.arenas && (config.arenaId ? ruleset.arenas[config.arenaId] : ruleset.arenas.proving_grounds)) || ruleset.arena; this.obstacles = this.arena.obstacles.map(o => ({ ...o })); // clone : les épaves ramassables sont retirées pendant la bataille
     this.water = ((this.arena && this.arena.water) || []).map(w => ({ ...w })); // v1.2.0 (D-037) : zones d'eau — ralentissement, pas de blocage
+    this.platforms = this.obstacles.filter(o => o.climb && o.zh > 0); // v1.3.0 (D-038) : plateformes escaladables — liste vide = comportement v1.2.0 bit-à-bit
     this.mechs = config.mechs.map((m, i) => this.makeMech(m, this.slotOf(config.mechs, i)));
     this.projectiles = []; this.events = []; this.tick = 0; this.winner = null; this.ended = false;
     this.smokes = []; // D-025 : nuages de fumigène actifs (bloquent la LOS, pas le déplacement)
@@ -354,6 +355,7 @@ class CombatSim {
       smokeUsed: false, loggedDead: false,
       baseSpeedMps: r.mechs[cfg.mechId].speed_mps, droppedOnce: false, prevWeaponId: null,
       jumpT: 0, jumpCd: 0, // v1.2.0 (D-037) : saut — ticks restants en vol / recharge ; inactif sans combat.jump
+      z: 0, zTgt: 0, zRender: 0, climbT: 0, climbTotal: 1, climbCd: 0, wantClimb: null, climbPlat: null, perchSlack: 0, // v1.3.0 (D-038) : élévation
       vel: { x: 0, z: 0 }, lastHitTick: -999, passiveActive: false,
       prevPos: { x: spawn.x, z: spawn.z } };
   }
@@ -409,12 +411,26 @@ class CombatSim {
       if (px * px + pz * pz <= s.r * s.r) return true; } return false; }
   distance(a, b){ const dx = a.x - b.x, dz = a.z - b.z; return Math.sqrt(dx * dx + dz * dz); }
   losClear(a, b){ if (this.segBlockedBySmoke(a, b)) return false;
+    if (this.platforms.length){ const lh = (this.ruleset.combat.climb && this.ruleset.combat.climb.los_height) || 2; // v1.3.0 (D-038) : un point surélevé voit par-dessus les obstacles du sol
+      if ((a.zEl || 0) >= lh || (b.zEl || 0) >= lh) return true; }
     for (const o of this.obstacles){ if (!o.blocks_los) continue;
       const x1 = o.x - o.w / 2, x2 = o.x + o.w / 2, z1 = o.z - o.h / 2, z2 = o.z + o.h / 2;
       if (segRect(a, b, x1, z1, x2, z2)) return false; } return true; }
   blockedAt(x, z){ for (const o of this.obstacles){
       if (Math.abs(x - o.x) < o.w / 2 + 1.0 && Math.abs(z - o.z) < o.h / 2 + 1.0) return true; } return false; }
   waterAt(x, z){ for (const w of this.water){ if (Math.abs(x - w.x) < w.w / 2 && Math.abs(z - w.z) < (w.d || w.w) / 2) return true; } return false; } // v1.2.0 (D-037)
+  platformAt(x, z){ for (const o of this.platforms){ if (Math.abs(x - o.x) < o.w / 2 && Math.abs(z - o.z) < o.h / 2) return o; } return null; } // v1.3.0 (D-038)
+  edgeDist(o, x, z){ const dx = Math.max(Math.abs(x - o.x) - o.w / 2, 0), dz = Math.max(Math.abs(z - o.z) - o.h / 2, 0); return Math.hypot(dx, dz); } // v1.3.0 (D-038) : distance au bord de l'empreinte
+  pushOutOfFootprint(m){ for (let k = 0; k < 8 && this.blockedAt(m.pos.x, m.pos.z); k++){ // v1.3.0 (D-038) : sortie déterministe de l'empreinte (après une descente)
+      const o = this.obstacles.find(o => Math.abs(m.pos.x - o.x) < o.w / 2 + 1.0 && Math.abs(m.pos.z - o.z) < o.h / 2 + 1.0);
+      if (!o) break;
+      const dx = m.pos.x - o.x, dz = m.pos.z - o.z;
+      if (dx / (o.w / 2) > dz / (o.h / 2)) m.pos.x = o.x + Math.sign(dx || 1) * (o.w / 2 + 1.2); else m.pos.z = o.z + Math.sign(dz || 1) * (o.h / 2 + 1.2); }
+    const W = this.arena.width / 2, D = this.arena.depth / 2;
+    m.pos.x = Math.max(-W + 1, Math.min(W - 1, m.pos.x)); m.pos.z = Math.max(-D + 1, Math.min(D - 1, m.pos.z)); }
+  heightBonus(i, j){ if (!this.platforms.length) return 0; const c = this.ruleset.combat.climb; // v1.3.0 (D-038) : avantage de hauteur pour le tireur surélevé
+    const dh = (this.mechs[i].z || 0) - (this.mechs[j].z || 0);
+    return (c && dh >= (c.aim_height || 2)) ? (c.aim_bonus || 0) : 0; }
 
   // --- passifs ---
   checkPassive(i){ const m = this.mechs[i];
@@ -468,7 +484,21 @@ class CombatSim {
   stepMech(i){ const m = this.mechs[i];
     m.prevPos = { ...m.pos };
     if (m.jumpCd > 0) m.jumpCd--; // v1.2.0 (D-037) : recharge du saut (no-op sans config)
-    if (m.jumpT > 0){ m.jumpT--; if (m.jumpT === 0) this.log('jump_landed', i, {}); }
+    if (m.jumpT > 0){ m.jumpT--; if (m.jumpT === 0){ this.log('jump_landed', i, {});
+      const pf = this.platformAt(m.pos.x, m.pos.z); // v1.3.0 (D-038) : atterrissage sur une plateforme = on se perche d'un bond
+      if (pf){ m.z = pf.zh; m.zTgt = pf.zh; m.zRender = pf.zh; m.pos.zEl = pf.zh; m.climbPlat = pf;
+        this.log('perch_landed', i, { platform: pf.id, z: pf.zh }); } } }
+    if (m.climbCd > 0) m.climbCd--; // v1.3.0 (D-038)
+    if (m.climbT > 0){ m.climbT--; m.zRender = m.zTgt * (1 - m.climbT / m.climbTotal); // v1.3.0 : progression d'escalade (déterministe, zéro RNG)
+      if (m.climbT === 0){ const plat = m.climbPlat;
+        if (m.zTgt > 0){ m.z = m.zTgt; m.zRender = m.z; m.pos.zEl = m.z; // montée finie : on se cale sur la plateforme et on tient le perchoir
+          m.pos.x = Math.max(plat.x - plat.w / 2 + 0.8, Math.min(plat.x + plat.w / 2 - 0.8, m.pos.x));
+          m.pos.z = Math.max(plat.z - plat.h / 2 + 0.8, Math.min(plat.z + plat.h / 2 - 0.8, m.pos.z));
+          this.log('climb_done', i, { platform: plat.id, z: m.z });
+        } else { m.z = 0; m.zTgt = 0; m.zRender = 0; delete m.pos.zEl; m.climbPlat = null; // descente finie : on repousse hors de l'empreinte
+          this.pushOutOfFootprint(m);
+          this.log('climb_down_done', i, { z: 0 }); } }
+      return; } // en escalade : immobile, ne tire pas, ne recharge pas — fenêtre de vulnérabilité (hypothèse D-038)
     if (m.stunTicks > 0){ m.stunTicks--; m.heat = Math.max(0, m.heat - this.ruleset.combat.overheat_threshold / (this.tickRate * this.ruleset.combat.overheat_stun_seconds)); return; }
     if (m.staggeredTicks > 0){ m.staggeredTicks--; if (m.staggerImmunityTicks > 0) m.staggerImmunityTicks--; return; } // D-024 : le stagger fait perdre son tour, immunité décrémentée ensuite
     if (m.staggerImmunityTicks > 0) m.staggerImmunityTicks--;
@@ -488,7 +518,7 @@ class CombatSim {
           if (foe.hpNow <= 0){ m.meleeState = { phase: 'recovery', ticks: w.recovery_ticks }; return; } // D-024 : cible tombée entre-temps → coup dans le vide
           const d = this.distance(m.pos, foe.pos);
           const acc = Math.min(0.98, w.accuracy + 0.01 * 5);
-          if (d <= w.range * 1.15 && (foe.jumpT || 0) <= 0 && this.rng.chance(acc)){ // v1.2.0 : cible en vol = coup dans le vide
+          if (d <= w.range * 1.15 && (foe.jumpT || 0) <= 0 && (foe.z || 0) === (m.z || 0) && this.rng.chance(acc)){ // v1.2.0 : cible en vol = coup dans le vide ; v1.3.0 : cible surélevée = hors de portée verticale
             const crit = this.rng.chance(w.crit_chance || 0);
             const dmg = crit ? Math.round(w.damage * (w.crit_mult || 1)) : w.damage;
             this.log('melee_attack', i, { target: m.targetIdx, damage: dmg, crit, weapon: m.meleeState.weaponId });
@@ -502,7 +532,7 @@ class CombatSim {
         } else m.meleeState = null; }
       return; }
     const isMelee = m.weapon.type === 'melee';
-    const inRange = isMelee ? dist <= m.weapon.range
+    const inRange = isMelee ? dist <= m.weapon.range && (m.z || 0) === (foe.z || 0) // v1.3.0 (D-038) : mêlée = même niveau
       : dist <= m.weapon.range && dist >= m.weapon.min_range && this.losClear(m.pos, foe.pos);
     // D-026 : stabilité du châssis (garage D-019) accélère la visée — réduction plafonnée, déterministe
     const cc = this.ruleset.combat;
@@ -516,7 +546,7 @@ class CombatSim {
     const sec = m.weapons[1];
     const wantSecMelee = sec && sec.type === 'melee' && m.weapon.type !== 'melee' &&
       (m.proc.preferred_range <= sec.range + 1.5 || m.pinned);
-    if ((m.jumpT || 0) <= 0 && wantSecMelee && dist <= sec.range && m.cooldown2 === 0 && this.rng.chance(m.proc.aggression)){
+    if ((m.jumpT || 0) <= 0 && wantSecMelee && dist <= sec.range && (m.z || 0) === (foe.z || 0) && m.cooldown2 === 0 && this.rng.chance(m.proc.aggression)){ // v1.3.0 : mêlée = même niveau
       m.meleeState = { phase: 'windup', ticks: sec.windup_ticks, slot: 1, weaponId: m.secondaryWeaponId }; return; }
     // bouclier improvisé (D-020) : un mech capable de mêlée ramasse une épave à portée de main
     if (!m.improvShield && (isMelee || wantSecMelee) && dist > m.meleeReach * 2){
@@ -548,7 +578,7 @@ class CombatSim {
         m.cooldown = 0; m.meleeState = null; m.ticksStationary = 0;
         this.log('weapon_dropped', i, { weapon: m.prevWeaponId }); } }
     const evade = bracing ? false : this.rng.chance(m.proc.evasion_frequency * 0.15);
-    const wsf = this.water.length ? (this.waterAt(m.pos.x, m.pos.z) ? (this.ruleset.combat.water_speed_factor || .65) : 1) : 1; // v1.2.0 (D-037) : patauge
+    const wsf = (this.water.length && (m.z || 0) <= 0) ? (this.waterAt(m.pos.x, m.pos.z) ? (this.ruleset.combat.water_speed_factor || .65) : 1) : 1; // v1.2.0 (D-037) : patauge ; v1.3.0 (D-038) : perché, on ne patauge pas
     const spd = this.water.length ? m.speed_mps * wsf : m.speed_mps;
     const pref = m.proc.preferred_range;
     let nx = m.pos.x, nz = m.pos.z;
@@ -560,11 +590,33 @@ class CombatSim {
         const dd = (o.x - m.pos.x) ** 2 + (o.z - m.pos.z) ** 2;
         if (dd < bd){ bd = dd; bw = o; } }
       if (bw){ tgtX = bw.x; tgtZ = bw.z; } }
+    // v1.3.0 (D-038) : prise de hauteur — un tireur en rechargement à portée de marche d'une plateforme escaladable va la tenir
+    const cf = (this.ruleset.combat.climb && this.ruleset.combat.climb.enabled && this.platforms.length) ? this.ruleset.combat.climb : null;
+    m.wantClimb = null;
+    if (cf && m.z === 0 && m.climbT === 0 && m.climbCd === 0 && m.weapon.type === 'ranged' && m.cooldown > 0 && !m.improvShield
+      && !(dist <= m.weapon.range && dist >= (m.weapon.min_range || 0) && this.losClear(m.pos, foe.pos))){ // v0.12.0 : anti-churn — on ne grimpe que si la position actuelle ne peut pas engager
+      let bp = null, bd = (cf.seek_radius || 9) ** 2;
+      for (const o of this.platforms){
+        const dd = this.edgeDist(o, m.pos.x, m.pos.z) ** 2;
+        if (dd >= bd) continue;
+        const pDist = this.distance({ x: o.x, z: o.z }, foe.pos);
+        if (pDist > m.weapon.range * 1.05 || pDist < (m.weapon.min_range || 0)) continue;
+        if (this.segBlockedBySmoke({ x: o.x, z: o.z }, foe.pos)) continue;
+        bd = dd; bp = o; }
+      if (bp){ tgtX = bp.x; tgtZ = bp.z; m.wantClimb = bp; } }
+    if (m.z > 0){ // v1.3.0 (D-038) : perché — on tient la hauteur tant qu'elle domine la cible, sinon on redescend
+      const hold = dist <= m.weapon.range * 1.05 && dist >= (m.weapon.min_range || 0) * 0.9 && this.losClear(m.pos, foe.pos);
+      if (hold) m.perchSlack = 0; // v0.12.0 : hystérésis — le perchoir se tient, on ne descend pas au premier tick défavorable
+      else { m.perchSlack = (m.perchSlack || 0) + 1;
+        if (m.perchSlack >= ((cf && cf.patience_ticks) || 30) && m.climbCd === 0){ const cc2 = this.ruleset.combat.climb || {};
+          m.climbTotal = m.climbT = Math.max(1, Math.round(m.z * (cc2.ticks_per_meter || 6) * 0.5)); m.zTgt = 0; m.perchSlack = 0;
+          m.climbCd = cc2.cooldown_ticks || 45;
+          this.log('climb_down_started', i, { from: m.z }); } } }
     const tdist = Math.hypot(tgtX - m.pos.x, tgtZ - m.pos.z) || 1;
     const ux = (tgtX - m.pos.x) / tdist, uz = (tgtZ - m.pos.z) / tdist;
     const bmf = (m.proc.brace_move_factor != null ? m.proc.brace_move_factor : (this.ruleset.combat.brace_move_factor || 0.5)); // tracking shot : visée en mouvement lent
-    if (dist > pref + 1.5 || (isMelee && dist > m.weapon.range) ||
-        (wantSecMelee && dist > sec.range)){
+    if (m.wantClimb || dist > pref + 1.5 || (isMelee && dist > m.weapon.range) ||
+        (wantSecMelee && dist > sec.range)){ // v1.3.0 : wantClimb = cap sur la plateforme la plus proche
       if (m.ticksMoved === 0) this.log('movement_started', i, { toward: m.targetIdx });
       const sf = bracing ? bmf : 1;
       nx += ux * spd * this.dt * sf; nz += uz * spd * this.dt * sf; m.ticksMoved++;
@@ -606,6 +658,11 @@ class CombatSim {
         this.log('jump_started', i, { duration: jf.duration_ticks, cooldown: jf.cooldown_ticks });
       }
     }
+    if (m.wantClimb && m.z === 0 && m.climbT === 0 && this.edgeDist(m.wantClimb, m.pos.x, m.pos.z) <= 1.5){ // v1.3.0 (D-038) : au bord → on escalade
+      const pf = m.wantClimb, cc3 = this.ruleset.combat.climb || {};
+      m.climbTotal = m.climbT = Math.max(1, Math.ceil(pf.zh * (cc3.ticks_per_meter || 6)));
+      m.zTgt = pf.zh; m.zRender = 0; m.climbCd = cc3.cooldown_ticks || 45; m.climbPlat = pf;
+      this.log('climb_started', i, { platform: pf.id, z: pf.zh, ticks: m.climbT }); }
     const mdx = m.pos.x - m.prevPos.x, mdz = m.pos.z - m.prevPos.z;
     m.ticksStationary = bracing ? m.ticksStationary + 1 : 0; // D-021 : chaque tick de visée compte (tracking shot), reset sinon
     m.vel = { x: mdx / this.dt, z: mdz / this.dt };
@@ -624,7 +681,7 @@ class CombatSim {
     const lead = c.aim_lead_factor;
     let ax = foe.pos.x + (foe.vel.x || 0) * ft * lead, az = foe.pos.z + (foe.vel.z || 0) * ft * lead;
     // D-026 : précision du châssis (garage D-019) resserre l'erreur de visée — tireurs seulement
-    const acc = Math.min(0.98, w.accuracy + (m.accuracy_bonus || 0) + this.affLinks(i)); // v1.1.0 : + liaisons vivantes
+    const acc = Math.min(0.98, w.accuracy + (m.accuracy_bonus || 0) + this.affLinks(i) + this.heightBonus(i, targetIdx)); // v1.1.0 : + liaisons vivantes ; v1.3.0 (D-038) : + avantage de hauteur
     const err = (1 - acc) * dist * c.aim_error_factor;
     const ang = this.rng.range(-Math.PI, Math.PI), rad = this.rng.range(0, err);
     ax += Math.cos(ang) * rad; az += Math.sin(ang) * rad;
@@ -709,7 +766,7 @@ function segRect(a, b, x1, z1, x2, z2){
   return true;
 }
 const RULESET = {
-  "version": "0.7.0",
+  "version": "0.8.0",
   "simulation": {
     "tick_hz": 15,
     "battle_timeout_seconds": 120
@@ -730,8 +787,18 @@ const RULESET = {
         }
       ],
       "spawn_sides": {
-        "alpha": { "type": "drop", "x": -36, "z": 0, "dir": 0 },
-        "omega": { "type": "drop", "x": 36, "z": 0, "dir": 3.14159 }
+        "alpha": {
+          "type": "drop",
+          "x": -36,
+          "z": 0,
+          "dir": 0
+        },
+        "omega": {
+          "type": "drop",
+          "x": 36,
+          "z": 0,
+          "dir": 3.14159
+        }
       },
       "obstacles": [
         {
@@ -811,8 +878,18 @@ const RULESET = {
         }
       ],
       "spawn_sides": {
-        "alpha": { "type": "corridor", "x": -41, "z": 0, "dir": 0 },
-        "omega": { "type": "corridor", "x": 41, "z": 0, "dir": 3.14159 }
+        "alpha": {
+          "type": "corridor",
+          "x": -41,
+          "z": 0,
+          "dir": 0
+        },
+        "omega": {
+          "type": "corridor",
+          "x": 41,
+          "z": 0,
+          "dir": 3.14159
+        }
       },
       "obstacles": [
         {
@@ -874,8 +951,18 @@ const RULESET = {
         }
       ],
       "spawn_sides": {
-        "alpha": { "type": "corridor", "x": -31, "z": 0, "dir": 0 },
-        "omega": { "type": "corridor", "x": 31, "z": 0, "dir": 3.14159 }
+        "alpha": {
+          "type": "corridor",
+          "x": -31,
+          "z": 0,
+          "dir": 0
+        },
+        "omega": {
+          "type": "corridor",
+          "x": 31,
+          "z": 0,
+          "dir": 3.14159
+        }
       },
       "obstacles": [
         {
@@ -982,8 +1069,18 @@ const RULESET = {
         }
       ],
       "spawn_sides": {
-        "alpha": { "type": "drop", "x": -45, "z": 0, "dir": 0 },
-        "omega": { "type": "drop", "x": 45, "z": 0, "dir": 3.14159 }
+        "alpha": {
+          "type": "drop",
+          "x": -45,
+          "z": 0,
+          "dir": 0
+        },
+        "omega": {
+          "type": "drop",
+          "x": 45,
+          "z": 0,
+          "dir": 3.14159
+        }
       },
       "obstacles": [
         {
@@ -1044,27 +1141,155 @@ const RULESET = {
       "width": 110,
       "depth": 55,
       "spawns": [
-        { "x": -44, "z": -8 },
-        { "x": 44, "z": 8 }
+        {
+          "x": -44,
+          "z": -8
+        },
+        {
+          "x": 44,
+          "z": 8
+        }
       ],
       "spawn_sides": {
-        "alpha": { "type": "drop", "x": -50, "z": 0, "dir": 0 },
-        "omega": { "type": "drop", "x": 50, "z": 0, "dir": 3.14159 }
+        "alpha": {
+          "type": "drop",
+          "x": -50,
+          "z": 0,
+          "dir": 0
+        },
+        "omega": {
+          "type": "drop",
+          "x": 50,
+          "z": 0,
+          "dir": 3.14159
+        }
       },
       "obstacles": [
-        { "id": "bld_n1", "x": -38, "z": -16, "w": 12, "h": 9, "blocks_los": true, "kind": "building" },
-        { "id": "bld_n2", "x": -13, "z": -19, "w": 10, "h": 8, "blocks_los": true, "kind": "building" },
-        { "id": "bld_n3", "x": 13, "z": -17, "w": 12, "h": 9, "blocks_los": true, "kind": "building" },
-        { "id": "bld_n4", "x": 38, "z": -15, "w": 10, "h": 8, "blocks_los": true, "kind": "building" },
-        { "id": "bld_s1", "x": -36, "z": 16, "w": 10, "h": 8, "blocks_los": true, "kind": "building" },
-        { "id": "bld_s2", "x": -10, "z": 19, "w": 12, "h": 9, "blocks_los": true, "kind": "building" },
-        { "id": "bld_s3", "x": 16, "z": 17, "w": 10, "h": 8, "blocks_los": true, "kind": "building" },
-        { "id": "bld_s4", "x": 38, "z": 19, "w": 12, "h": 9, "blocks_los": true, "kind": "building" },
-        { "id": "tower_mid", "x": 0, "z": 0, "w": 5, "h": 5, "blocks_los": true, "kind": "pillar" },
-        { "id": "kiosk_a", "x": -24, "z": 3, "w": 4, "h": 4, "blocks_los": true, "kind": "crate" },
-        { "id": "kiosk_b", "x": 24, "z": -3, "w": 4, "h": 4, "blocks_los": true, "kind": "crate" },
-        { "id": "wreck_a", "x": -30, "z": 8, "w": 2, "h": 2, "blocks_los": false, "kind": "prop", "pickable": true, "prop_hp": 12, "label": "ÉPAVE" },
-        { "id": "wreck_b", "x": 30, "z": -8, "w": 2, "h": 2, "blocks_los": false, "kind": "prop", "pickable": true, "prop_hp": 12, "label": "ÉPAVE" }
+        {
+          "id": "bld_n1",
+          "x": -38,
+          "z": -16,
+          "w": 12,
+          "h": 9,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "bld_n2",
+          "x": -13,
+          "z": -19,
+          "w": 10,
+          "h": 8,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "bld_n3",
+          "x": 13,
+          "z": -17,
+          "w": 12,
+          "h": 9,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "bld_n4",
+          "x": 38,
+          "z": -15,
+          "w": 10,
+          "h": 8,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "bld_s1",
+          "x": -36,
+          "z": 16,
+          "w": 10,
+          "h": 8,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "bld_s2",
+          "x": -10,
+          "z": 19,
+          "w": 12,
+          "h": 9,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "bld_s3",
+          "x": 16,
+          "z": 17,
+          "w": 10,
+          "h": 8,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "bld_s4",
+          "x": 38,
+          "z": 19,
+          "w": 12,
+          "h": 9,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "tower_mid",
+          "x": 0,
+          "z": 0,
+          "w": 5,
+          "h": 5,
+          "blocks_los": true,
+          "kind": "pillar",
+          "climb": true,
+          "zh": 5
+        },
+        {
+          "id": "kiosk_a",
+          "x": -24,
+          "z": 3,
+          "w": 4,
+          "h": 4,
+          "blocks_los": true,
+          "kind": "crate"
+        },
+        {
+          "id": "kiosk_b",
+          "x": 24,
+          "z": -3,
+          "w": 4,
+          "h": 4,
+          "blocks_los": true,
+          "kind": "crate"
+        },
+        {
+          "id": "wreck_a",
+          "x": -30,
+          "z": 8,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        },
+        {
+          "id": "wreck_b",
+          "x": 30,
+          "z": -8,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        }
       ]
     },
     "ironwood_forest": {
@@ -1072,39 +1297,267 @@ const RULESET = {
       "width": 100,
       "depth": 60,
       "spawns": [
-        { "x": -38, "z": -6 },
-        { "x": 38, "z": 6 }
+        {
+          "x": -38,
+          "z": -6
+        },
+        {
+          "x": 38,
+          "z": 6
+        }
       ],
       "spawn_sides": {
-        "alpha": { "type": "corridor", "x": -45, "z": 0, "dir": 0 },
-        "omega": { "type": "corridor", "x": 45, "z": 0, "dir": 3.14159 }
+        "alpha": {
+          "type": "corridor",
+          "x": -45,
+          "z": 0,
+          "dir": 0
+        },
+        "omega": {
+          "type": "corridor",
+          "x": 45,
+          "z": 0,
+          "dir": 3.14159
+        }
       },
       "obstacles": [
-        { "id": "tree_01", "x": -40, "z": -20, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_02", "x": -32, "z": -9, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_03", "x": -36, "z": 7, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_04", "x": -28, "z": 18, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_05", "x": -22, "z": -14, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_06", "x": -18, "z": -2, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_07", "x": -24, "z": 22, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_08", "x": -12, "z": 10, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_09", "x": -8, "z": -18, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_10", "x": -4, "z": 14, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_11", "x": 2, "z": -8, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_12", "x": 6, "z": 20, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_13", "x": 12, "z": -16, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_14", "x": 16, "z": 3, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_15", "x": 22, "z": -21, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_16", "x": 26, "z": 12, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_17", "x": 34, "z": -6, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_18", "x": 30, "z": 19, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_19", "x": 40, "z": -15, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "tree_20", "x": 38, "z": 8, "w": 2.6, "h": 2.6, "blocks_los": true, "kind": "tree" },
-        { "id": "rock_mid", "x": 0, "z": 0, "w": 5, "h": 4, "blocks_los": true, "kind": "rock" },
-        { "id": "rock_n", "x": -15, "z": 25, "w": 4, "h": 3, "blocks_los": true, "kind": "rock" },
-        { "id": "rock_s", "x": 20, "z": -25, "w": 4, "h": 3, "blocks_los": true, "kind": "rock" },
-        { "id": "wreck_a", "x": -20, "z": 4, "w": 2, "h": 2, "blocks_los": false, "kind": "prop", "pickable": true, "prop_hp": 12, "label": "ÉPAVE" },
-        { "id": "wreck_b", "x": 18, "z": -4, "w": 2, "h": 2, "blocks_los": false, "kind": "prop", "pickable": true, "prop_hp": 12, "label": "ÉPAVE" }
+        {
+          "id": "tree_01",
+          "x": -40,
+          "z": -20,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_02",
+          "x": -32,
+          "z": -9,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_03",
+          "x": -36,
+          "z": 7,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_04",
+          "x": -28,
+          "z": 18,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_05",
+          "x": -22,
+          "z": -14,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_06",
+          "x": -18,
+          "z": -2,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_07",
+          "x": -24,
+          "z": 22,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_08",
+          "x": -12,
+          "z": 10,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_09",
+          "x": -8,
+          "z": -18,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_10",
+          "x": -4,
+          "z": 14,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_11",
+          "x": 2,
+          "z": -8,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_12",
+          "x": 6,
+          "z": 20,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_13",
+          "x": 12,
+          "z": -16,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_14",
+          "x": 16,
+          "z": 3,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_15",
+          "x": 22,
+          "z": -21,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_16",
+          "x": 26,
+          "z": 12,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_17",
+          "x": 34,
+          "z": -6,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_18",
+          "x": 30,
+          "z": 19,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_19",
+          "x": 40,
+          "z": -15,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_20",
+          "x": 38,
+          "z": 8,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "rock_mid",
+          "x": 0,
+          "z": 0,
+          "w": 5,
+          "h": 4,
+          "blocks_los": true,
+          "kind": "rock",
+          "climb": true,
+          "zh": 2.2
+        },
+        {
+          "id": "rock_n",
+          "x": -15,
+          "z": 25,
+          "w": 4,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "rock",
+          "climb": true,
+          "zh": 2.2
+        },
+        {
+          "id": "rock_s",
+          "x": 20,
+          "z": -25,
+          "w": 4,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "rock",
+          "climb": true,
+          "zh": 2.2
+        },
+        {
+          "id": "wreck_a",
+          "x": -20,
+          "z": 4,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        },
+        {
+          "id": "wreck_b",
+          "x": 18,
+          "z": -4,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        }
       ]
     },
     "kessari_delta": {
@@ -1112,41 +1565,178 @@ const RULESET = {
       "width": 105,
       "depth": 50,
       "spawns": [
-        { "x": -40, "z": -7 },
-        { "x": 40, "z": 7 }
+        {
+          "x": -40,
+          "z": -7
+        },
+        {
+          "x": 40,
+          "z": 7
+        }
       ],
       "spawn_sides": {
-        "alpha": { "type": "drop", "x": -48, "z": 0, "dir": 0 },
-        "omega": { "type": "drop", "x": 48, "z": 0, "dir": 3.14159 }
+        "alpha": {
+          "type": "drop",
+          "x": -48,
+          "z": 0,
+          "dir": 0
+        },
+        "omega": {
+          "type": "drop",
+          "x": 48,
+          "z": 0,
+          "dir": 3.14159
+        }
       },
       "water": [
-        { "id": "river_mid", "x": 0, "z": 0, "w": 30, "d": 46 },
-        { "id": "pool_west", "x": -36, "z": 10, "w": 18, "d": 20 },
-        { "id": "pool_east", "x": 34, "z": -12, "w": 20, "d": 18 }
+        {
+          "id": "river_mid",
+          "x": 0,
+          "z": 0,
+          "w": 30,
+          "d": 46
+        },
+        {
+          "id": "pool_west",
+          "x": -36,
+          "z": 10,
+          "w": 18,
+          "d": 20
+        },
+        {
+          "id": "pool_east",
+          "x": 34,
+          "z": -12,
+          "w": 20,
+          "d": 18
+        }
       ],
       "obstacles": [
-        { "id": "pile_n1", "x": 0, "z": -14, "w": 2.5, "h": 2.5, "blocks_los": true, "kind": "pillar" },
-        { "id": "pile_n2", "x": -5, "z": 0, "w": 2.5, "h": 2.5, "blocks_los": true, "kind": "pillar" },
-        { "id": "pile_s", "x": 0, "z": 14, "w": 2.5, "h": 2.5, "blocks_los": true, "kind": "pillar" },
-        { "id": "pont_e", "x": 9, "z": 0, "w": 12, "h": 3, "blocks_los": false, "kind": "platform" },
-        { "id": "pont_w", "x": -10, "z": 0, "w": 10, "h": 3, "blocks_los": false, "kind": "platform" },
-        { "id": "bank_w", "x": -20, "z": 12, "w": 6, "h": 3, "blocks_los": true, "kind": "cover" },
-        { "id": "bank_w2", "x": -22, "z": -10, "w": 6, "h": 3, "blocks_los": true, "kind": "cover" },
-        { "id": "bank_e", "x": 22, "z": 10, "w": 6, "h": 3, "blocks_los": true, "kind": "cover" },
-        { "id": "bank_e2", "x": 24, "z": -12, "w": 6, "h": 3, "blocks_los": true, "kind": "cover" },
-        { "id": "wreck_a", "x": -14, "z": 2, "w": 2, "h": 2, "blocks_los": false, "kind": "prop", "pickable": true, "prop_hp": 12, "label": "ÉPAVE" },
-        { "id": "wreck_b", "x": 16, "z": -4, "w": 2, "h": 2, "blocks_los": false, "kind": "prop", "pickable": true, "prop_hp": 12, "label": "ÉPAVE" }
+        {
+          "id": "pile_n1",
+          "x": 0,
+          "z": -14,
+          "w": 2.5,
+          "h": 2.5,
+          "blocks_los": true,
+          "kind": "pillar"
+        },
+        {
+          "id": "pile_n2",
+          "x": -5,
+          "z": 0,
+          "w": 2.5,
+          "h": 2.5,
+          "blocks_los": true,
+          "kind": "pillar"
+        },
+        {
+          "id": "pile_s",
+          "x": 0,
+          "z": 14,
+          "w": 2.5,
+          "h": 2.5,
+          "blocks_los": true,
+          "kind": "pillar"
+        },
+        {
+          "id": "pont_e",
+          "x": 9,
+          "z": 0,
+          "w": 12,
+          "h": 3,
+          "blocks_los": false,
+          "kind": "platform",
+          "climb": true,
+          "zh": 3
+        },
+        {
+          "id": "pont_w",
+          "x": -10,
+          "z": 0,
+          "w": 10,
+          "h": 3,
+          "blocks_los": false,
+          "kind": "platform",
+          "climb": true,
+          "zh": 3
+        },
+        {
+          "id": "bank_w",
+          "x": -20,
+          "z": 12,
+          "w": 6,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "cover"
+        },
+        {
+          "id": "bank_w2",
+          "x": -22,
+          "z": -10,
+          "w": 6,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "cover"
+        },
+        {
+          "id": "bank_e",
+          "x": 22,
+          "z": 10,
+          "w": 6,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "cover"
+        },
+        {
+          "id": "bank_e2",
+          "x": 24,
+          "z": -12,
+          "w": 6,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "cover"
+        },
+        {
+          "id": "wreck_a",
+          "x": -14,
+          "z": 2,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        },
+        {
+          "id": "wreck_b",
+          "x": 16,
+          "z": -4,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        }
       ]
     }
   },
   "combat": {
-    "jump": { "enabled": true, "duration_ticks": 18, "cooldown_ticks": 90 },
+    "jump": {
+      "enabled": true,
+      "duration_ticks": 18,
+      "cooldown_ticks": 90
+    },
     "water_speed_factor": 0.65,
     "overheat_threshold": 100,
     "overheat_stun_seconds": 3,
     "min_damage_after_armor": 1,
     "proj_hit_radius": 1.5,
-    "aim_error_factor": 0.18,    "aim_lead_factor": 0.75,
+    "aim_error_factor": 0.18,
+    "aim_lead_factor": 0.75,
     "retreat_speed_factor": 0.7,
     "brace_move_factor": 0.6,
     "drop_speed_bonus": 0.25,
@@ -1163,6 +1753,16 @@ const RULESET = {
       "default_hp_threshold": 0.5,
       "phantom_hp_threshold": 0.85,
       "charges": 1
+    },
+    "climb": {
+      "enabled": true,
+      "ticks_per_meter": 6,
+      "cooldown_ticks": 45,
+      "seek_radius": 9,
+      "aim_bonus": 0.04,
+      "aim_height": 2,
+      "los_height": 2,
+      "patience_ticks": 30
     }
   },
   "weapons": {
@@ -2995,6 +3595,7 @@ function jArc(m){ // v0.11.0 (D-037) : hauteur visuelle du saut (arc sinusoïdal
   const dur = (RULESET.combat.jump && RULESET.combat.jump.duration_ticks) || 18;
   return Math.sin(Math.PI * (1 - m.jumpT / dur)) * 2.2;
 }
+function jZ(m){ return ((m && (m.zRender || m.z)) || 0) * .85; } // v0.12.0 (D-038) : élévation réelle (perchoir/escalade) — 0 au sol
 function drawWater(w){ // v0.11.0 (D-037) : zones d'eau — passable mais lente
   const wd = w.d || w.w;
   cx.fillStyle = 'rgba(46,102,122,.32)'; cx.strokeStyle = '#2E667A';
@@ -3009,12 +3610,14 @@ function drawObstacle(o){
   cx.fillStyle = prop ? 'rgba(227,162,59,.18)' : (plat ? 'rgba(126,182,193,.08)' : (bld ? 'rgba(42,49,61,.8)' : (tree ? 'rgba(38,66,48,.75)' : (rock ? 'rgba(58,64,58,.7)' : 'rgba(52,59,67,.55)'))));
   cx.strokeStyle = prop ? '#E3A23B' : (plat ? '#7EB6C1' : (bld ? '#5A6678' : (tree ? '#4A7A52' : (rock ? '#6E7780' : '#3A434D'))));
   if (plat) cx.setLineDash([4, 3]);
-  cx.beginPath(); cx.rect(tp(o.x - o.w / 2), tz(o.z - (o.d || o.w || 2) / 2), o.w * tScale(), (o.d || o.w || 2) * tScale());
+  const od = o.d || o.h || o.w || 2; // v0.12.0 : profondeur = h (fix v0.11.0 — le moteur bloque sur o.h, le dessin suivait o.w)
+  cx.beginPath(); cx.rect(tp(o.x - o.w / 2), tz(o.z - od / 2), o.w * tScale(), od * tScale());
   cx.fill(); cx.stroke(); cx.setLineDash([]);
   if (prop){ cx.fillStyle = '#E3A23B'; cx.font = '8px monospace'; cx.textAlign = 'center'; cx.fillText('ÉPAVE', tp(o.x), tz(o.z) + 3); }
   if (bld){ cx.fillStyle = '#8B95A1'; cx.font = '8px monospace'; cx.textAlign = 'center'; cx.fillText('BÂT.', tp(o.x), tz(o.z) + 3); }
   if (tree){ cx.fillStyle = '#7FA98A'; cx.font = '8px monospace'; cx.textAlign = 'center'; cx.fillText('ARBRE', tp(o.x), tz(o.z) + 3); }
   if (rock){ cx.fillStyle = '#9AA3AC'; cx.font = '8px monospace'; cx.textAlign = 'center'; cx.fillText('ROCHER', tp(o.x), tz(o.z) + 3); }
+  if (o.climb && o.zh){ cx.fillStyle = '#7EB6C1'; cx.font = 'bold 8px monospace'; cx.textAlign = 'center'; cx.fillText('\u25B2' + o.zh + 'M', tp(o.x), tz(o.z) - 4); } // v0.12.0 (D-038) : plateforme escaladable
 }
 function renderBattleTactical(){
   cx.clearRect(0, 0, cv.width, cv.height); cx.fillStyle = '#07090C'; cx.fillRect(0, 0, cv.width, cv.height);
@@ -3034,9 +3637,13 @@ function renderBattleTactical(){
     if (m.hpNow <= 0){ cx.strokeStyle = '#3A434D'; cx.globalAlpha = .6; cx.beginPath(); cx.arc(x, z, 1.6 * tScale(), 0, Math.PI * 2); cx.stroke();
       cx.beginPath(); cx.moveTo(x - 6, z - 6); cx.lineTo(x + 6, z + 6); cx.moveTo(x + 6, z - 6); cx.lineTo(x - 6, z + 6); cx.stroke(); cx.globalAlpha = 1; return; }
     // silhouette vue de dessus, nez orienté selon le heading (D-027)
-    const sc = tScale(), jy = jArc(m);
+    const sc = tScale(), jy = jArc(m), zE = jZ(m), ly = z - (jy + zE) * sc * .85; // v0.12.0 (D-038) : zE = perché/escalade
     if (jy > 0){ cx.strokeStyle = 'rgba(231,235,239,.4)'; cx.setLineDash([2, 3]); cx.beginPath(); cx.arc(x, z, 1.7 * sc, 0, Math.PI * 2); cx.stroke(); cx.setLineDash([]); }
-    cx.save(); cx.translate(x, z - jy * sc * .85); cx.rotate(m.heading);
+    if (zE > 0){ // perché — ancre au sol : ombre + ligne de rappel pointillée (D-038)
+      cx.fillStyle = 'rgba(0,0,0,.35)'; cx.beginPath(); cx.ellipse(x, z, 1.4 * sc, .5 * sc, 0, 0, Math.PI * 2); cx.fill();
+      cx.strokeStyle = 'rgba(231,235,239,.35)'; cx.setLineDash([3, 3]); cx.beginPath(); cx.moveTo(x, z); cx.lineTo(x, ly); cx.stroke(); cx.setLineDash([]); }
+    if ((m.climbT || 0) > 0){ cx.fillStyle = '#7EB6C1'; cx.font = 'bold 8px monospace'; cx.textAlign = 'center'; cx.fillText('\u25B2 ESCALADE', x, ly + 4); }
+    cx.save(); cx.translate(x, z - (jy + zE) * sc * .85); cx.rotate(m.heading);
     cx.fillStyle = m.improvShield > 0 ? 'rgba(227,162,59,.35)' : col;
     cx.beginPath();
     cx.moveTo(2.4 * sc, 0); cx.lineTo(1.5 * sc, -1.5 * sc); cx.lineTo(-1.9 * sc, -1.2 * sc);
@@ -3046,12 +3653,12 @@ function renderBattleTactical(){
     cx.restore();
     if (m.improvShield > 0){ cx.strokeStyle = 'rgba(227,162,59,.85)'; cx.lineWidth = 1.5; cx.beginPath(); cx.arc(x, z, 2.5 * sc, 0, Math.PI * 2); cx.stroke(); }
     if ((m.stunTicks || 0) > 0 || (m.staggeredTicks || 0) > 0){ cx.strokeStyle = (m.stunTicks > 0 ? '#E3C23B' : '#A78FD9'); cx.setLineDash([3, 3]); cx.lineWidth = 1.2; cx.beginPath(); cx.arc(x, z, 2.2 * sc, 0, Math.PI * 2); cx.stroke(); cx.setLineDash([]); }
-    cx.fillStyle = '#16191E'; cx.strokeStyle = '#343B43';
-    cx.fillRect(x - 15, z - 2.2 * sc - 14, 30, 6); cx.strokeRect(x - 15, z - 2.2 * sc - 14, 30, 6);
-    cx.fillStyle = col; cx.fillRect(x - 14, z - 2.2 * sc - 13, 28 * Math.max(0, m.hpNow / m.hp), 4);
-    if (m.shieldMax > 0){ cx.fillStyle = '#7FA6C9'; cx.fillRect(x - 14, z - 2.2 * sc - 7, 28 * Math.max(0, (m.shieldNow || 0) / m.shieldMax), 2); }
+    cx.fillStyle = '#16191E'; cx.strokeStyle = '#343B43'; // v0.12.0 : les étiquettes suivent l'élévation (ly)
+    cx.fillRect(x - 15, ly - 2.2 * sc - 14, 30, 6); cx.strokeRect(x - 15, ly - 2.2 * sc - 14, 30, 6);
+    cx.fillStyle = col; cx.fillRect(x - 14, ly - 2.2 * sc - 13, 28 * Math.max(0, m.hpNow / m.hp), 4);
+    if (m.shieldMax > 0){ cx.fillStyle = '#7FA6C9'; cx.fillRect(x - 14, ly - 2.2 * sc - 7, 28 * Math.max(0, (m.shieldNow || 0) / m.shieldMax), 2); }
     cx.fillStyle = '#E7EBEF'; cx.font = 'bold 9px monospace'; cx.textAlign = 'center';
-    cx.fillText(m.name, x, z - 2.2 * sc - 18);
+    cx.fillText(m.name, x, ly - 2.2 * sc - 18);
   });
   cx.strokeStyle = 'rgba(227,162,59,.5)'; cx.lineWidth = 2;
   for (const p of sim.projectiles){
@@ -3132,7 +3739,7 @@ function renderBattleBroadcast(){
   sim.mechs.forEach(m => {
     if (m.hpNow <= 0) return;
     const p = proj(m.pos.x, 0, m.pos.z); if (!p) return;
-    const jy = jArc(m), k = 1 - Math.min(.45, jy * .18);
+    const jy = jArc(m), k = 1 - Math.min(.45, (jy + jZ(m)) * .18); // v0.12.0 (D-038) : ombre rétrécie aussi en hauteur
     cx.fillStyle = 'rgba(0,0,0,' + (0.42 * k).toFixed(2) + ')'; cx.beginPath(); cx.ellipse(p.x, p.y, 1.7 * k * p.s, .55 * k * p.s, 0, 0, Math.PI * 2); cx.fill();
   });
   // ===== faces 3D (painter's algorithm, tri par profondeur) =====
@@ -3146,7 +3753,7 @@ function renderBattleBroadcast(){
   });
   // boîte orientée selon le heading du mech (centre décalé foff=avant, roff=droite)
   function mechBox(m, foff, roff, y0, y1, hw, hd, fillTop, fillSide, stroke){
-    const jy = jArc(m); y0 += jy; y1 += jy; // v0.11.0 (D-037) : le mech s'élève en plein saut
+    const jy = jArc(m), zE = jZ(m) * 1.15; y0 += jy + zE; y1 += jy + zE; // v0.11.0 (D-037) : saut ; v0.12.0 (D-038) : élévation réelle
     const dx = Math.cos(m.heading), dz = Math.sin(m.heading);
     const px = -dz, pz = dx;
     const bx = m.pos.x + foff * dx + roff * px, bz = m.pos.z + foff * dz + roff * pz;
@@ -3200,7 +3807,7 @@ function renderBattleBroadcast(){
   });
   // obstacles
   sim.obstacles.forEach(o => {
-    const h = o.kind === 'building' ? 6.5 : (o.kind === 'tree' ? 3.2 : (o.kind === 'rock' ? 2.0 : (o.kind === 'platform' ? .8 : (o.pickable ? 1.1 : 2.6))));
+    const h = o.climb && o.zh ? o.zh : (o.kind === 'building' ? 6.5 : (o.kind === 'tree' ? 3.2 : (o.kind === 'rock' ? 2.0 : (o.kind === 'platform' ? .8 : (o.pickable ? 1.1 : 2.6))))); // v0.12.0 (D-038) : perchoir = vraie hauteur
     let top = o.pickable ? '#4A4234' : (o.kind === 'platform' ? '#2A3C42' : '#3A434D');
     let side = o.pickable ? '#3A3428' : (o.kind === 'platform' ? '#223238' : '#2E353D');
     if (o.kind === 'building'){ top = '#323A47'; side = '#272E38'; }
@@ -3295,7 +3902,7 @@ function renderBattleBroadcast(){
   cx.font = '9px monospace'; cx.fillStyle = '#6E7780'; cx.textAlign = 'right';
   cx.fillText('CAM BROADCAST — GREYBOX — ' + divisionLabel(G.org.division), W - 12, H - 12);
   cx.textAlign = 'left';
-  cx.fillText('BATAILLE D' + String.fromCharCode(39) + 'ESCOUADE 3v3 — [C] CAM — v0.11.0', 12, H - 12);
+  cx.fillText('BATAILLE D' + String.fromCharCode(39) + 'ESCOUADE 3v3 — [C] CAM — v0.12.0', 12, H - 12);
 }
 
 // ==== NAVIGATION + BOOT ====
