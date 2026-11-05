@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IRONGRADE — Prototype manager v0.7.1</title>
+<title>IRONGRADE — Prototype manager v0.8.0</title>
 <style>
   :root { font-family: 'Inter', system-ui, sans-serif; background: #0B0E12; color: #E7EBEF; }
   * { box-sizing: border-box; margin: 0; }
@@ -76,6 +76,38 @@
   .footer { color: #3A434D; font-size: 10px; letter-spacing: 2px; margin-top: 18px; text-align: center; }
   .valid-ok { color: #4FAE6B; font-size: 12px; margin: 6px 0; }
   .valid-err { color: #D93432; font-size: 12px; margin: 3px 0; }
+  /* ==== v0.8.0 — passe visuelle (greybox stylisé, palette spec) ==== */
+  body::before { content:''; position:fixed; inset:0; pointer-events:none;
+    background: radial-gradient(900px 420px at 50% -8%, rgba(217,52,50,.07), transparent 65%); }
+  .screen { background-image: repeating-linear-gradient(0deg, transparent 0 47px, rgba(52,59,67,.06) 47px 48px); }
+  .panel { position:relative; }
+  .panel::before { content:''; position:absolute; left:-1px; top:-1px; bottom:-1px; width:3px;
+    background: linear-gradient(180deg, #D93432 0%, rgba(217,52,50,.25) 55%, transparent 100%); }
+  .panel > h3 { position:relative; padding-left:14px; }
+  .panel > h3::before { content:''; position:absolute; left:0; top:1px; width:6px; height:11px; background:#D93432; }
+  .card { position:relative; transition: border-color .15s ease, box-shadow .15s ease; }
+  .card:hover { border-color:#4A5763; box-shadow:0 0 0 1px rgba(217,52,50,.12); }
+  .port-row { display:flex; gap:12px; align-items:flex-start; margin-bottom:10px; }
+  .port { flex:0 0 auto; border:1px solid #343B43; background:#0B0E12; }
+  .port svg, .mview svg, .mmini svg { display:block; }
+  .mrow { display:flex; gap:14px; align-items:flex-start; margin-bottom:4px; }
+  .mview { flex:0 0 auto; border:1px solid #343B43; padding:6px 6px 2px;
+    background: linear-gradient(180deg,#0D1016 0%,#07090C 100%); }
+  .mview .zone { transition: opacity .15s, filter .15s; }
+  .mview .zone.hot { filter: drop-shadow(0 0 5px #D93432); }
+  .mview .zlabel { font-size:8px; letter-spacing:2px; color:#6E7780; text-align:center; margin:3px 0 1px; font-family:monospace; text-transform:uppercase; }
+  .mmini { flex:0 0 auto; border:1px solid #232830; background:#0B0E12; padding:3px; }
+  .hangar-flex { display:flex; gap:22px; align-items:flex-start; flex-wrap:wrap; }
+  .hangar-side .mview { border-width:2px; }
+  .crest { display:inline-block; vertical-align:middle; }
+  .vsbig { display:flex; gap:16px; align-items:center; margin:4px 0 10px; flex-wrap:wrap; }
+  .slotrow.hot { background: rgba(217,52,50,.08); outline:1px solid rgba(217,52,50,.35); }
+  .duelrow { align-items:center; }
+  .duelrow .viscell { display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; }
+  .hud .hpb { height:16px; position:relative; }
+  .hud .hpb::after { content:''; position:absolute; inset:0; pointer-events:none;
+    background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(7,9,12,.75) 9px 10px); }
+  .hud .hpb i { transition: width .12s linear; }
 </style>
 </head>
 <body>
@@ -84,6 +116,7 @@
 <div class="screen" id="screen-boot">
   <h1>IRONG<span class="r">RADE</span></h1>
   <div class="sub">Prototype manager — Ligue pro de combat de mechs</div>
+  <div class="cards" id="boot-mechs" style="justify-content:center; gap:18px; margin-bottom:26px"></div>
   <div class="menu-col">
     <input type="text" id="orgname" placeholder="NOM DE VOTRE ORGANISATION" maxlength="24" style="min-width:320px; padding:13px 16px; letter-spacing:2px;" />
     <button class="primary" id="btn-new">▸ NOUVELLE CARRIÈRE</button>
@@ -91,7 +124,7 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.7.0 — MOTEUR DE COMBAT v0.6.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
+  <div class="footer">IRONGRADE v0.8.0 — MOTEUR DE COMBAT v0.6.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -116,12 +149,17 @@
   <div class="tophead"><span class="org">GARAGE</span><span class="res" id="gar-credits"></span></div>
   <div class="panel"><h3>Mechs de l'organisation</h3><div class="cards" id="garage-mechs"></div></div>
   <div class="panel" id="atelier-panel" style="display:none">
-    <h3>Atelier — <span id="at-title"></span></h3>
-    <div class="slotrow"><span class="tag">CHÂSSIS</span><select id="at-chassis"></select></div>
-    <div id="at-slots"></div>
-    <div id="at-budgets"></div>
-    <div id="at-stats"></div>
-    <div id="at-validation"></div>
+    <h3>Atelier — <span id="at-title"></span><span style="float:right;color:#3A434D;font-size:9px;letter-spacing:2px">HANGAR — MAQUETTE GREYBOX (survolez un slot)</span></h3>
+    <div class="hangar-flex">
+      <div class="hangar-side" id="at-hangar"></div>
+      <div style="flex:1; min-width:330px">
+        <div class="slotrow"><span class="tag">CHÂSSIS</span><select id="at-chassis"></select></div>
+        <div id="at-slots"></div>
+        <div id="at-budgets"></div>
+        <div id="at-stats"></div>
+        <div id="at-validation"></div>
+      </div>
+    </div>
     <button class="primary small" id="at-apply">APPLIQUER LE BUILD</button>
     <button class="small" id="at-cancel">ANNULER</button>
   </div>
@@ -221,14 +259,14 @@
 <div class="screen" id="screen-about">
   <div class="tophead"><span class="org">À PROPOS</span></div>
   <div class="panel">
-    <h3>IRONGRADE — prototype manager v0.7.0</h3>
+    <h3>IRONGRADE — prototype manager v0.8.0</h3>
     <div class="hint">Vertical slice de gestion : la boucle complète (roster, garage, ligue, matchs observés, rapport, sauvegarde) sur le moteur de combat v0.6.0 déterministe 15 Hz.</div>
     <table>
       <tr><td><b>MOTEUR</b></td><td>CombatSim v0.6.0 — spawns d'arène par point de largage / couloir d'entrée (D-027), précision &amp; stabilité par mech (D-026), 2v2 &amp; ciblage par profil (D-024), fumigène (D-025).</td></tr>
       <tr><td><b>SAUVEGARDE</b></td><td>Locale (navigateur), une seule par appareil. « Nouvelle carrière » écrase la sauvegarde.</td></tr>
       <tr><td><b>ÉCONOMIE</b></td><td>Monnaie unique (crédits). Toutes les récompenses, prix et barèmes XP de ce prototype sont des hypothèses d'équilibrage data-driven, à valider par l'owner avant tout contenu réel.</td></tr>
       <tr><td><b>GOUVERNANCE</b></td><td>Aucune loot box, aucun achat, aucune probabilité de drop dans ce prototype — les taux restent une décision owner.</td></tr>
-      <tr><td><b>VISUELS</b></td><td>Greybox — placeholder assumé, pas d'art final.</td></tr>
+      <tr><td><b>VISUELS</b></td><td>Greybox — maquettes SVG procédurales (v0.8.0 : portraits pilotes, hangar de customisation, blasons d'équipes, rendu tactique enrichi). Placeholder assumé, pas d'art final.</td></tr>
     </table>
   </div>
   <button class="ghost" id="btn-about-back">← RETOUR</button>
@@ -1442,6 +1480,7 @@ let state = 'boot', sim = null, playing = true, speed = 1, accT = 0, lastT = 0;
 let G = null;           // sauvegarde (l'état de la carrière)
 let matchCtx = null;    // match en cours
 let atelierMech = null; // mech en édition à l'atelier
+let hotZone = null; // zone de maquette mise en avant (survol de slot)
 
 const SCREENS = ['boot', 'hub', 'roster', 'garage', 'league', 'analysis', 'setup', 'battle', 'report', 'season', 'rules', 'about'];
 function show(name){ SCREENS.forEach(s => { const el = $('screen-' + s); if (el) el.classList.toggle('active', s === name); }); state = name; }
@@ -1701,6 +1740,176 @@ function alertHTML(){
   });
   return out.length ? out.map(l => '<div style="margin-bottom:6px">' + l + '</div>').join('') : '<span style="color:#4FAE6B;font-size:13px">✔ Aucune alerte — l\'organisation est prête.</span>';
 }
+// ==== v0.8.0 — PASSE VISUELLE : rendu procédural greybox (zéro asset externe) ====
+const TEAM_COLORS = { you: '#D93432', forge_rouge: '#E05A3A', ecurie_kessler: '#7FA6C9', heritiers: '#C9A961', compagnie_vulcain: '#8B8378', megabolt: '#59C4C9' };
+const PROC_GLOW = { berserker: '#D93432', tactician: '#7FA6C9', guardian: '#4FAE6B', phantom: '#A78FD9' };
+function hashStr(t){ let h = 2166136261; for (let i = 0; i < t.length; i++){ h ^= t.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+
+// portrait de pilote : casque + visière, variantes déterministes par nom
+function pilotSVG(p, size, opts){
+  opts = opts || {}; size = size || 56;
+  const h = hashStr(p.nom || 'x');
+  const visor = ['#7FA6C9', '#E3A23B', '#8FD3A8', '#C9A17F', '#A78FD9'][h % 5];
+  const helm = h % 3;
+  const suit = opts.recon ? '#2A3138' : '#343B43';
+  const acc = opts.recon ? '#4A5560' : '#D93432';
+  let g = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">';
+  g += '<rect width="60" height="60" fill="#0B0E12"/><rect x=".5" y=".5" width="59" height="59" fill="none" stroke="' + (opts.recon ? '#2A3138' : '#343B43') + '"/>';
+  g += '<path d="M8 60 L14 41 Q30 33 46 41 L52 60 Z" fill="' + suit + '" stroke="#232830"/>';
+  g += '<path d="M28 37 L32 37 L32 60 L28 60 Z" fill="' + acc + '" opacity=".75"/>';
+  if (helm === 0) g += '<path d="M30 11 Q42 11 43 26 Q43 37 30 39 Q17 37 17 26 Q18 11 30 11 Z" fill="#3D444D" stroke="#232830"/>';
+  else if (helm === 1) g += '<path d="M21 11 L39 11 L43 29 L36 39 L24 39 L17 29 Z" fill="#3D444D" stroke="#232830"/>';
+  else g += '<path d="M22 13 L38 13 L40 30 Q30 41 20 30 Z" fill="#3D444D" stroke="#232830"/><path d="M24 33 Q30 38 36 33 L36 39 L24 39 Z" fill="#232830"/>';
+  g += '<rect x="22" y="20" width="16" height="7" rx="2" fill="' + visor + '" opacity="' + (opts.recon ? '.3' : '.95') + '"/>';
+  g += '<rect x="23" y="21.5" width="13" height="2" rx="1" fill="#E7EBEF" opacity="' + (opts.recon ? '.15' : '.4') + '"/>';
+  const pips = Math.min(5, p.niveau || 1);
+  for (let i = 0; i < pips; i++) g += '<rect x="' + (25 + i * 2.8) + '" y="46" width="1.7" height="5" fill="' + acc + '" opacity=".9"/>';
+  if (opts.badge === 'ko') g += '<circle cx="49" cy="11" r="8" fill="#D93432"/><path d="M45 11 H53 M49 7 V15" stroke="#0B0E12" stroke-width="2"/>';
+  if (opts.badge === 'tired') g += '<circle cx="49" cy="11" r="8" fill="#E3A23B"/><path d="M45 11 H53" stroke="#0B0E12" stroke-width="2"/>';
+  g += '</svg>';
+  return g;
+}
+
+// blason d'équipe (écu + initiales, couleur par équipe)
+function crestSVG(teamId, nom, size){
+  const col = TEAM_COLORS[teamId] || '#AAB2BA';
+  const ini = ((nom || '?').split(/\s+/).map(w => w[0]).join('') || '?').slice(0, 3);
+  let g = '<svg class="crest" width="' + size + '" height="' + Math.round(size * 1.15) + '" viewBox="0 0 40 46" xmlns="http://www.w3.org/2000/svg">';
+  g += '<path d="M20 2 L37 8 V24 Q37 38 20 44 Q3 38 3 24 V8 Z" fill="#111418" stroke="' + col + '" stroke-width="2"/>';
+  g += '<path d="M20 2 L37 8 V24 Q37 38 20 44 Q3 38 3 24 V8 Z" fill="' + col + '" opacity=".13"/>';
+  g += '<text x="20" y="29" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="13" fill="' + col + '">' + esc(ini) + '</text></svg>';
+  return g;
+}
+
+// résolution châssis/armes/loadout (build atelier live ou preset d'origine)
+function mechInfo(m, opts){
+  opts = opts || {};
+  const cond = (m.condition === undefined ? 100 : m.condition);
+  if (opts.loadout) return { chassis: opts.chassis, weapon: opts.loadout.weapon_primary, secondary: opts.loadout.weapon_secondary, loadout: opts.loadout, proc: m.proc, condition: cond };
+  if (m.loadout) return { chassis: m.chassis, weapon: m.loadout.weapon_primary, secondary: m.loadout.weapon_secondary, loadout: m.loadout, proc: m.proc, condition: cond };
+  const pr = PRESETS[m.preset] || { mechId: 'hound_prime', weapon: 'fists', loadout: {} };
+  return { chassis: pr.mechId, weapon: pr.weapon, secondary: (pr.loadout && pr.loadout.weapon_secondary) || null, loadout: pr.loadout || {}, proc: m.proc, condition: cond };
+}
+function zoneOfSlot(slot){
+  if (slot === 'head') return 'head';
+  if (slot === 'left_shoulder') return 'lsh';
+  if (slot === 'right_shoulder') return 'rsh';
+  if (slot === 'left_leg' || slot === 'right_leg') return 'legs';
+  if (slot === 'left_arm' || slot === 'right_arm') return 'arms';
+  if (slot === 'weapon_primary' || slot === 'weapon_secondary') return 'weapon';
+  return 'torso';
+}
+
+// maquette de mech debout — silhouette par châssis + équipements visibles (armes, modules, processeur, état)
+function mechSVG(m, size, opts){
+  opts = opts || {};
+  const info = mechInfo(m, opts);
+  const chId = info.chassis || 'hound_prime';
+  const heavy = chId === 'warden_x1', scout = chId === 'ghost_lt', arty = chId === 'longbow_mk1';
+  const lo = info.loadout || {};
+  const procCol = PROC_GLOW[info.proc] || '#7FA6C9';
+  const acc = opts.accent || '#D93432';
+  const cond = (info.condition === undefined ? 100 : info.condition);
+  const hot = z => ' class="zone' + (opts.hot === z ? ' hot' : '') + '"';
+  const W = RULESET.weapons[info.weapon] || {}, W2 = RULESET.secondary ? null : null;
+  const secId = info.secondary, W2b = secId ? RULESET.weapons[secId] : null;
+  const HULL = '#343B43', PLATE = '#3D444D', DARK = '#232830', LIGHT = '#E7EBEF';
+  const tw = heavy ? 31 : (scout ? 19 : 23);   // demi-largeur torse
+  const lw = heavy ? 12 : (scout ? 8 : 10);    // demi-largeur jambe
+  const legX = tw * 0.52, legW = lw * 1.7, legY = 104, footY = 150;
+  const sprint = (lo.left_leg && lo.left_leg.indexOf('sprint') >= 0) || (lo.right_leg && lo.right_leg.indexOf('sprint') >= 0);
+  const fortified = lo.torso && lo.torso.indexOf('fortified') >= 0;
+  const deco = lo.torso && lo.torso.indexOf('decal') >= 0;
+  const scope = lo.head && (lo.head.indexOf('target') >= 0 || lo.head.indexOf('sensor') >= 0);
+  let g = '<svg width="' + size + '" height="' + Math.round(size * 170 / 120) + '" viewBox="0 0 120 170" xmlns="http://www.w3.org/2000/svg">';
+  g += '<ellipse cx="60" cy="163" rx="36" ry="5" fill="#000" opacity=".4"/>';
+  // JAMBES
+  g += '<g' + hot('legs') + '>';
+  [[-1], [1]].forEach(function(sdv){ const sd = sdv[0];
+    const lx = 60 + sd * legX - legW / 2;
+    g += '<rect x="' + lx + '" y="' + legY + '" width="' + legW + '" height="' + (footY - legY) + '" fill="' + HULL + '" stroke="' + DARK + '"/>';
+    g += '<rect x="' + (lx - 1.5) + '" y="' + (legY + 4) + '" width="' + (legW + 3) + '" height="10" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+    g += '<rect x="' + (lx - 3) + '" y="' + footY + '" width="' + (legW + 6) + '" height="10" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+    if (sprint){ g += '<path d="M' + (lx + legW / 2) + ' ' + (footY + 10) + ' l-4 6 h8 z" fill="' + procCol + '" opacity=".85"/>'; }
+  });
+  if (sprint){ g += '<path d="M24 118 l10 0 M20 126 l8 0 M96 118 l-10 0 M100 126 l-8 0" stroke="' + procCol + '" stroke-width="1.4" opacity=".6" fill="none"/>'; }
+  g += '<rect x="' + (60 - tw * 0.8) + '" y="96" width="' + (tw * 1.6) + '" height="10" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+  g += '</g>';
+  // TORSE + réacteur (processeur) + modules torse
+  g += '<g' + hot('torso') + '>';
+  g += '<path d="M' + (60 - tw) + ' 54 L' + (60 + tw) + ' 54 L' + (60 + tw * 0.78) + ' 98 L' + (60 - tw * 0.78) + ' 98 Z" fill="' + HULL + '" stroke="' + DARK + '"/>';
+  if (fortified){ g += '<path d="M' + (60 - tw + 3) + ' 58 L' + (60 + tw - 3) + ' 58 L' + (60 + tw * 0.62) + ' 94 L' + (60 - tw * 0.62) + ' 94 Z" fill="none" stroke="' + PLATE + '" stroke-width="2"/>'; }
+  g += '<rect x="' + (60 - tw + 5) + '" y="58" width="6" height="26" fill="' + PLATE + '" opacity=".55" stroke="' + DARK + '"/>';
+  g += '<rect x="' + (60 + tw - 11) + '" y="58" width="6" height="26" fill="' + PLATE + '" opacity=".55" stroke="' + DARK + '"/>';
+  if (deco){ g += '<path d="M' + (60 - 8) + ' 60 L' + (60 + 6) + ' 54 L' + (60 + 10) + ' 60 L' + (60 - 4) + ' 66 Z" fill="' + acc + '" opacity=".8"/>'; }
+  g += '<circle cx="60" cy="78" r="7.5" fill="' + procCol + '" opacity=".92"/>';
+  g += '<circle cx="60" cy="78" r="10.5" fill="none" stroke="' + procCol + '" opacity=".35"/>';
+  g += '<circle cx="60" cy="78" r="2.2" fill="' + LIGHT + '" opacity=".8"/>';
+  if (lo.cooling && lo.cooling.indexOf('deluxe') >= 0){ g += '<path d="M' + (60 - 14) + ' 88 h28 M' + (60 - 11) + ' 92 h22" stroke="#7EB6C1" stroke-width="1.4" opacity=".7"/>'; }
+  // bélier frontal (impact_ram) : piston sur le torse
+  if (info.weapon === 'impact_ram'){ g += '<rect x="55" y="52" width="10" height="14" fill="' + PLATE + '" stroke="' + DARK + '"/><path d="M52 50 h16 v6 h-16 z" fill="' + acc + '"/>'; }
+  g += '</g>';
+  // TÊTE
+  g += '<g' + hot('head') + '>';
+  g += '<rect x="52" y="38" width="16" height="18" rx="2" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+  g += '<rect x="54.5" y="44" width="11" height="5" rx="1" fill="#7FA6C9" opacity=".9"/>';
+  if (scope){ g += '<circle cx="69" cy="44" r="3.2" fill="none" stroke="' + acc + '" stroke-width="1.3"/><circle cx="69" cy="44" r="1" fill="' + acc + '"/>'; }
+  if (scout){ g += '<path d="M66 38 L74 22" stroke="' + LIGHT + '" stroke-width="1.6"/><circle cx="74" cy="21" r="1.6" fill="' + acc + '"/>'; }
+  g += '</g>';
+  // ÉPAULES (zones séparées pour l'atelier)
+  const padW = 9 + (heavy ? 3 : 0);
+  g += '<g' + hot('lsh') + '><rect x="' + (60 - tw - padW - 1) + '" y="56" width="' + padW + '" height="17" rx="2" fill="' + (lo.left_shoulder ? PLATE : HULL) + '" stroke="' + DARK + '"/>' + (lo.left_shoulder ? '<rect x="' + (60 - tw - padW + .5) + '" y="57.5" width="' + (padW - 3) + '" height="5" fill="' + acc + '" opacity=".6"/>' : '') + '</g>';
+  g += '<g' + hot('rsh') + '><rect x="' + (60 + tw + 1) + '" y="56" width="' + padW + '" height="17" rx="2" fill="' + (lo.right_shoulder ? PLATE : HULL) + '" stroke="' + DARK + '"/>' + (lo.right_shoulder ? '<rect x="' + (60 + tw + 2.5) + '" y="57.5" width="' + (padW - 3) + '" height="5" fill="' + acc + '" opacity=".6"/>' : '') + '</g>';
+  if (lo.shield){ g += '<path d="M' + (60 - tw - 6) + ' 52 a10 10 0 0 1 12 -6" stroke="#7FA6C9" stroke-width="2" fill="none" opacity=".8"/>'; }
+  // ARMS
+  g += '<g' + hot('arms') + '>';
+  g += '<rect x="' + (60 - tw - 4) + '" y="76" width="6.5" height="26" rx="2" fill="' + HULL + '" stroke="' + DARK + '"/>';
+  g += '<rect x="' + (60 + tw - 2.5) + '" y="76" width="6.5" height="26" rx="2" fill="' + HULL + '" stroke="' + DARK + '"/>';
+  g += '</g>';
+  // ARME PRIMAIRE (zone arme)
+  g += '<g' + hot('weapon') + '>';
+  const wy = 88;
+  if (W.type === 'ranged'){
+    if (info.weapon === 'seraph_lrm_pod'){ // pods dorsaux + tubes
+      g += '<rect x="' + (60 - tw - 9) + '" y="42" width="17" height="12" fill="' + PLATE + '" stroke="' + DARK + '"/><rect x="' + (60 + tw - 8) + '" y="42" width="17" height="12" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+      for (let k = 0; k < 3; k++){ g += '<circle cx="' + (60 - tw - 5.5 + k * 5) + '" cy="48" r="1.4" fill="' + acc + '"/><circle cx="' + (60 + tw - 3.5 + k * 5) + '" cy="48" r="1.4" fill="' + acc + '"/>'; }
+    } else if (info.weapon === 'rail_gun_mk1'){ // long canon + anneaux
+      g += '<rect x="' + (60 + tw + 2) + '" y="' + (wy - 2) + '" width="36" height="4.5" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+      g += '<path d="M' + (60 + tw + 12) + ' ' + (wy - 4) + ' v9 M' + (60 + tw + 20) + ' ' + (wy - 4) + ' v9 M' + (60 + tw + 28) + ' ' + (wy - 4) + ' v9" stroke="' + procCol + '" stroke-width="1.6"/>';
+      g += '<rect x="' + (60 + tw + 34) + '" y="' + (wy - 2.8) + '" width="4" height="6.5" fill="' + acc + '"/>';
+    } else if (info.weapon === 'scatter_gun_mk1'){ // canon court et large
+      g += '<rect x="' + (60 + tw + 2) + '" y="' + (wy - 4) + '" width="17" height="9" fill="' + PLATE + '" stroke="' + DARK + '"/><rect x="' + (60 + tw + 17) + '" y="' + (wy - 3) + '" width="4" height="7" fill="' + acc + '"/>';
+    } else { // autocanon par défaut
+      g += '<rect x="' + (60 + tw + 2) + '" y="' + (wy - 2.5) + '" width="26" height="6" fill="' + PLATE + '" stroke="' + DARK + '"/>';
+      g += '<rect x="' + (60 + tw + 26) + '" y="' + (wy - 2) + '" width="4" height="5" fill="' + acc + '"/>';
+      g += '<rect x="' + (60 + tw + 6) + '" y="' + (wy + 1) + '" width="6" height="4" fill="' + DARK + '"/>';
+    }
+  } else if (W.type === 'melee'){
+    if (info.weapon === 'war_pike_mk1'){ g += '<rect x="' + (60 + tw + 6) + '" y="28" width="4" height="76" fill="' + PLATE + '" stroke="' + DARK + '"/><path d="M' + (60 + tw + 4) + ' 28 h8 l-4 -14 z" fill="' + acc + '"/>'; }
+    else if (info.weapon === 'grinder_mk1'){ g += '<circle cx="' + (60 + tw + 8) + '" cy="' + (wy + 4) + '" r="8" fill="' + PLATE + '" stroke="' + DARK + '"/>'; for (let k = 0; k < 6; k++){ const a = k * Math.PI / 3; g += '<path d="M' + (60 + tw + 8 + Math.cos(a) * 8) + ' ' + (wy + 4 + Math.sin(a) * 8) + ' l' + Math.cos(a) * 3 + ' ' + Math.sin(a) * 3 + '" stroke="' + acc + '" stroke-width="1.6"/>'; } }
+    else if (info.weapon === 'impact_ram'){ /* déjà sur le torse */ }
+    else { // lame (reaver)
+      g += '<path d="M' + (60 + tw + 3) + ' ' + (wy - 2) + ' L' + (60 + tw + 30) + ' ' + (wy - 24) + ' L' + (60 + tw + 28) + ' ' + (wy - 14) + ' L' + (60 + tw + 5) + ' ' + (wy + 2) + ' Z" fill="' + PLATE + '" stroke="' + LIGHT + '" stroke-width=".8"/>';
+      g += '<path d="M' + (60 + tw + 4) + ' ' + (wy - 1) + ' L' + (60 + tw + 27) + ' ' + (wy - 21) + '" stroke="' + acc + '" stroke-width="1.4"/>';
+    }
+    if (!info.weapon || info.weapon === 'fists'){ g += '<rect x="' + (60 + tw - 3.5) + '" y="100" width="8" height="6" fill="' + PLATE + '" stroke="' + DARK + '"/>'; }
+  }
+  // SECONDAIRE (petit miroir côté gauche)
+  if (W2b && W2b.type === 'melee' && secId !== 'fists'){ g += '<path d="M' + (60 - tw - 3) + ' ' + (wy - 2) + ' L' + (60 - tw - 22) + ' ' + (wy - 19) + ' L' + (60 - tw - 20) + ' ' + (wy - 11) + ' L' + (60 - tw - 5) + ' ' + (wy + 2) + ' Z" fill="' + PLATE + '" stroke="' + LIGHT + '" stroke-width=".7"/>'; }
+  else if (W2b && W2b.type === 'ranged'){ g += '<rect x="' + (60 - tw - 18) + '" y="' + (wy - 1) + '" width="16" height="4.5" fill="' + PLATE + '" stroke="' + DARK + '"/>'; }
+  g += '</g>';
+  // ÉTAT : rayures si endommagé, voile HS
+  if (cond < 100){ g += '<path d="M' + (60 - tw * .5) + ' 64 l14 8" stroke="' + acc + '" stroke-width="1.2" opacity=".8"/>'; }
+  if (cond < 50){ g += '<path d="M' + (60 + 2) + ' 60 l-16 10 M' + (60 - 4) + ' 88 l12 -6" stroke="' + acc + '" stroke-width="1.6" opacity=".9"/>'; }
+  if (opts.hs || (opts.live !== true && cond < 50)){ g += '<rect x="10" y="10" width="100" height="150" fill="#0B0E12" opacity=".55"/><text x="60" y="88" text-anchor="middle" font-family="monospace" font-size="14" fill="' + acc + '">HS</text>'; }
+  g += '</svg>';
+  return g;
+}
+function mechView(m, size, opts){
+  opts = opts || {};
+  return '<div class="mview">' + mechSVG(m, size, opts) + '<div class="zlabel">' + esc((m && m.label) || '') + (opts.hs ? ' — HS' : '') + '</div></div>';
+}
+
 function renderHub(){
   $('hub-org').textContent = G.org.name;
   $('hub-credits').textContent = Math.round(G.org.credits) + ' CRÉDITS';
@@ -1710,7 +1919,7 @@ function renderHub(){
   const fx = playerFixtureOfDay(day);
   const oppId = fx[0] === 'you' ? fx[1] : fx[0], opp = oppTeam(oppId);
   $('hub-next').innerHTML = '<h3>Prochain match</h3>' +
-    '<div class="card" style="max-width:none"><div class="t">' + esc(opp.nom) + '</div>' +
+    '<div class="card" style="max-width:none"><div class="vsbig">' + crestSVG('you', G.org.name, 40) + '<span style="font-weight:900;letter-spacing:3px;color:#6E7780">VS</span>' + crestSVG(oppId, opp.nom, 40) + '</div><div class="t">' + esc(opp.nom) + '</div>' +
     '<div class="sub2">' + esc(opp.style) + '</div>' +
     '<div class="rowline"><span>ARÈNE</span><b>' + RULESET.arenas[arenaOfDay(day)].label + '</b></div>' +
     '<div class="rowline"><span>FORMAT</span><b>' + GAME.duels_par_match + ' duels 1v1 — un mech par duel</b></div>' +
@@ -1728,7 +1937,8 @@ function renderRoster(){
     const c = document.createElement('div'); c.className = 'card';
     const st = (l, v) => '<div class="rowline"><span>' + l + '</span><b>' + v + '</b></div>';
     const xpPct = Math.min(100, 100 * p.xp / GAME.xp_niveau);
-    let innerHTML = '<div class="t">' + esc(p.nom) + (p.actif ? ' <span class="badge ok">ACTIF</span>' : ' <span class="badge">RÉSERVE</span>');
+    const badge = p.blessure > 0 ? 'ko' : (p.fatigue >= GAME.fatigue_max_alignable ? 'tired' : null);
+    let innerHTML = '<div class="port-row">' + pilotSVG(p, 56, { badge }) + '<div style="flex:1;min-width:0"><div class="t">' + esc(p.nom) + (p.actif ? ' <span class="badge ok">ACTIF</span>' : ' <span class="badge">RÉSERVE</span>');
     if (p.blessure > 0) innerHTML += ' <span class="badge err">BLESSÉ ' + p.blessure + 'J</span>';
     else if (p.fatigue >= GAME.fatigue_max_alignable) innerHTML += ' <span class="badge err">ÉPUISÉ</span>';
     innerHTML += '</div><div class="sub2">' + esc(p.origine) + ' — ' + esc(p.traits) + ' — NIVEAU ' + p.niveau + '</div>' +
@@ -1736,7 +1946,7 @@ function renderRoster(){
       st('SANG-FROID', p.calme + '/10 (stabilité +' + stabBonus(p) + ')') +
       st('RÉFLEXES', p.ref + '/10 (fatigue −)') +
       '<div class="pbar"><i style="width:' + xpPct + '%"></i></div><div class="sub2">XP ' + p.xp + '/' + GAME.xp_niveau + ' — MORAL ' + p.moral + ' — FATIGUE ' + Math.round(p.fatigue) + '</div>' +
-      '<div class="rowline"><span>MECH</span><b>' + (p.mechId ? esc(mechById(p.mechId).label) : '—') + '</b></div>';
+      '<div class="rowline"><span>MECH</span><b>' + (p.mechId ? esc(mechById(p.mechId).label) : '—') + '</b></div></div></div>';
     c.innerHTML = innerHTML;
     const row = document.createElement('div');
     const sel = document.createElement('select');
@@ -1764,9 +1974,9 @@ function renderRoster(){
   const rbox = $('recruit-cards'); rbox.innerHTML = '';
   G.agents.forEach(a => {
     const c = document.createElement('div'); c.className = 'card';
-    c.innerHTML = '<div class="t">' + esc(a.nom) + '</div><div class="sub2">' + esc(a.origine) + ' — ' + esc(a.traits) + '</div>' +
+    c.innerHTML = '<div class="port-row">' + pilotSVG(a, 48) + '<div style="flex:1;min-width:0"><div class="t">' + esc(a.nom) + '</div><div class="sub2">' + esc(a.origine) + ' — ' + esc(a.traits) + '</div>' +
       '<div class="rowline"><span>PRÉCISION / SANG-FROID / RÉFLEXES</span><b>' + a.prec + ' / ' + a.calme + ' / ' + a.ref + '</b></div>' +
-      '<div class="rowline"><span>SALAIRE DE SIGNATURE</span><b>' + a.prix + ' CR</b></div>';
+      '<div class="rowline"><span>SALAIRE DE SIGNATURE</span><b>' + a.prix + ' CR</b></div></div></div>';
     const b = document.createElement('button'); b.className = 'primary small'; b.textContent = 'SIGNER';
     b.disabled = G.pilots.length >= 5 || G.org.credits < a.prix;
     b.onclick = () => {
@@ -1792,12 +2002,14 @@ function renderGarage(){
     const hp = mechBaseHp(m);
     const st = (l, v) => '<div class="rowline"><span>' + l + '</span><b>' + v + '</b></div>';
     const condColor = m.condition >= 80 ? 'grn' : (mechAvailable(m) ? 'amb' : '');
-    c.innerHTML = '<div class="t">' + esc(m.label) + '</div><div class="sub2">' + (m.loadout ? 'BUILD ATELIER' : 'SÉRIE ' + (PRESETS[m.preset] ? PRESETS[m.preset].label : m.preset)) + '</div>' +
+    const assigned = m.pilotId && pilotById(m.pilotId) ? pilotById(m.pilotId) : null;
+    c.innerHTML = '<div class="mrow">' + mechView(m, 86, { hs: !mechAvailable(m) }) + '<div style="flex:1;min-width:0"><div class="t">' + esc(m.label) + '</div><div class="sub2">' + (m.loadout ? 'BUILD ATELIER' : 'SÉRIE ' + (PRESETS[m.preset] ? PRESETS[m.preset].label : m.preset)) + '</div>' +
       st('INTÉGRITÉ', hp + ' HP — ' + (m.loadout ? 'custom' : (base ? base.speed_mps + ' m/s' : ''))) +
       st('PROCESSEUR', RULESET.processors[m.proc] ? RULESET.processors[m.proc].label : m.proc) +
       st('PILOTE', m.pilotId && pilotById(m.pilotId) ? esc(pilotById(m.pilotId).nom) : '—') +
       '<div class="pbar"><i class="' + condColor + '" style="width:' + Math.max(0, m.condition) + '%"></i></div>' +
-      '<div class="sub2">ÉTAT ' + Math.max(0, Math.round(m.condition)) + '%' + (mechAvailable(m) ? '' : ' — INDISPONIBLE (<' + GAME.condition_indisponible + '%)') + '</div>';
+      '<div class="sub2">ÉTAT ' + Math.max(0, Math.round(m.condition)) + '%' + (mechAvailable(m) ? '' : ' — INDISPONIBLE (<' + GAME.condition_indisponible + '%)') + '</div>' +
+      (assigned ? '<div class="port" style="margin-top:8px">' + pilotSVG(assigned, 44) + '</div>' : '') + '</div>';
     const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap';
     const bProc = document.createElement('select');
     PROC_IDS.forEach(pr => { const o = document.createElement('option'); o.value = pr; o.textContent = RULESET.processors[pr].label; bProc.appendChild(o); });
@@ -1827,6 +2039,7 @@ function openAtelier(m){
     for (const c in CHASSIS){ const o = document.createElement('option'); o.value = c; o.textContent = CHASSIS[c].label + ' — ' + CHASSIS[c].mass_max + 'T'; chassisSel.appendChild(o); }
     chassisSel._populated = true; }
   chassisSel.value = m.loadout ? m.chassis : (PRESETS[m.preset] ? PRESETS[m.preset].mechId : '');
+  chassisSel.onchange = atelierRecompute;
   const slotsBox = $('at-slots'); slotsBox.innerHTML = '';
   AT_SLOTS.forEach(slot => {
     const row = document.createElement('div'); row.className = 'slotrow';
@@ -1841,6 +2054,8 @@ function openAtelier(m){
         const o = document.createElement('option'); o.value = md; o.textContent = MODULES[md].label + ' — ' + MODULES[md].mass + 'T' + (MODULES[md].functional ? '' : ' [COSMÉTIQUE]'); sel.appendChild(o); }
     }
     sel.onchange = atelierRecompute;
+    row.onmouseenter = () => { hotZone = zoneOfSlot(slot); atelierRecompute(); };
+    row.onmouseleave = () => { hotZone = null; atelierRecompute(); };
     row.appendChild(lab); row.appendChild(sel); slotsBox.appendChild(row);
   });
   // valeurs courantes : loadout d'atelier ou preset d'origine
@@ -1868,6 +2083,7 @@ function atelierRecompute(){
     '<div class="rowline"><span>VITESSE</span><b>' + s.speed_mps + ' M/S</b></div><div class="rowline"><span>BOUCLIER</span><b>' + s.shield + '</b></div>' +
     '<div class="rowline"><span>PRÉCISION +</span><b>' + s.accuracy_bonus + '</b></div><div class="rowline"><span>STABILITÉ</span><b>' + s.stability + '</b></div>';
   $('at-validation').innerHTML = v.ok ? '<div class="valid-ok">✔ BUILD VALIDE — appliquable</div>' : v.errors.map(e => '<div class="valid-err">✘ ' + esc(e) + '</div>').join('');
+  $('at-hangar').innerHTML = mechView(atelierMech, 190, { loadout: lo, chassis: chId, hot: hotZone, live: true });
 }
 $('at-apply').onclick = () => {
   const lo = atelierCurrentLoadout(), chId = $('at-chassis').value;
@@ -1907,7 +2123,7 @@ function renderAnalysis(){
   opp.lineups.forEach((lu, i) => {
     const p = opp.pilotes[i], pr = PRESETS[lu.preset];
     const d = document.createElement('div'); d.className = 'duelrow';
-    d.innerHTML = '<label style="min-width:60px">DUEL ' + (i + 1) + '</label><div><label>PILOTE</label><b>' + esc(p.nom) + '</b></div>' +
+    d.innerHTML = '<label style="min-width:60px">DUEL ' + (i + 1) + '</label><div class="viscell">' + mechView({ preset: lu.preset, proc: lu.proc, label: pr.label }, 58, { accent: TEAM_COLORS[oppId] || '#AAB2BA' }) + pilotSVG(p, 42, { recon: true }) + '</div><div><label>PILOTE</label><b>' + esc(p.nom) + '</b></div>' +
       '<div><label>MECH</label><b>' + esc(pr.label) + '</b></div><div><label>ARME</label><b>' + esc(RULESET.weapons[pr.weapon].label) + '</b></div>' +
       '<div><label>PROCESSEUR</label><b>' + esc(RULESET.processors[lu.proc].label) + '</b></div>' +
       '<div><label>STATS (PR/CALME/RÉF)</label><b>' + p.prec + '/' + p.calme + '/' + p.ref + '</b></div>';
@@ -1934,11 +2150,13 @@ function renderSetup(){
     const selR = document.createElement('select'); selR.id = 'su-proc-' + i;
     PROC_IDS.forEach(prid => { const o = document.createElement('option'); o.value = prid; o.textContent = RULESET.processors[prid].label; selR.appendChild(o); });
     d.innerHTML = '<label style="min-width:60px">DUEL ' + (i + 1) + '</label><span class="vs">VS</span>' +
+      '<div class="viscell" id="su-vis-' + i + '"></div>' +
       '<div><label>TON MECH</label></div><div><label>PILOTE</label></div><div><label>PROCESSEUR</label></div>' +
       '<div><label>ADVERSAIRE</label><b>' + esc(pr.label) + ' — ' + esc(RULESET.weapons[pr.weapon].label) + ' (' + esc(RULESET.processors[lu.proc].label) + ')</b></div>';
     d.appendChild(selM); d.appendChild(selP); d.appendChild(selR);
     // défauts sains : méchs dispo dans l'ordre, pilotes assignés si possible, processeur courant du mech
-    selM.onchange = () => { const m = mechById(selM.value); if (m && m.pilotId && pilotById(m.pilotId) && pilotAvailable(pilotById(m.pilotId))) selP.value = m.pilotId; };
+    selM.onchange = () => { const m = mechById(selM.value); if (m && m.pilotId && pilotById(m.pilotId) && pilotAvailable(pilotById(m.pilotId))) selP.value = m.pilotId; updateSuVis(i); };
+    selP.onchange = () => updateSuVis(i); selR.onchange = () => updateSuVis(i);
     box.appendChild(d);
   }
   // défauts : 1er mech libre + son pilote assigné + son processeur
@@ -1951,6 +2169,16 @@ function renderSetup(){
       G.pilots.find(p => pilotAvailable(p) && !usedP.includes(p.id));
     if (pFree){ selP.value = pFree.id; usedP.push(pFree.id); }
   }
+  for (let i = 0; i < GAME.duels_par_match; i++) updateSuVis(i);
+}
+function updateSuVis(i){
+  const el = $('su-vis-' + i); if (!el) return;
+  const oTeam = matchCtx && matchCtx.oppId ? oppTeam(matchCtx.oppId) : null;
+  const lu = oTeam ? oTeam.lineups[i] : null, pr = lu ? PRESETS[lu.preset] : null;
+  const mech = $('su-mech-' + i) && $('su-mech-' + i).value ? mechById($('su-mech-' + i).value) : null;
+  const pil = $('su-pilot-' + i) && $('su-pilot-' + i).value ? pilotById($('su-pilot-' + i).value) : null;
+  el.innerHTML = (mech ? mechView(mech, 58, { live: true }) : '') + (pil ? pilotSVG(pil, 42) : '') +
+    (lu ? mechView({ preset: lu.preset, proc: lu.proc, label: pr ? pr.label : '' }, 58, { accent: TEAM_COLORS[matchCtx.oppId] || '#AAB2BA' }) : '');
 }
 $('su-confirm').onclick = () => {
   const lineup = [];
@@ -1976,7 +2204,7 @@ function renderReport(){
   $('rp-detail').textContent = 'CONTRE ' + opp.nom + ' — ARÈNE ' + RULESET.arenas[arenaOfDay(matchCtx.day)].label + ' — GAINS : ' + rep.creditsWon + ' CR';
   const rows = matchCtx.duels.map((d, i) => {
     const r = d.result, you = r.winner === 0;
-    return '<tr' + (you ? ' class="alpha"' : '') + '><td><b>' + esc(d.pilot ? d.pilot.nom : '—') + '</b></td><td>' + esc(d.mech.label) + '</td><td>' + esc(d.proc ? RULESET.processors[d.proc].label : '') + '</td>' +
+    return '<tr' + (you ? ' class="alpha"' : '') + '><td><div style="display:flex;gap:7px;align-items:center">' + (d.pilot ? pilotSVG(d.pilot, 26) : '') + '<b>' + esc(d.pilot ? d.pilot.nom : '—') + '</b></div></td><td>' + esc(d.mech.label) + '</td><td>' + esc(d.proc ? RULESET.processors[d.proc].label : '') + '</td>' +
       '<td>' + esc(d.oppPilot.nom) + '</td><td>' + esc(d.oppMech.label) + '</td><td>' + r.hpA + ' HP</td><td>' + r.hpB + ' HP</td>' +
       '<td style="color:' + (you ? '#4FAE6B' : '#D93432') + '"><b>' + (you ? 'GAGNÉ' : (r.winner === null ? 'NUL' : 'PERDU')) + '</b></td></tr>';
   });
@@ -2062,24 +2290,36 @@ function renderBattle(){
   for (let gz = -sim.arena.depth / 2; gz <= sim.arena.depth / 2; gz += 10){ cx.beginPath(); cx.moveTo(tp(-sim.arena.width / 2), tz(gz)); cx.lineTo(tp(sim.arena.width / 2), tz(gz)); cx.stroke(); }
   drawSpawnSide('alpha'); drawSpawnSide('omega');
   sim.obstacles.forEach(drawObstacle);
-  for (const s of sim.smokes){ cx.fillStyle = 'rgba(148,158,168,.3)'; cx.beginPath(); cx.arc(tp(s.x), tz(s.z), s.r * tScale(), 0, Math.PI * 2); cx.fill(); }
+  for (const s of sim.smokes){ const smr = s.r * tScale();
+    [[1, .12], [.66, .24], [.36, .36]].forEach(function(rr){ const f = rr[0], al = rr[1];
+      cx.fillStyle = 'rgba(148,158,168,' + al + ')'; cx.beginPath(); cx.arc(tp(s.x), tz(s.z), smr * f, 0, Math.PI * 2); cx.fill(); }); }
   sim.mechs.forEach(m => {
     const x = tp(m.pos.x), z = tz(m.pos.z), col = TEAMCOL[m.team];
     if (m.hpNow <= 0){ cx.strokeStyle = '#3A434D'; cx.globalAlpha = .6; cx.beginPath(); cx.arc(x, z, 1.6 * tScale(), 0, Math.PI * 2); cx.stroke();
       cx.beginPath(); cx.moveTo(x - 6, z - 6); cx.lineTo(x + 6, z + 6); cx.moveTo(x + 6, z - 6); cx.lineTo(x - 6, z + 6); cx.stroke(); cx.globalAlpha = 1; return; }
-    cx.fillStyle = m.improvShield > 0 ? 'rgba(227,162,59,.25)' : col;
-    cx.beginPath(); cx.arc(x, z, 1.6 * tScale(), 0, Math.PI * 2); cx.fill();
-    cx.strokeStyle = '#E7EBEF'; cx.lineWidth = 1.5; // nez orienté selon le heading (D-027)
-    cx.beginPath(); cx.moveTo(x + Math.cos(m.heading) * 1.6 * tScale(), z + Math.sin(m.heading) * 1.6 * tScale());
-    cx.lineTo(x + Math.cos(m.heading) * 2.6 * tScale(), z + Math.sin(m.heading) * 2.6 * tScale()); cx.stroke();
+    // silhouette vue de dessus, nez orienté selon le heading (D-027)
+    const sc = tScale();
+    cx.save(); cx.translate(x, z); cx.rotate(m.heading);
+    cx.fillStyle = m.improvShield > 0 ? 'rgba(227,162,59,.35)' : col;
+    cx.beginPath();
+    cx.moveTo(2.4 * sc, 0); cx.lineTo(1.5 * sc, -1.5 * sc); cx.lineTo(-1.9 * sc, -1.2 * sc);
+    cx.lineTo(-1.9 * sc, 1.2 * sc); cx.lineTo(1.5 * sc, 1.5 * sc); cx.closePath(); cx.fill();
+    cx.strokeStyle = '#E7EBEF'; cx.lineWidth = 1.2; cx.stroke();
+    cx.beginPath(); cx.moveTo(1.5 * sc, 0); cx.lineTo(2.9 * sc, 0); cx.stroke(); // ligne d'arme
+    cx.restore();
+    if (m.improvShield > 0){ cx.strokeStyle = 'rgba(227,162,59,.85)'; cx.lineWidth = 1.5; cx.beginPath(); cx.arc(x, z, 2.5 * sc, 0, Math.PI * 2); cx.stroke(); }
+    if ((m.stunTicks || 0) > 0 || (m.staggeredTicks || 0) > 0){ cx.strokeStyle = (m.stunTicks > 0 ? '#E3C23B' : '#A78FD9'); cx.setLineDash([3, 3]); cx.lineWidth = 1.2; cx.beginPath(); cx.arc(x, z, 2.2 * sc, 0, Math.PI * 2); cx.stroke(); cx.setLineDash([]); }
     cx.fillStyle = '#16191E'; cx.strokeStyle = '#343B43';
-    cx.fillRect(x - 14, z - 1.6 * tScale() - 12, 28, 5); cx.strokeRect(x - 14, z - 1.6 * tScale() - 12, 28, 5);
-    cx.fillStyle = col; cx.fillRect(x - 13, z - 1.6 * tScale() - 11, 26 * Math.max(0, m.hpNow / m.hp), 3);
+    cx.fillRect(x - 15, z - 2.2 * sc - 14, 30, 6); cx.strokeRect(x - 15, z - 2.2 * sc - 14, 30, 6);
+    cx.fillStyle = col; cx.fillRect(x - 14, z - 2.2 * sc - 13, 28 * Math.max(0, m.hpNow / m.hp), 4);
+    if (m.shieldMax > 0){ cx.fillStyle = '#7FA6C9'; cx.fillRect(x - 14, z - 2.2 * sc - 7, 28 * Math.max(0, (m.shieldNow || 0) / m.shieldMax), 2); }
     cx.fillStyle = '#E7EBEF'; cx.font = 'bold 9px monospace'; cx.textAlign = 'center';
-    cx.fillText(m.name, x, z - 1.6 * tScale() - 16);
+    cx.fillText(m.name, x, z - 2.2 * sc - 18);
   });
-  cx.fillStyle = '#E3A23B';
-  for (const p of sim.projectiles){ cx.beginPath(); cx.arc(tp(p.x), tz(p.z), 3, 0, Math.PI * 2); cx.fill(); }
+  cx.strokeStyle = 'rgba(227,162,59,.5)'; cx.lineWidth = 2;
+  for (const p of sim.projectiles){
+    cx.beginPath(); cx.moveTo(tp(p.x - p.dx * 9), tz(p.z - p.dz * 9)); cx.lineTo(tp(p.x), tz(p.z)); cx.stroke();
+    cx.fillStyle = '#E3A23B'; cx.beginPath(); cx.arc(tp(p.x), tz(p.z), 2.4, 0, Math.PI * 2); cx.fill(); }
   cx.fillStyle = '#6E7780'; cx.font = '9px monospace'; cx.textAlign = 'left';
   cx.fillText('GREYBOX — VISUEL DE PROTOTYPE', 12, cv.height - 12);
 }
@@ -2105,6 +2345,7 @@ $('btn-rules-back').onclick = () => show('boot');
 $('btn-about-back').onclick = () => show('boot');
 
 buildNav();
+$('boot-mechs').innerHTML = STARTING_MECHS.map(m => mechView(m, 108)).join('');
 if (store.get(SAVE_KEY)) $('btn-continue').style.display = 'block';
 
 show('boot'); // HOTFIX v0.7.1 : sans cet appel, toutes les screens restent display:none → écran noir au chargement
