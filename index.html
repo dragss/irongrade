@@ -6,7 +6,7 @@
 <script type="importmap">
 { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/" } }
 </script>
-<title>IRONGRADE — Prototype manager v0.12.0</title>
+<title>IRONGRADE — Prototype manager v0.13.0</title>
 <style>
   :root { font-family: 'Inter', system-ui, sans-serif; background: #0B0E12; color: #E7EBEF; }
   * { box-sizing: border-box; margin: 0; }
@@ -145,7 +145,7 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.12.0 — MECHCORE v1.3.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
+  <div class="footer">IRONGRADE v0.13.0 — MECHCORE v1.4.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -274,7 +274,7 @@
       <tr><td><b>1. CENTRE DE COMMANDEMENT</b></td><td>Suivez les finances, la réputation, le prochain match et les alertes.</td></tr>
       <tr><td><b>2. ROSTER</b></td><td>Recrutez et entraînez vos pilotes (3 actifs + 2 réserves). La précision et le sang-froid d'un pilote améliorent la visée et la stabilité de son mech.</td></tr>
       <tr><td><b>3. GARAGE</b></td><td>Réparez vos mechs (crédits), changez le processeur, montez les modules à l'atelier (budgets masse/puissance/chaleur).</td></tr>
-      <tr><td><b>4. CHAMPIONNAT</b></td><td>Ligue à 6 équipes, 10 journées. Un match = UNE bataille d'équipe 3v3 SIMULTANÉE : les 6 mechs sont sur le terrain en même temps, chaque processeur choisit sa cible. Victoire collective par destruction totale ou score HP au timeout (D-035).</td></tr><tr><td><b>4b. AFFINITÉS</b></td><td>Liaisons d'escouade : deux pilotes de la même origine → +3% visée chacun par liaison VIVANTE ; même bloc régional → +2%. Escouade 100% même bloc → PHALANX : +3 stabilité chacun. Les liaisons s'éteignent quand le coéquipier tombe.</td></tr><tr><td><b>4c. TERRAINS</b></td><td>7 arènes en rotation : les batailles traversent des terrains de campagne — <b>CENTRE-VILLE DE KESTREL</b> (bâtiments), <b>FORÊT DE FER-NOIR</b> (arbres, rochers), <b>DELTA DE KESSARI</b> (eau : déplacement ralenti, pontons) + les 4 d'origine. Un mech bloqué par un obstacle <b>saute par-dessus</b> (1,2 s en vol, recharge 6 s — ni tir ni mêlée en l'air, et une cible en vol est intouchable en mêlée).</td></tr><tr><td><b>4d. HAUTEUR</b></td><td>Les plateformes marquées <b>▲</b> (pontons du delta, tour du centre-ville, rochers de la forêt) s'<b>escaladent</b> : un tireur en rechargement à portée de marche prend la hauteur (0,4 s/m, recharge 3 s). Perché : <b>+4% visée</b> sur une cible au sol, ligne de tir <b>par-dessus les obstacles</b> — mais <b>intouchable en mêlée</b>, et une cible entrée dans sa portée minimale le force à redescendre. Un saut peut aussi y atterrir directement.</td></tr>
+      <tr><td><b>4. CHAMPIONNAT</b></td><td>Ligue à 6 équipes, 10 journées. Un match = UNE bataille d'équipe 3v3 SIMULTANÉE : les 6 mechs sont sur le terrain en même temps, chaque processeur choisit sa cible. Victoire collective par destruction totale ou score HP au timeout (D-035).</td></tr><tr><td><b>4b. AFFINITÉS</b></td><td>Liaisons d'escouade : deux pilotes de la même origine → +3% visée chacun par liaison VIVANTE ; même bloc régional → +2%. Escouade 100% même bloc → PHALANX : +3 stabilité chacun. Les liaisons s'éteignent quand le coéquipier tombe.</td></tr><tr><td><b>4c. TERRAINS</b></td><td>7 arènes en rotation : les batailles traversent des terrains de campagne — <b>CENTRE-VILLE DE KESTREL</b> (bâtiments), <b>FORÊT DE FER-NOIR</b> (arbres, rochers), <b>DELTA DE KESSARI</b> (eau : déplacement ralenti, pontons) + les 4 d'origine. Un mech bloqué par un obstacle <b>saute par-dessus</b> (1,2 s en vol, recharge 6 s — ni tir ni mêlée en l'air, et une cible en vol est intouchable en mêlée).</td></tr><tr><td><b>4d. HAUTEUR</b></td><td>Les plateformes marquées <b>▲</b> (pontons du delta, tour du centre-ville, rochers de la forêt) s'<b>escaladent</b> : un tireur en rechargement à portée de marche prend la hauteur (0,4 s/m, recharge 3 s). Perché : <b>+4% visée</b> sur une cible au sol, ligne de tir <b>par-dessus les obstacles</b> — mais <b>intouchable en mêlée</b>, et une cible entrée dans sa portée minimale le force à redescendre. Un saut peut aussi y atterrir directement.</td></tr><tr><td><b>4e. INERTIE</b></td><td>Les châssis pèsent des dizaines de tonnes : un mech <b>se lance comme un coureur</b> (≈1,2 s pour atteindre sa pleine vitesse, ≈0,7 s pour s'arrêter), <b>dérape dans les virages</b> — son élan le porte — et <b>tirer en mouvement élargit son erreur de visée de +35 %</b> à pleine vitesse. Un mech perché tient son perchoir sans bouger.</td></tr>
       <tr><td><b>5. PRÉPARATION</b></td><td>Analysez l'adversaire, choisissez qui engage quel mech et avec quel processeur.</td></tr>
       <tr><td><b>6. MATCH</b></td><td>Vous observez : les processeurs dirigent les mechs. Caméra tactique, pause, ×1/×2/×4.</td></tr>
       <tr><td><b>7. RAPPORT</b></td><td>XP des pilotes, condition des mechs, crédits, classement. Les mechs détruits blessent leur pilote (1 journée).</td></tr>
@@ -288,10 +288,10 @@
 <div class="screen" id="screen-about">
   <div class="tophead"><span class="org">À PROPOS</span></div>
   <div class="panel">
-    <h3>IRONGRADE — prototype manager v0.12.0</h3>
-    <div class="hint">Vertical slice de gestion : la boucle complète (roster, garage, ligue, matchs observés, rapport, sauvegarde) sur MECHCORE v1.3.0 déterministe 15 Hz.</div>
+    <h3>IRONGRADE — prototype manager v0.13.0</h3>
+    <div class="hint">Vertical slice de gestion : la boucle complète (roster, garage, ligue, matchs observés, rapport, sauvegarde) sur MECHCORE v1.4.0 déterministe 15 Hz.</div>
     <table>
-      <tr><td><b>MOTEUR</b></td><td>MECHCORE v1.3.0 — spawns d'arène (D-027), précision &amp; stabilité (D-026), ciblage par profil (D-024), fumigène (D-025), affinités d'escouade (D-035), saut d'obstacles + zones d'eau + arènes de campagne (D-037), élévation réelle : escalade des plateformes + perchoirs (D-038). Rétrocompatible bit-à-bit sans plateformes.</td></tr>      <tr><td><b>FORMAT</b></td><td>Un match = UNE bataille d'équipe 3v3 simultanée (6 mechs sur le terrain), résultat collectif décliné par slot. Les pilotes partagent des origines et blocs régionaux → liaisons de visée vivantes + PHALANX (v0.10.0).</td></tr>
+      <tr><td><b>MOTEUR</b></td><td>MECHCORE v1.3.0 — spawns d'arène (D-027), précision &amp; stabilité (D-026), ciblage par profil (D-024), fumigène (D-025), affinités d'escouade (D-035), saut d'obstacles + zones d'eau + arènes de campagne (D-037), élévation réelle : escalade des plateformes + perchoirs (D-038), inertie du châssis : accélération/freinage/dérapage + tir en élan (D-039). Rétrocompatible bit-à-bit sans config motion.</td></tr>      <tr><td><b>FORMAT</b></td><td>Un match = UNE bataille d'équipe 3v3 simultanée (6 mechs sur le terrain), résultat collectif décliné par slot. Les pilotes partagent des origines et blocs régionaux → liaisons de visée vivantes + PHALANX (v0.10.0).</td></tr>
       <tr><td><b>SAUVEGARDE</b></td><td>Locale (navigateur), une seule par appareil. « Nouvelle carrière » écrase la sauvegarde.</td></tr>
       <tr><td><b>ÉCONOMIE</b></td><td>Monnaie unique (crédits). Toutes les récompenses, prix et barèmes XP de ce prototype sont des hypothèses d'équilibrage data-driven, à valider par l'owner avant tout contenu réel.</td></tr>
       <tr><td><b>GOUVERNANCE</b></td><td>Aucune loot box, aucun achat, aucune probabilité de drop dans ce prototype — les taux restent une décision owner.</td></tr>
@@ -356,6 +356,7 @@ class CombatSim {
       baseSpeedMps: r.mechs[cfg.mechId].speed_mps, droppedOnce: false, prevWeaponId: null,
       jumpT: 0, jumpCd: 0, // v1.2.0 (D-037) : saut — ticks restants en vol / recharge ; inactif sans combat.jump
       z: 0, zTgt: 0, zRender: 0, climbT: 0, climbTotal: 1, climbCd: 0, wantClimb: null, climbPlat: null, perchSlack: 0, // v1.3.0 (D-038) : élévation
+      vx: 0, vz: 0, // v1.4.0 (D-039) : vélocité réelle du châssis (inertie) — inactive sans combat.motion
       vel: { x: 0, z: 0 }, lastHitTick: -999, passiveActive: false,
       prevPos: { x: spawn.x, z: spawn.z } };
   }
@@ -428,6 +429,7 @@ class CombatSim {
       if (dx / (o.w / 2) > dz / (o.h / 2)) m.pos.x = o.x + Math.sign(dx || 1) * (o.w / 2 + 1.2); else m.pos.z = o.z + Math.sign(dz || 1) * (o.h / 2 + 1.2); }
     const W = this.arena.width / 2, D = this.arena.depth / 2;
     m.pos.x = Math.max(-W + 1, Math.min(W - 1, m.pos.x)); m.pos.z = Math.max(-D + 1, Math.min(D - 1, m.pos.z)); }
+  motionCfg(){ return (this.ruleset.combat.motion && this.ruleset.combat.motion.enabled) ? this.ruleset.combat.motion : null; } // v1.4.0 (D-039)
   heightBonus(i, j){ if (!this.platforms.length) return 0; const c = this.ruleset.combat.climb; // v1.3.0 (D-038) : avantage de hauteur pour le tireur surélevé
     const dh = (this.mechs[i].z || 0) - (this.mechs[j].z || 0);
     return (c && dh >= (c.aim_height || 2)) ? (c.aim_bonus || 0) : 0; }
@@ -579,6 +581,7 @@ class CombatSim {
         this.log('weapon_dropped', i, { weapon: m.prevWeaponId }); } }
     const evade = bracing ? false : this.rng.chance(m.proc.evasion_frequency * 0.15);
     const wsf = (this.water.length && (m.z || 0) <= 0) ? (this.waterAt(m.pos.x, m.pos.z) ? (this.ruleset.combat.water_speed_factor || .65) : 1) : 1; // v1.2.0 (D-037) : patauge ; v1.3.0 (D-038) : perché, on ne patauge pas
+    const mo = this.motionCfg(); // v1.4.0 (D-039) : inertie — sans config, comportement v1.3.0 bit-à-bit
     const spd = this.water.length ? m.speed_mps * wsf : m.speed_mps;
     const pref = m.proc.preferred_range;
     let nx = m.pos.x, nz = m.pos.z;
@@ -615,12 +618,14 @@ class CombatSim {
     const tdist = Math.hypot(tgtX - m.pos.x, tgtZ - m.pos.z) || 1;
     const ux = (tgtX - m.pos.x) / tdist, uz = (tgtZ - m.pos.z) / tdist;
     const bmf = (m.proc.brace_move_factor != null ? m.proc.brace_move_factor : (this.ruleset.combat.brace_move_factor || 0.5)); // tracking shot : visée en mouvement lent
-    if (m.wantClimb || dist > pref + 1.5 || (isMelee && dist > m.weapon.range) ||
-        (wantSecMelee && dist > sec.range)){ // v1.3.0 : wantClimb = cap sur la plateforme la plus proche
+    const blind = mo && m.weapon.type === 'ranged' && m.cooldown === 0 && dist <= m.weapon.range && dist >= (m.weapon.min_range || 0) && !this.losClear(m.pos, foe.pos); // v1.4.0 (D-039) : anti-stall — prêt à tirer mais ligne bloquée → on avance pour la rétablir
+    if (m.z === 0 && (m.wantClimb || blind || dist > pref + 1.5 || (isMelee && dist > m.weapon.range) ||
+        (wantSecMelee && dist > sec.range))){ // v1.3.0 : wantClimb = cap sur la plateforme la plus proche ; v1.4.0 : perché = on tient le perchoir
       if (m.ticksMoved === 0) this.log('movement_started', i, { toward: m.targetIdx });
-      const sf = bracing ? bmf : 1;
+      const sf = bracing ? bmf : ((mo && !isMelee && !m.wantClimb) ? Math.min(1, Math.max(.15, (dist - (pref + 1.5)) / (mo.brake_m || 8))) : 1); // v1.4.0 (D-039) : freinage anticipé — un coureur ralentit AVANT sa marque, l'élan ne dépasse plus la bande
       nx += ux * spd * this.dt * sf; nz += uz * spd * this.dt * sf; m.ticksMoved++;
-    } else if (dist < pref - 1.5){ const rsf = this.ruleset.combat.retreat_speed_factor; const sf = bracing ? bmf : 1;
+    } else if (m.z === 0 && dist < pref - 1.5){ const rsf = this.ruleset.combat.retreat_speed_factor; let sf = bracing ? bmf : 1;
+      if (mo && !isMelee) sf *= Math.min(1, Math.max(.15, (pref - 1.5 - dist) / (mo.brake_m || 8))); // v1.4.0 (D-039) : freinage symétrique en repli
       // D-024 : repli multi-menaces — on s'écarte du centre de gravité des poursuivants proches (pas de recul tout droit dans le 2e chasseur)
       let rx = -ux, rz = -uz;
       const rar = this.ruleset.combat.retreat_aware_radius || 20;
@@ -629,14 +634,23 @@ class CombatSim {
         for (const o of near){ const dd = this.distance(o.pos, m.pos) || 1; sx += (m.pos.x - o.pos.x) / dd; sz += (m.pos.z - o.pos.z) / dd; }
         const sl = Math.hypot(sx, sz) || 1; rx = sx / sl; rz = sz / sl; }
       nx += rx * spd * this.dt * rsf * sf; nz += rz * spd * this.dt * rsf * sf; m.ticksMoved++; }
-    if (evade){ nx += -uz * spd * this.dt * 2; nz += ux * spd * this.dt * 2; }
+    if (evade && m.z === 0){ nx += -uz * spd * this.dt * 2; nz += ux * spd * this.dt * 2; } // v1.4.0 : pas d'esquive en perchoir (fix flottement v0.12.0)
     // couvert actif (D-020) : pendant son rechargement, un profil avec cover_usage se replace hors LOS (peek-shooting)
-    if (!bracing && !isMelee && foe.weapon.type === "ranged" && m.cooldown > 3 && dist <= m.weapon.range && (m.proc.cover_usage || 0) >= 0.25 && this.losClear(m.pos, foe.pos)){
+    if (m.z === 0 && !bracing && !isMelee && foe.weapon.type === "ranged" && m.cooldown > 3 && dist <= m.weapon.range && (m.proc.cover_usage || 0) >= 0.25 && this.losClear(m.pos, foe.pos)){ // v1.4.0 : idem
       const cp = this.coverPoint(m, foe);
       if (cp){ const cdx = cp.x - m.pos.x, cdz = cp.z - m.pos.z, cd = Math.hypot(cdx, cdz) || 1;
         nx = m.pos.x + cdx / cd * spd * this.dt; nz = m.pos.z + cdz / cd * spd * this.dt; m.ticksMoved++; } }
     const W = this.arena.width / 2, D = this.arena.depth / 2;
     const clampA = (x, z) => [Math.max(-W + 1, Math.min(W - 1, x)), Math.max(-D + 1, Math.min(D - 1, z))];
+    if (mo){ // le châssis est un corps : il se lance comme un coureur (accélération bornée), freine, et son élan dérape dans les virages
+      const dvx = (nx - m.pos.x) / this.dt - m.vx, dvz = (nz - m.pos.z) / this.dt - m.vz;
+      const dl = Math.hypot(dvx, dvz);
+      if (dl > 1e-9){
+        const accel = Math.hypot((nx - m.pos.x) / this.dt, (nz - m.pos.z) / this.dt) > Math.hypot(m.vx, m.vz);
+        const cap = m.speed_mps / (accel ? (mo.launch_ticks || 18) : (mo.settle_ticks || 10)); // Δv max par tick (HYPOTHÈSES D-039)
+        const k = Math.min(1, cap / dl);
+        m.vx += dvx * k; m.vz += dvz * k; }
+      nx = m.pos.x + m.vx * this.dt; nz = m.pos.z + m.vz * this.dt; }
     // glissement déterministe le long des obstacles (contournement sans pathfinding complet)
     const dxm = nx - m.pos.x, dzm = nz - m.pos.z;
     const len = Math.hypot(dxm, dzm);
@@ -666,6 +680,7 @@ class CombatSim {
     const mdx = m.pos.x - m.prevPos.x, mdz = m.pos.z - m.prevPos.z;
     m.ticksStationary = bracing ? m.ticksStationary + 1 : 0; // D-021 : chaque tick de visée compte (tracking shot), reset sinon
     m.vel = { x: mdx / this.dt, z: mdz / this.dt };
+    if (mo){ m.vx = m.vel.x; m.vz = m.vel.z; } // v1.4.0 (D-039) : l'élan réalisé remplace la consigne — un mur absorbe, un glissement dévie
     const rsf2 = this.ruleset.combat.retreat_speed_factor;
     m.pinned = (dist < pref - 1.5) && ((mdx * -ux + mdz * -uz) < 0.3 * m.speed_mps * this.dt * rsf2);
     if (mdx * mdx + mdz * mdz > 1e-6) m.heading = Math.atan2(mdz, mdx);
@@ -682,7 +697,10 @@ class CombatSim {
     let ax = foe.pos.x + (foe.vel.x || 0) * ft * lead, az = foe.pos.z + (foe.vel.z || 0) * ft * lead;
     // D-026 : précision du châssis (garage D-019) resserre l'erreur de visée — tireurs seulement
     const acc = Math.min(0.98, w.accuracy + (m.accuracy_bonus || 0) + this.affLinks(i) + this.heightBonus(i, targetIdx)); // v1.1.0 : + liaisons vivantes ; v1.3.0 (D-038) : + avantage de hauteur
-    const err = (1 - acc) * dist * c.aim_error_factor;
+    let err = (1 - acc) * dist * c.aim_error_factor;
+    const mo = this.motionCfg(); // v1.4.0 (D-039)
+    if (mo && m.speed_mps > 0){ const spFrac = Math.min(1, Math.hypot(m.vel.x || 0, m.vel.z || 0) / m.speed_mps); // v1.4.0 (D-039) : tir en élan élargit l'erreur (HYPOTHÈSE)
+      err *= 1 + spFrac * (mo.moving_aim_penalty || 0); }
     const ang = this.rng.range(-Math.PI, Math.PI), rad = this.rng.range(0, err);
     ax += Math.cos(ang) * rad; az += Math.sin(ang) * rad;
     ax = Math.max(-this.arena.width / 2 + 1, Math.min(this.arena.width / 2 - 1, ax));
@@ -766,7 +784,7 @@ function segRect(a, b, x1, z1, x2, z2){
   return true;
 }
 const RULESET = {
-  "version": "0.8.0",
+  "version": "0.9.0",
   "simulation": {
     "tick_hz": 15,
     "battle_timeout_seconds": 120
@@ -1763,6 +1781,13 @@ const RULESET = {
       "aim_height": 2,
       "los_height": 2,
       "patience_ticks": 30
+    },
+    "motion": {
+      "enabled": true,
+      "launch_ticks": 18,
+      "settle_ticks": 10,
+      "moving_aim_penalty": 0.35,
+      "brake_m": 8
     }
   },
   "weapons": {
@@ -3643,6 +3668,9 @@ function renderBattleTactical(){
       cx.fillStyle = 'rgba(0,0,0,.35)'; cx.beginPath(); cx.ellipse(x, z, 1.4 * sc, .5 * sc, 0, 0, Math.PI * 2); cx.fill();
       cx.strokeStyle = 'rgba(231,235,239,.35)'; cx.setLineDash([3, 3]); cx.beginPath(); cx.moveTo(x, z); cx.lineTo(x, ly); cx.stroke(); cx.setLineDash([]); }
     if ((m.climbT || 0) > 0){ cx.fillStyle = '#7EB6C1'; cx.font = 'bold 8px monospace'; cx.textAlign = 'center'; cx.fillText('\u25B2 ESCALADE', x, ly + 4); }
+    const spdFrac = Math.hypot(m.vel.x || 0, m.vel.z || 0) / (m.speed_mps || 1); // v0.13.0 (D-039) : traînée d'élan
+    if (spdFrac > 0.45){ cx.strokeStyle = 'rgba(231,235,239,.28)'; cx.lineWidth = 2; cx.beginPath();
+      cx.moveTo(x - (m.vel.x / 15) * sc, z - (m.vel.z / 15) * sc); cx.lineTo(x, z); cx.stroke(); }
     cx.save(); cx.translate(x, z - (jy + zE) * sc * .85); cx.rotate(m.heading);
     cx.fillStyle = m.improvShield > 0 ? 'rgba(227,162,59,.35)' : col;
     cx.beginPath();
@@ -3902,7 +3930,7 @@ function renderBattleBroadcast(){
   cx.font = '9px monospace'; cx.fillStyle = '#6E7780'; cx.textAlign = 'right';
   cx.fillText('CAM BROADCAST — GREYBOX — ' + divisionLabel(G.org.division), W - 12, H - 12);
   cx.textAlign = 'left';
-  cx.fillText('BATAILLE D' + String.fromCharCode(39) + 'ESCOUADE 3v3 — [C] CAM — v0.12.0', 12, H - 12);
+  cx.fillText('BATAILLE D' + String.fromCharCode(39) + 'ESCOUADE 3v3 — [C] CAM — v0.13.0', 12, H - 12);
 }
 
 // ==== NAVIGATION + BOOT ====
