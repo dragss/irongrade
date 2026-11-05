@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IRONGRADE — Prototype manager v0.8.0</title>
+<title>IRONGRADE — Prototype manager v0.9.0</title>
 <style>
   :root { font-family: 'Inter', system-ui, sans-serif; background: #0B0E12; color: #E7EBEF; }
   * { box-sizing: border-box; margin: 0; }
@@ -108,6 +108,12 @@
   .hud .hpb::after { content:''; position:absolute; inset:0; pointer-events:none;
     background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(7,9,12,.75) 9px 10px); }
   .hud .hpb i { transition: width .12s linear; }
+
+  /* ==== v0.9.0 — broadcast + 3D ==== */
+  #at-3d { width: 340px; height: 470px; background: #0B0E12; border: 1px solid #2E3946; border-radius: 6px; overflow: hidden; }
+  #at-3d canvas { display: block; border-radius: 6px; cursor: grab; }
+  .hangar-side > button { width: 100%; margin-bottom: 8px; }
+  .hud button#bt-cam { font-weight: 700; }
 </style>
 </head>
 <body>
@@ -124,7 +130,7 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.8.0 — MOTEUR DE COMBAT v0.6.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
+  <div class="footer">IRONGRADE v0.9.0 — MOTEUR DE COMBAT v0.6.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -151,7 +157,12 @@
   <div class="panel" id="atelier-panel" style="display:none">
     <h3>Atelier — <span id="at-title"></span><span style="float:right;color:#3A434D;font-size:9px;letter-spacing:2px">HANGAR — MAQUETTE GREYBOX (survolez un slot)</span></h3>
     <div class="hangar-flex">
-      <div class="hangar-side" id="at-hangar"></div>
+      <div class="hangar-side">
+        <button class="small" id="at-cam3d">▦ VUE 3D</button>
+        <div id="at-hangar"></div>
+        <div id="at-3d" style="display:none"></div>
+        <div class="hint" id="at-3d-msg" style="display:none"></div>
+      </div>
       <div style="flex:1; min-width:330px">
         <div class="slotrow"><span class="tag">CHÂSSIS</span><select id="at-chassis"></select></div>
         <div id="at-slots"></div>
@@ -207,6 +218,7 @@
       <button class="small active-tog" data-spd="1">×1</button>
       <button class="small" data-spd="2">×2</button>
       <button class="small" data-spd="4">×4</button>
+      <button class="small" id="bt-cam">📹 CAM BROADCAST</button>
       <button class="small ghost" id="btn-abandon">ABANDONNER LE DUEL</button>
     </div>
     <div class="msscore" id="ms-score"></div>
@@ -259,14 +271,14 @@
 <div class="screen" id="screen-about">
   <div class="tophead"><span class="org">À PROPOS</span></div>
   <div class="panel">
-    <h3>IRONGRADE — prototype manager v0.8.0</h3>
+    <h3>IRONGRADE — prototype manager v0.9.0</h3>
     <div class="hint">Vertical slice de gestion : la boucle complète (roster, garage, ligue, matchs observés, rapport, sauvegarde) sur le moteur de combat v0.6.0 déterministe 15 Hz.</div>
     <table>
       <tr><td><b>MOTEUR</b></td><td>CombatSim v0.6.0 — spawns d'arène par point de largage / couloir d'entrée (D-027), précision &amp; stabilité par mech (D-026), 2v2 &amp; ciblage par profil (D-024), fumigène (D-025).</td></tr>
       <tr><td><b>SAUVEGARDE</b></td><td>Locale (navigateur), une seule par appareil. « Nouvelle carrière » écrase la sauvegarde.</td></tr>
       <tr><td><b>ÉCONOMIE</b></td><td>Monnaie unique (crédits). Toutes les récompenses, prix et barèmes XP de ce prototype sont des hypothèses d'équilibrage data-driven, à valider par l'owner avant tout contenu réel.</td></tr>
       <tr><td><b>GOUVERNANCE</b></td><td>Aucune loot box, aucun achat, aucune probabilité de drop dans ce prototype — les taux restent une décision owner.</td></tr>
-      <tr><td><b>VISUELS</b></td><td>Greybox — maquettes SVG procédurales (v0.8.0 : portraits pilotes, hangar de customisation, blasons d'équipes, rendu tactique enrichi). Placeholder assumé, pas d'art final.</td></tr>
+      <tr><td><b>VISUELS</b></td><td>Greybox — maquettes SVG procédurales v0.9.0 : portraits pilotes, hangar de customisation, blasons, <b>caméra BROADCAST pseudo-3D</b> en bataille (touche C pour alterner avec la vue tactique) et <b>vue 3D de l'atelier</b> (Three.js chargé en ligne, retour automatique à la maquette SVG hors-ligne). Pipeline prêt pour modèles 3D Tripo (GLB). Placeholder assumé, pas d'art final.</td></tr>
     </table>
   </div>
   <button class="ghost" id="btn-about-back">← RETOUR</button>
@@ -1584,6 +1596,7 @@ function launchDuel(duel){
   $('hud-name-a').textContent = cfg.mechs[0].name; $('hud-name-o').textContent = cfg.mechs[1].name;
   $('bt-banner').style.display = 'none'; $('btn-next').style.display = 'none';
   playing = true; speed = 1; accT = 0; $('btn-pause').textContent = '⏸ PAUSE';
+  camLook = { x: 0, z: 0, init: false }; bLastEvt = 0; bShake = 0; // caméra broadcast (D-032)
   updateMsScore(); show('battle'); lastT = performance.now(); requestAnimationFrame(loop);
 }
 function updateMsScore(){
@@ -1744,6 +1757,7 @@ function alertHTML(){
 const TEAM_COLORS = { you: '#D93432', forge_rouge: '#E05A3A', ecurie_kessler: '#7FA6C9', heritiers: '#C9A961', compagnie_vulcain: '#8B8378', megabolt: '#59C4C9' };
 const PROC_GLOW = { berserker: '#D93432', tactician: '#7FA6C9', guardian: '#4FAE6B', phantom: '#A78FD9' };
 function hashStr(t){ let h = 2166136261; for (let i = 0; i < t.length; i++){ h ^= t.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+let svgGid = 0; // compteur d'ids de gradients (unicité par instance)
 
 // portrait de pilote : casque + visière, variantes déterministes par nom
 function pilotSVG(p, size, opts){
@@ -1753,14 +1767,16 @@ function pilotSVG(p, size, opts){
   const helm = h % 3;
   const suit = opts.recon ? '#2A3138' : '#343B43';
   const acc = opts.recon ? '#4A5560' : '#D93432';
+  const pid = 'pv' + (svgGid++);
   let g = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">';
+  g += '<defs><linearGradient id="' + pid + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + visor + '"/><stop offset=".55" stop-color="' + visor + '"/><stop offset="1" stop-color="#232830"/></linearGradient></defs>';
   g += '<rect width="60" height="60" fill="#0B0E12"/><rect x=".5" y=".5" width="59" height="59" fill="none" stroke="' + (opts.recon ? '#2A3138' : '#343B43') + '"/>';
   g += '<path d="M8 60 L14 41 Q30 33 46 41 L52 60 Z" fill="' + suit + '" stroke="#232830"/>';
   g += '<path d="M28 37 L32 37 L32 60 L28 60 Z" fill="' + acc + '" opacity=".75"/>';
   if (helm === 0) g += '<path d="M30 11 Q42 11 43 26 Q43 37 30 39 Q17 37 17 26 Q18 11 30 11 Z" fill="#3D444D" stroke="#232830"/>';
   else if (helm === 1) g += '<path d="M21 11 L39 11 L43 29 L36 39 L24 39 L17 29 Z" fill="#3D444D" stroke="#232830"/>';
   else g += '<path d="M22 13 L38 13 L40 30 Q30 41 20 30 Z" fill="#3D444D" stroke="#232830"/><path d="M24 33 Q30 38 36 33 L36 39 L24 39 Z" fill="#232830"/>';
-  g += '<rect x="22" y="20" width="16" height="7" rx="2" fill="' + visor + '" opacity="' + (opts.recon ? '.3' : '.95') + '"/>';
+  g += '<rect x="22" y="20" width="16" height="7" rx="2" fill="url(#' + pid + ')" opacity="' + (opts.recon ? '.3' : '.95') + '"/>';
   g += '<rect x="23" y="21.5" width="13" height="2" rx="1" fill="#E7EBEF" opacity="' + (opts.recon ? '.15' : '.4') + '"/>';
   const pips = Math.min(5, p.niveau || 1);
   for (let i = 0; i < pips; i++) g += '<rect x="' + (25 + i * 2.8) + '" y="46" width="1.7" height="5" fill="' + acc + '" opacity=".9"/>';
@@ -1821,13 +1837,16 @@ function mechSVG(m, size, opts){
   const fortified = lo.torso && lo.torso.indexOf('fortified') >= 0;
   const deco = lo.torso && lo.torso.indexOf('decal') >= 0;
   const scope = lo.head && (lo.head.indexOf('target') >= 0 || lo.head.indexOf('sensor') >= 0);
+  const gid = 'mg' + (svgGid++);
   let g = '<svg width="' + size + '" height="' + Math.round(size * 170 / 120) + '" viewBox="0 0 120 170" xmlns="http://www.w3.org/2000/svg">';
+  g += '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3E464F"/><stop offset="1" stop-color="#262C34"/></linearGradient>' +
+    '<radialGradient id="' + gid + 'r"><stop offset="0" stop-color="' + procCol + '" stop-opacity=".85"/><stop offset="1" stop-color="' + procCol + '" stop-opacity="0"/></radialGradient></defs>';
   g += '<ellipse cx="60" cy="163" rx="36" ry="5" fill="#000" opacity=".4"/>';
   // JAMBES
   g += '<g' + hot('legs') + '>';
   [[-1], [1]].forEach(function(sdv){ const sd = sdv[0];
     const lx = 60 + sd * legX - legW / 2;
-    g += '<rect x="' + lx + '" y="' + legY + '" width="' + legW + '" height="' + (footY - legY) + '" fill="' + HULL + '" stroke="' + DARK + '"/>';
+    g += '<rect x="' + lx + '" y="' + legY + '" width="' + legW + '" height="' + (footY - legY) + '" fill="url(#' + gid + ')" stroke="' + DARK + '"/>';
     g += '<rect x="' + (lx - 1.5) + '" y="' + (legY + 4) + '" width="' + (legW + 3) + '" height="10" fill="' + PLATE + '" stroke="' + DARK + '"/>';
     g += '<rect x="' + (lx - 3) + '" y="' + footY + '" width="' + (legW + 6) + '" height="10" fill="' + PLATE + '" stroke="' + DARK + '"/>';
     if (sprint){ g += '<path d="M' + (lx + legW / 2) + ' ' + (footY + 10) + ' l-4 6 h8 z" fill="' + procCol + '" opacity=".85"/>'; }
@@ -1837,12 +1856,13 @@ function mechSVG(m, size, opts){
   g += '</g>';
   // TORSE + réacteur (processeur) + modules torse
   g += '<g' + hot('torso') + '>';
-  g += '<path d="M' + (60 - tw) + ' 54 L' + (60 + tw) + ' 54 L' + (60 + tw * 0.78) + ' 98 L' + (60 - tw * 0.78) + ' 98 Z" fill="' + HULL + '" stroke="' + DARK + '"/>';
+  g += '<path d="M' + (60 - tw) + ' 54 L' + (60 + tw) + ' 54 L' + (60 + tw * 0.78) + ' 98 L' + (60 - tw * 0.78) + ' 98 Z" fill="url(#' + gid + ')" stroke="' + DARK + '"/>';
   if (fortified){ g += '<path d="M' + (60 - tw + 3) + ' 58 L' + (60 + tw - 3) + ' 58 L' + (60 + tw * 0.62) + ' 94 L' + (60 - tw * 0.62) + ' 94 Z" fill="none" stroke="' + PLATE + '" stroke-width="2"/>'; }
   g += '<rect x="' + (60 - tw + 5) + '" y="58" width="6" height="26" fill="' + PLATE + '" opacity=".55" stroke="' + DARK + '"/>';
   g += '<rect x="' + (60 + tw - 11) + '" y="58" width="6" height="26" fill="' + PLATE + '" opacity=".55" stroke="' + DARK + '"/>';
   if (deco){ g += '<path d="M' + (60 - 8) + ' 60 L' + (60 + 6) + ' 54 L' + (60 + 10) + ' 60 L' + (60 - 4) + ' 66 Z" fill="' + acc + '" opacity=".8"/>'; }
   g += '<circle cx="60" cy="78" r="7.5" fill="' + procCol + '" opacity=".92"/>';
+  g += '<circle cx="60" cy="78" r="15" fill="url(#' + gid + 'r)"/>';
   g += '<circle cx="60" cy="78" r="10.5" fill="none" stroke="' + procCol + '" opacity=".35"/>';
   g += '<circle cx="60" cy="78" r="2.2" fill="' + LIGHT + '" opacity=".8"/>';
   if (lo.cooling && lo.cooling.indexOf('deluxe') >= 0){ g += '<path d="M' + (60 - 14) + ' 88 h28 M' + (60 - 11) + ' 92 h22" stroke="#7EB6C1" stroke-width="1.4" opacity=".7"/>'; }
@@ -1863,8 +1883,8 @@ function mechSVG(m, size, opts){
   if (lo.shield){ g += '<path d="M' + (60 - tw - 6) + ' 52 a10 10 0 0 1 12 -6" stroke="#7FA6C9" stroke-width="2" fill="none" opacity=".8"/>'; }
   // ARMS
   g += '<g' + hot('arms') + '>';
-  g += '<rect x="' + (60 - tw - 4) + '" y="76" width="6.5" height="26" rx="2" fill="' + HULL + '" stroke="' + DARK + '"/>';
-  g += '<rect x="' + (60 + tw - 2.5) + '" y="76" width="6.5" height="26" rx="2" fill="' + HULL + '" stroke="' + DARK + '"/>';
+  g += '<rect x="' + (60 - tw - 4) + '" y="76" width="6.5" height="26" rx="2" fill="url(#' + gid + ')" stroke="' + DARK + '"/>';
+  g += '<rect x="' + (60 + tw - 2.5) + '" y="76" width="6.5" height="26" rx="2" fill="url(#' + gid + ')" stroke="' + DARK + '"/>';
   g += '</g>';
   // ARME PRIMAIRE (zone arme)
   g += '<g' + hot('weapon') + '>';
@@ -1909,6 +1929,219 @@ function mechView(m, size, opts){
   opts = opts || {};
   return '<div class="mview">' + mechSVG(m, size, opts) + '<div class="zlabel">' + esc((m && m.label) || '') + (opts.hs ? ' — HS' : '') + '</div></div>';
 }
+
+// ==== v0.9.0 : VUE 3D DE L'ATELIER (Three.js chargé à la demande en ligne ; fallback maquette SVG hors-ligne) ====
+// Pipeline Tripo : quand les modèles GLB existeront, buildMech3D procédural sera remplacé par un GLTFLoader
+// (un GLB par châssis + un GLB par arme, montés aux sockets torso/armes) — même logique de zones/hot.
+let at3d = { mode: 'svg', loading: false, ok: false, scene: null, camera: null, renderer: null, group: null, parts: {}, hot: null, key: '', theta: .65, phi: 1.08, r: 10.5, drag: null, raf: 0 };
+function ensureTHREE(cb){
+  if (typeof window === 'undefined') return cb(false);
+  if (window.THREE) return cb(true);
+  if (window.__threeLoading){ window.__threeCb.push(cb); return; }
+  window.__threeLoading = true; window.__threeCb = [cb];
+  const sc = document.createElement('script');
+  sc.src = 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js';
+  const done = ok => { const cbs = window.__threeCb || []; window.__threeCb = []; window.__threeLoading = false; cbs.forEach(f => f(ok)); };
+  sc.onload = () => done(!!window.THREE);
+  sc.onerror = () => done(false);
+  (document.head || document.body).appendChild(sc);
+}
+function setHangarView(mode){
+  at3d.mode = mode;
+  $('at-cam3d').textContent = mode === '3d' ? '▣ VUE MAQUETTE' : '▦ VUE 3D';
+  $('at-hangar').style.display = mode === '3d' ? 'none' : 'block';
+  $('at-3d').style.display = mode === '3d' ? 'block' : 'none';
+  $('at-3d-msg').style.display = 'none';
+  if (mode === '3d') initAt3D();
+}
+$('at-cam3d').onclick = () => setHangarView(at3d.mode === '3d' ? 'svg' : '3d');
+function initAt3D(){
+  if (at3d.ok){ atelierRecompute(); startAt3DLoop(); return; }
+  if (at3d.loading) return;
+  at3d.loading = true;
+  $('at-3d-msg').style.display = 'block';
+  $('at-3d-msg').textContent = 'Chargement du moteur 3D (Three.js, ~650 Ko)…';
+  ensureTHREE(ok => {
+    at3d.loading = false;
+    if (!ok){ $('at-3d-msg').textContent = 'Moteur 3D indisponible (hors-ligne) — retour à la maquette SVG.'; setHangarView('svg'); return; }
+    at3d.ok = true;
+    buildAt3DScene();
+    atelierRecompute();
+    startAt3DLoop();
+  });
+}
+function buildAt3DScene(){
+  const w = 340, h = 470;
+  at3d.renderer = new THREE.WebGLRenderer({ antialias: true });
+  at3d.renderer.setPixelRatio(Math.min(2, (window.devicePixelRatio || 1)));
+  at3d.renderer.setSize(w, h);
+  $('at-3d').textContent = '';
+  $('at-3d').appendChild(at3d.renderer.domElement);
+  at3d.scene = new THREE.Scene();
+  at3d.scene.background = new THREE.Color(0x0B0E12);
+  at3d.scene.fog = new THREE.Fog(0x0B0E12, 16, 42);
+  at3d.camera = new THREE.PerspectiveCamera(42, w / h, .1, 100);
+  at3d.scene.add(new THREE.HemisphereLight(0x8FA3B8, 0x111418, .85));
+  const key = new THREE.DirectionalLight(0xE7EBEF, 1.15); key.position.set(6, 10, 5); at3d.scene.add(key);
+  const rim = new THREE.DirectionalLight(0xD93432, .35); rim.position.set(-7, 4, -6); at3d.scene.add(rim);
+  at3d.scene.add(new THREE.GridHelper(26, 26, 0x2E3946, 0x161A20));
+  const plate = new THREE.Mesh(new THREE.CylinderGeometry(3.4, 3.4, .18, 48), new THREE.MeshStandardMaterial({ color: 0x161A20, roughness: .9, metalness: .2 }));
+  plate.position.y = -.09; at3d.scene.add(plate);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(3.4, .045, 8, 64), new THREE.MeshStandardMaterial({ color: 0xD93432, emissive: 0xD93432, emissiveIntensity: .5 }));
+  ring.rotation.x = Math.PI / 2; ring.position.y = .02; at3d.scene.add(ring);
+  // orbite minimale : glisser pour tourner, molette pour zoomer
+  const el = at3d.renderer.domElement;
+  el.addEventListener('mousedown', e => { at3d.drag = { x: e.clientX, y: e.clientY }; });
+  window.addEventListener('mousemove', e => { if (!at3d.drag) return;
+    at3d.theta -= (e.clientX - at3d.drag.x) * .008;
+    at3d.phi = Math.max(.45, Math.min(1.42, at3d.phi - (e.clientY - at3d.drag.y) * .006));
+    at3d.drag = { x: e.clientX, y: e.clientY }; });
+  window.addEventListener('mouseup', () => { at3d.drag = null; });
+  el.addEventListener('wheel', e => { e.preventDefault(); at3d.r = Math.max(6, Math.min(22, at3d.r + (e.deltaY > 0 ? 1 : -1))); }, { passive: false });
+  el.addEventListener('touchstart', e => { if (e.touches[0]) at3d.drag = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }, { passive: true });
+  el.addEventListener('touchmove', e => { if (!at3d.drag || !e.touches[0]) return;
+    at3d.theta -= (e.touches[0].clientX - at3d.drag.x) * .008;
+    at3d.phi = Math.max(.45, Math.min(1.42, at3d.phi - (e.touches[0].clientY - at3d.drag.y) * .006));
+    at3d.drag = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }, { passive: true });
+}
+function at3dMat(col, opts){
+  const m = new THREE.MeshStandardMaterial(Object.assign({ color: col, roughness: .78, metalness: .38 }, opts || {}));
+  return m;
+}
+function buildMech3D(lo, chId, hot){
+  if (!at3d.ok || !at3d.scene || !atelierMech) return;
+  lo = lo || {};
+  const key = chId + '|' + JSON.stringify(lo) + '|' + atelierMech.proc;
+  const hotOnly = key === at3d.key && hot !== at3d.hot;
+  at3d.hot = hot || null;
+  if (hotOnly){ updateAt3DHot(); return; }
+  at3d.key = key;
+  if (at3d.group){ at3d.scene.remove(at3d.group); at3d.group.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); }
+  const info = mechInfo(atelierMech, { loadout: lo, chassis: chId });
+  const heavy = chId === 'warden_x1', scout = chId === 'ghost_lt', arty = chId === 'longbow_mk1';
+  const procCol = PROC_GLOW[info.proc] || '#7FA6C9';
+  const grp = new THREE.Group();
+  const P = at3d.parts = { legs: [], torso: [], head: [], lsh: [], rsh: [], arms: [], weapon: [] };
+  const add = (zone, geo, m, x, y, z, rx, ry, rz) => { const mesh = new THREE.Mesh(geo, m); mesh.position.set(x, y, z);
+    if (rx) mesh.rotation.x = rx; if (ry) mesh.rotation.y = ry; if (rz) mesh.rotation.z = rz;
+    grp.add(mesh); if (zone) P[zone].push(mesh); return mesh; };
+  const sprint = (lo.left_leg && lo.left_leg.indexOf('sprint') >= 0) || (lo.right_leg && lo.right_leg.indexOf('sprint') >= 0);
+  const fortified = lo.torso && lo.torso.indexOf('fortified') >= 0;
+  const deco = lo.torso && lo.torso.indexOf('decal') >= 0;
+  const scope = lo.head && (lo.head.indexOf('target') >= 0 || lo.head.indexOf('sensor') >= 0);
+  // proportions par châssis (hauteur totale ≈ 4.6-5)
+  const legH = heavy ? 1.6 : (arty ? 2.0 : 1.75), torsoH = heavy ? 1.7 : 1.4, legX = heavy ? .62 : .5;
+  const tw = heavy ? 2.1 : (scout ? 1.5 : 1.75);
+  const ty0 = legH + .55, hy = ty0 + torsoH;
+  // JAMBES
+  [-1, 1].forEach(sd => {
+    add('legs', new THREE.BoxGeometry(.55, legH, .6), at3dMat(0x343B43), sd * legX, legH / 2, 0);
+    add('legs', new THREE.BoxGeometry(.75, .28, .85), at3dMat(0x3D444D), sd * legX, legH + .12, 0);
+    add('legs', new THREE.BoxGeometry(.8, .22, 1.1), at3dMat(0x232830), sd * legX, .11, .05);
+    if (sprint) add('legs', new THREE.ConeGeometry(.22, .6, 12), at3dMat(0x111418, { emissive: new THREE.Color(procCol), emissiveIntensity: .9 }), sd * legX, -.28, -.05);
+  });
+  add('legs', new THREE.BoxGeometry(1.5, .4, .8), at3dMat(0x3D444D), 0, legH + .38, 0);
+  // TORSE + réacteur
+  add('torso', new THREE.BoxGeometry(tw, torsoH, 1.15), at3dMat(0x343B43), 0, ty0 + torsoH / 2, 0);
+  if (fortified) add('torso', new THREE.BoxGeometry(tw + .22, torsoH * .7, 1.3), at3dMat(0x3D444D), 0, ty0 + torsoH * .55, 0);
+  if (deco) add('torso', new THREE.BoxGeometry(.5, torsoH * .8, .06), at3dMat(0xD93432), 0, ty0 + torsoH / 2, .6);
+  const core = add('torso', new THREE.SphereGeometry(.3, 20, 16), at3dMat(new THREE.Color(procCol).getHex(), { emissive: new THREE.Color(procCol), emissiveIntensity: 1.3, roughness: .4 }), 0, ty0 + torsoH * .62, .62);
+  const lgt = new THREE.PointLight(new THREE.Color(procCol), 5, 9); lgt.position.set(0, ty0 + torsoH * .62, 1.2); grp.add(lgt);
+  if (lo.cooling && lo.cooling.indexOf('deluxe') >= 0) [-.45, .45].forEach(o =>
+    add('torso', new THREE.BoxGeometry(.34, .3, .1), at3dMat(0x2A3138, { emissive: 0x7EB6C1, emissiveIntensity: .4 }), o, ty0 + .3, .6));
+  // TÊTE
+  add('head', new THREE.BoxGeometry(.85, .55, .7), at3dMat(0x3D444D), 0, hy + .28, 0);
+  add('head', new THREE.BoxGeometry(.6, .16, .1), at3dMat(0x2A3138, { emissive: 0x7FA6C9, emissiveIntensity: .8 }), 0, hy + .3, .36);
+  if (scope) add('head', new THREE.CylinderGeometry(.09, .09, .5, 12), at3dMat(0x232830), .3, hy + .62, 0, 0, 0, Math.PI / 2.6);
+  if (scout) add('head', new THREE.CylinderGeometry(.02, .02, .7, 6), at3dMat(0xE7EBEF), -.35, hy + .7, -.1, .2, 0, .3);
+  // ÉPAULES + BRAS
+  const padW = heavy ? .95 : .75;
+  [-1, 1].forEach(sd => {
+    add(sd < 0 ? 'lsh' : 'rsh', new THREE.BoxGeometry(padW, .75, 1.05), at3dMat(lo[sd < 0 ? 'left_shoulder' : 'right_shoulder'] ? 0x3D444D : 0x343B43), sd * (tw / 2 + padW / 2 - .08), hy - .28, 0);
+    add('arms', new THREE.BoxGeometry(.42, 1.1, .5), at3dMat(0x343B43), sd * (tw / 2 + .25), ty0 + .5, 0);
+  });
+  if (lo.shield){ const sm = new THREE.Mesh(new THREE.TorusGeometry(1.5, .07, 10, 40, Math.PI * 1.15),
+      at3dMat(0x7FA6C9, { emissive: 0x7FA6C9, emissiveIntensity: .7, transparent: true, opacity: .85 }));
+    sm.position.set(-(tw / 2 + .6), ty0 + torsoH * .55, 0); sm.rotation.x = Math.PI / 2; sm.rotation.z = Math.PI / 2; grp.add(sm); P.arms.push(sm); }
+  // ===== ARMES procédurales (sockets prêts pour GLB Tripo) =====
+  const wy = ty0 + .45;
+  function mkWeapon(wid, sd, scale){
+    if (!wid) return;
+    const sx = sd * (tw / 2 + .25);
+    if (wid === 'seraph_lrm_pod'){ // pods dorsaux
+      [-.55, .55].forEach(o => { add('weapon', new THREE.BoxGeometry(.62, .45, 1.2), at3dMat(0x3D444D), o, hy + .35, -.25);
+        add('weapon', new THREE.CylinderGeometry(.05, .05, .9, 8), at3dMat(0xE7EBEF), o, hy + .6, -.25, Math.PI / 2); });
+      return;
+    }
+    if (wid === 'impact_ram'){ // bélier frontal
+      add('weapon', new THREE.BoxGeometry(tw * .8, 1.0, .25), at3dMat(0xD93432), 0, ty0 + torsoH * .5, .78);
+      [-1, 1].forEach(o => add('weapon', new THREE.CylinderGeometry(.07, .07, .5, 8), at3dMat(0x232830), o * .4, ty0 + torsoH * .5, .55, Math.PI / 2));
+      return;
+    }
+    if (wid === 'reaver_blade'){ // lame
+      add('weapon', new THREE.BoxGeometry(.1, 1.9, .34), at3dMat(0xE7EBEF, { metalness: .85, roughness: .3 }), sx, wy + .7, .35, -.4);
+      return;
+    }
+    if (wid === 'war_pike_mk1'){ // pique
+      add('weapon', new THREE.CylinderGeometry(.05, .05, 2.7, 10), at3dMat(0x3D444D), sx, wy + .55, .75, -Math.PI / 2.25);
+      add('weapon', new THREE.ConeGeometry(.09, .3, 8), at3dMat(0xE7EBEF, { metalness: .8 }), sx, wy + 1.75, 1.3, -.5);
+      return;
+    }
+    if (wid === 'grinder_mk1'){ // broyeur circulaire
+      add('weapon', new THREE.CylinderGeometry(.45, .45, .3, 18), at3dMat(0x3D444D), sx, wy, .55, Math.PI / 2);
+      for (let k = 0; k < 8; k++){ const an = k * Math.PI / 4;
+        add('weapon', new THREE.BoxGeometry(.08, .16, .1), at3dMat(0xE7EBEF, { metalness: .8 }), sx + Math.cos(an) * .45, wy + Math.sin(an) * .45, .55); }
+      return;
+    }
+    if (wid === 'rail_gun_mk1'){ // rail long + anneaux
+      add('weapon', new THREE.BoxGeometry(.3, .3, 2.6 * (scale || 1)), at3dMat(0x3D444D), sx, wy, 1.1);
+      [0, .5, 1].forEach(o => add('weapon', new THREE.TorusGeometry(.2, .035, 8, 18), at3dMat(new THREE.Color(procCol).getHex(), { emissive: new THREE.Color(procCol), emissiveIntensity: .7 }), sx, wy, .5 + o * .7, Math.PI / 2));
+      return;
+    }
+    if (wid === 'scatter_gun_mk1'){ // fusil à éclats court
+      add('weapon', new THREE.BoxGeometry(.4, .4, .95 * (scale || 1)), at3dMat(0x3D444D), sx, wy, .55);
+      add('weapon', new THREE.BoxGeometry(.55, .55, .18), at3dMat(0x232830), sx, wy, 1.1);
+      return;
+    }
+    // autocanon + défaut tireur
+    add('weapon', new THREE.BoxGeometry(.35, .35, 1.6 * (scale || 1)), at3dMat(0x3D444D), sx, wy, .7);
+    add('weapon', new THREE.CylinderGeometry(.1, .1, .9, 12), at3dMat(0x232830), sx, wy, 1.7, Math.PI / 2);
+    add('weapon', new THREE.BoxGeometry(.3, .45, .35), at3dMat(0x343B43), sx, wy - .3, .35);
+  }
+  mkWeapon(info.weapon, 1, 1);
+  if (info.secondary) mkWeapon(info.secondary, -1, .8);
+  at3d.group = grp;
+  at3d.scene.add(grp);
+  updateAt3DHot();
+}
+function updateAt3DHot(){
+  Object.keys(at3d.parts).forEach(z => {
+    at3d.parts[z].forEach(mesh => {
+      const m = mesh.material; if (!m || !m.emissive) return;
+      if (at3d.hot === z){
+        if (mesh.userData.baseEm === undefined){ mesh.userData.baseEm = m.emissive.getHex(); mesh.userData.baseEmI = m.emissiveIntensity; }
+        m.emissive.setHex(0xD93432); m.emissiveIntensity = .55;
+      } else if (mesh.userData.baseEm !== undefined){
+        m.emissive.setHex(mesh.userData.baseEm); m.emissiveIntensity = mesh.userData.baseEmI;
+      }
+    });
+  });
+}
+function startAt3DLoop(){
+  if (at3d.raf) return;
+  const tick3d = t => {
+    at3d.raf = 0;
+    if (at3d.mode !== '3d' || !at3d.ok) return;
+    if ($('atelier-panel').style.display === 'none') { return; }
+    at3d.camera.position.set(at3d.r * Math.sin(at3d.phi) * Math.sin(at3d.theta), at3d.r * Math.cos(at3d.phi) + 1.2, at3d.r * Math.sin(at3d.phi) * Math.cos(at3d.theta));
+    at3d.camera.lookAt(0, 2.1, 0);
+    if (at3d.group) at3d.group.position.y = Math.sin(t / 700) * .04; // idle
+    at3d.renderer.render(at3d.scene, at3d.camera);
+    at3d.raf = requestAnimationFrame(tick3d);
+  };
+  at3d.raf = requestAnimationFrame(tick3d);
+}
+
 
 function renderHub(){
   $('hub-org').textContent = G.org.name;
@@ -2084,6 +2317,7 @@ function atelierRecompute(){
     '<div class="rowline"><span>PRÉCISION +</span><b>' + s.accuracy_bonus + '</b></div><div class="rowline"><span>STABILITÉ</span><b>' + s.stability + '</b></div>';
   $('at-validation').innerHTML = v.ok ? '<div class="valid-ok">✔ BUILD VALIDE — appliquable</div>' : v.errors.map(e => '<div class="valid-err">✘ ' + esc(e) + '</div>').join('');
   $('at-hangar').innerHTML = mechView(atelierMech, 190, { loadout: lo, chassis: chId, hot: hotZone, live: true });
+  if (at3d.mode === '3d' && at3d.ok) buildMech3D(lo, chId, hotZone);
 }
 $('at-apply').onclick = () => {
   const lo = atelierCurrentLoadout(), chId = $('at-chassis').value;
@@ -2277,11 +2511,11 @@ function drawObstacle(o){
   cx.fillStyle = prop ? 'rgba(227,162,59,.18)' : (plat ? 'rgba(126,182,193,.08)' : 'rgba(52,59,67,.55)');
   cx.strokeStyle = prop ? '#E3A23B' : (plat ? '#7EB6C1' : '#3A434D');
   if (plat) cx.setLineDash([4, 3]);
-  cx.beginPath(); cx.rect(tp(o.x - o.w / 2), tz(o.z - o.d / 2), o.w * tScale(), o.d * tScale());
+  cx.beginPath(); cx.rect(tp(o.x - o.w / 2), tz(o.z - (o.d || o.w || 2) / 2), o.w * tScale(), (o.d || o.w || 2) * tScale());
   cx.fill(); cx.stroke(); cx.setLineDash([]);
   if (prop){ cx.fillStyle = '#E3A23B'; cx.font = '8px monospace'; cx.textAlign = 'center'; cx.fillText('ÉPAVE', tp(o.x), tz(o.z) + 3); }
 }
-function renderBattle(){
+function renderBattleTactical(){
   cx.clearRect(0, 0, cv.width, cv.height); cx.fillStyle = '#07090C'; cx.fillRect(0, 0, cv.width, cv.height);
   cx.strokeStyle = '#2E3946'; cx.lineWidth = 2;
   cx.strokeRect(tp(-sim.arena.width / 2), tz(-sim.arena.depth / 2), sim.arena.width * tScale(), sim.arena.depth * tScale());
@@ -2322,6 +2556,196 @@ function renderBattle(){
     cx.fillStyle = '#E3A23B'; cx.beginPath(); cx.arc(tp(p.x), tz(p.z), 2.4, 0, Math.PI * 2); cx.fill(); }
   cx.fillStyle = '#6E7780'; cx.font = '9px monospace'; cx.textAlign = 'left';
   cx.fillText('GREYBOX — VISUEL DE PROTOTYPE', 12, cv.height - 12);
+}
+
+// ==== CAMÉRAS DE BATAILLE (v0.9.0) : BROADCAST pseudo-3D (défaut) / TACTIQUE vue de dessus ====
+let battleCam = 'broadcast'; // 'broadcast' | 'tactical'
+let camLook = { x: 0, z: 0, init: false };
+let bLastEvt = 0, bShake = 0;
+function setBattleCam(mode){
+  battleCam = mode;
+  $('bt-cam').textContent = mode === 'broadcast' ? '📹 CAM BROADCAST' : '🗺 CAM TACTIQUE';
+}
+$('bt-cam').onclick = () => setBattleCam(battleCam === 'broadcast' ? 'tactical' : 'broadcast');
+if (typeof document.addEventListener === 'function') document.addEventListener('keydown', e => {
+  if ((e.key === 'c' || e.key === 'C') && state === 'battle') setBattleCam(battleCam === 'broadcast' ? 'tactical' : 'broadcast');
+});
+function renderBattle(){
+  if (battleCam === 'tactical') return renderBattleTactical();
+  renderBattleBroadcast();
+}
+function bcShade(col, k){
+  const n = parseInt(col.slice(1), 16);
+  const r = Math.max(0, Math.min(255, Math.round(((n >> 16) & 255) * k)));
+  const g2 = Math.max(0, Math.min(255, Math.round(((n >> 8) & 255) * k)));
+  const b2 = Math.max(0, Math.min(255, Math.round((n & 255) * k)));
+  return 'rgb(' + r + ',' + g2 + ',' + b2 + ')';
+}
+function renderBattleBroadcast(){
+  const W = cv.width || 900, H = cv.height || 480;
+  // camera-shake léger sur impacts (retransmission)
+  bShake *= .82; if (bShake < .3) bShake = 0;
+  const evts = sim.events || [];
+  for (let i = bLastEvt; i < evts.length; i++) if (['critical_hit', 'projectile_impact', 'shield_break', 'mech_disabled'].indexOf(evts[i].type) >= 0) bShake = 6;
+  bLastEvt = evts.length;
+  const ox = Math.sin(sim.tick * .7) * bShake, oy = Math.cos(sim.tick * 1.13) * bShake;
+  cx.clearRect(0, 0, W, H);
+  cx.fillStyle = '#05070A'; cx.fillRect(0, 0, W, H);
+  const aw = sim.arena.width, ad = sim.arena.depth;
+  // suivi de l'action (lissage) + caméra surélevée côté joueur
+  let mx = 0, mz = 0, n = 0;
+  sim.mechs.forEach(m => { if (m.hpNow > 0){ mx += m.pos.x; mz += m.pos.z; n++; } });
+  if (!camLook.init) camLook = { x: n ? mx / n : 0, z: n ? mz / n : 0, init: true };
+  camLook.x += ((n ? mx / n : 0) - camLook.x) * .06;
+  camLook.z += ((n ? mz / n : 0) - camLook.z) * .06;
+  const camx = camLook.x * .35, camy = 34 + ad * .30, camz = ad / 2 + 30;
+  let fx = camLook.x - camx, fy = 2 - camy, fz = camLook.z - camz;
+  const flen = Math.hypot(fx, fy, fz) || 1; fx /= flen; fy /= flen; fz /= flen;
+  let rx = -fz, rz = fx; const rl = Math.hypot(rx, rz) || 1; rx /= rl; rz /= rl;
+  const ux = -rz * fy, uy = rz * fx - rx * fz, uz = rx * fy; // up2 = right × fwd
+  const focal = H * 1.6;
+  function proj(px, py, pz){
+    const vx = px - camx, vy = py - camy, vz = pz - camz;
+    const dz = vx * fx + vy * fy + vz * fz;
+    if (dz < 1) return null;
+    const s = focal / dz;
+    return { x: W / 2 + (vx * rx + vz * rz) * s + ox, y: H / 2 - (vx * ux + vy * uy + vz * uz) * s + oy, d: dz, s };
+  }
+  function poly(pts){ cx.beginPath(); pts.forEach((p, i) => i ? cx.lineTo(p.x, p.y) : cx.moveTo(p.x, p.y)); cx.closePath(); }
+  // SOL : plate + grille perspective + contour
+  const cA = proj(-aw / 2, 0, -ad / 2), cB = proj(aw / 2, 0, -ad / 2), cC = proj(aw / 2, 0, ad / 2), cD = proj(-aw / 2, 0, ad / 2);
+  if (cA && cB && cC && cD){ cx.fillStyle = '#0D1015'; poly([cA, cB, cC, cD]); cx.fill(); }
+  cx.strokeStyle = '#161A20'; cx.lineWidth = 1;
+  for (let gx = -aw / 2; gx <= aw / 2; gx += 10){ const a = proj(gx, 0, -ad / 2), b = proj(gx, 0, ad / 2); if (a && b){ cx.beginPath(); cx.moveTo(a.x, a.y); cx.lineTo(b.x, b.y); cx.stroke(); } }
+  for (let gz = -ad / 2; gz <= ad / 2; gz += 10){ const a = proj(-aw / 2, 0, gz), b = proj(aw / 2, 0, gz); if (a && b){ cx.beginPath(); cx.moveTo(a.x, a.y); cx.lineTo(b.x, b.y); cx.stroke(); } }
+  if (cA && cB && cC && cD){ cx.strokeStyle = '#2E3946'; cx.lineWidth = 2; poly([cA, cB, cC, cD]); cx.stroke(); }
+  // strips de largage (D-027) teintés par équipe
+  [[-1, 'rgba(217,52,50,.10)'], [1, 'rgba(170,178,186,.08)']].forEach(sd => {
+    const zEdge = sd[0] * (ad / 2), zIn = sd[0] * (ad / 2 - 7);
+    const a = proj(-aw / 2, 0, zEdge), b = proj(aw / 2, 0, zEdge), c = proj(aw / 2, 0, zIn), d = proj(-aw / 2, 0, zIn);
+    if (a && b && c && d){ cx.fillStyle = sd[1]; poly([a, b, c, d]); cx.fill(); }
+  });
+  // ombres portées (avant le tri painter)
+  sim.mechs.forEach(m => {
+    if (m.hpNow <= 0) return;
+    const p = proj(m.pos.x, 0, m.pos.z); if (!p) return;
+    cx.fillStyle = 'rgba(0,0,0,.42)'; cx.beginPath(); cx.ellipse(p.x, p.y, 1.7 * p.s, .55 * p.s, 0, 0, Math.PI * 2); cx.fill();
+  });
+  // ===== faces 3D (painter's algorithm, tri par profondeur) =====
+  const faces = [];
+  const addQuad = (p1, p2, p3, p4, fill, stroke, lw) => faces.push({ pts: [p1, p2, p3, p4], d: (p1.d + p2.d + p3.d + p4.d) / 4, fill, stroke: stroke || null, lw: lw || 1 });
+  // boîte orientée selon le heading du mech (centre décalé foff=avant, roff=droite)
+  function mechBox(m, foff, roff, y0, y1, hw, hd, fillTop, fillSide, stroke){
+    const dx = Math.cos(m.heading), dz = Math.sin(m.heading);
+    const px = -dz, pz = dx;
+    const bx = m.pos.x + foff * dx + roff * px, bz = m.pos.z + foff * dz + roff * pz;
+    const bot = [], top = [];
+    [[1, 1], [1, -1], [-1, -1], [-1, 1]].forEach(o => {
+      const wx = bx + o[0] * px * hw + o[1] * dx * hd, wz = bz + o[0] * pz * hw + o[1] * dz * hd;
+      bot.push(proj(wx, y0, wz)); top.push(proj(wx, y1, wz));
+    });
+    if (bot.some(q => !q) || top.some(q => !q)) return;
+    addQuad(top[0], top[1], top[2], top[3], fillTop, stroke, 1);
+    for (let i = 0; i < 4; i++) addQuad(bot[i], bot[(i + 1) % 4], top[(i + 1) % 4], top[i], fillSide, stroke, 1);
+  }
+  // boîte alignée aux axes (obstacles)
+  function boxA(x, z, hw, hd, h, fillTop, fillSide, stroke){
+    const bot = [], top = [];
+    [[1, 1], [1, -1], [-1, -1], [-1, 1]].forEach(o => {
+      const wx = x + o[0] * hw, wz = z + o[1] * hd;
+      bot.push(proj(wx, 0, wz)); top.push(proj(wx, h, wz));
+    });
+    if (bot.some(q => !q) || top.some(q => !q)) return;
+    addQuad(top[0], top[1], top[2], top[3], fillTop, stroke, 1);
+    for (let i = 0; i < 4; i++) addQuad(bot[i], bot[(i + 1) % 4], top[(i + 1) % 4], top[i], fillSide, stroke, 1);
+  }
+  const isW = wid => wid === 'seraph_lrm_pod';
+  sim.mechs.forEach(m => {
+    const col = TEAMCOL[m.team];
+    if (m.hpNow <= 0){ // épave écrasée
+      boxA(m.pos.x, m.pos.z, 1.5, 1.0, .9, '#2A3038', '#232830', '#3A434D');
+      return;
+    }
+    const isRam = m.weaponId === 'impact_ram', isLRM = m.weaponId === 'seraph_lrm_pod';
+    const tTop = bcShade(col, 1.45), tSide = col, hullTop = '#3D444D', hullSide = '#343B43';
+    if (m.improvShield > 0) mechBox(m, 0, 0, 1.5, 3.5, 1.5, 1.25, 'rgba(227,162,59,.16)', 'rgba(227,162,59,.30)', '#E3A23B');
+    mechBox(m, 0, -.55, 0, 1.5, .3, .38, hullTop, hullSide, '#232830'); // jambe G
+    mechBox(m, 0, .55, 0, 1.5, .3, .38, hullTop, hullSide, '#232830'); // jambe D
+    mechBox(m, 0, 0, 1.4, 1.75, .8, .5, hullTop, hullSide, '#232830'); // bassin
+    mechBox(m, 0, 0, 1.7, 3.1, .95, .7, tTop, tSide, '#232830');       // torse
+    mechBox(m, 0, -1.15, 2.45, 3.0, .35, .55, hullTop, hullSide, '#232830'); // épaulière G
+    mechBox(m, 0, 1.15, 2.45, 3.0, .35, .55, hullTop, hullSide, '#232830'); // épaulière D
+    mechBox(m, 0, 0, 3.1, 3.55, .38, .35, '#4A5560', '#3D444D', '#232830'); // tête
+    if (isLRM){ mechBox(m, -.6, -.5, 3.1, 3.65, .32, .5, hullTop, hullSide, '#232830'); mechBox(m, -.6, .5, 3.1, 3.65, .32, .5, hullTop, hullSide, '#232830'); }
+    else mechBox(m, isRam ? .55 : 1.5, .95, 2.45, 2.8, isRam ? .6 : .24, isRam ? .35 : 1.6, isRam ? '#D93432' : hullTop, isRam ? '#B02926' : hullSide, '#232830'); // arme
+    // lueur du réacteur (billboard)
+    const rp = proj(m.pos.x + Math.cos(m.heading) * .72, 2.5, m.pos.z + Math.sin(m.heading) * .72);
+    if (rp) faces.push({ d: rp.d * .997, fn: () => { cx.fillStyle = m.team === 0 ? '#D93432' : '#7FA6C9'; cx.beginPath(); cx.arc(rp.x, rp.y, Math.max(1.5, rp.s * .35), 0, Math.PI * 2); cx.fill(); } });
+    // anneaux d'état aux pieds (stun/stagger)
+    if ((m.stunTicks || 0) > 0 || (m.staggeredTicks || 0) > 0){
+      const p = proj(m.pos.x, .05, m.pos.z);
+      if (p) faces.push({ d: p.d * .999, fn: () => { cx.strokeStyle = (m.stunTicks > 0 ? '#E3C23B' : '#A78FD9'); cx.setLineDash([4, 3]); cx.lineWidth = 1.5; cx.beginPath(); cx.ellipse(p.x, p.y, 2.1 * p.s, .8 * p.s, 0, 0, Math.PI * 2); cx.stroke(); cx.setLineDash([]); } });
+    }
+  });
+  // obstacles
+  sim.obstacles.forEach(o => {
+    const h = o.kind === 'platform' ? .8 : (o.pickable ? 1.1 : 2.6);
+    const top = o.pickable ? '#4A4234' : (o.kind === 'platform' ? '#2A3C42' : '#3A434D');
+    const side = o.pickable ? '#3A3428' : (o.kind === 'platform' ? '#223238' : '#2E353D');
+    boxA(o.x, o.z, o.w / 2, (o.d || o.w || 2) / 2, h, top, side, o.pickable ? '#E3A23B' : (o.kind === 'platform' ? '#7EB6C1' : '#3A434D'));
+  });
+  // fumigènes (billboards volumétriques)
+  sim.smokes.forEach(sk => {
+    const p = proj(sk.x, .9, sk.z); if (!p) return;
+    faces.push({ d: p.d, fn: () => { [[1, .12], [.66, .24], [.36, .38]].forEach(rr => { cx.fillStyle = 'rgba(148,158,168,' + rr[1] + ')'; cx.beginPath(); cx.ellipse(p.x, p.y - sk.r * rr[0] * p.s * .12, sk.r * rr[0] * p.s, sk.r * rr[0] * p.s * .42, 0, 0, Math.PI * 2); cx.fill(); }); } });
+  });
+  // projectiles en vol (hauteur ~2,1 m)
+  (sim.projectiles || []).forEach(pr => {
+    const p2 = proj(pr.x, 2.1, pr.z); if (!p2) return;
+    const p1 = proj(pr.x - pr.dx * 9, 2.1, pr.z - pr.dz * 9);
+    faces.push({ d: p2.d, fn: () => { if (p1){ cx.strokeStyle = 'rgba(227,162,59,.5)'; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(p1.x, p1.y); cx.lineTo(p2.x, p2.y); cx.stroke(); } cx.fillStyle = '#E3A23B'; cx.beginPath(); cx.arc(p2.x, p2.y, 2.6, 0, Math.PI * 2); cx.fill(); } });
+  });
+  // peinture : du plus lointain au plus proche
+  faces.sort((a, b) => b.d - a.d);
+  for (const f of faces){
+    if (f.fn){ f.fn(); continue; }
+    poly(f.pts);
+    if (f.fill){ cx.fillStyle = f.fill; cx.fill(); }
+    if (f.stroke){ cx.strokeStyle = f.stroke; cx.lineWidth = f.lw || 1; cx.stroke(); }
+  }
+  // plaques signalétiques (nom + HP + bouclier) par-dessus, triées par profondeur
+  const tags = [];
+  sim.mechs.forEach(m => {
+    if (m.hpNow <= 0) return;
+    const p = proj(m.pos.x, 4.3, m.pos.z); if (!p) return;
+    tags.push({ p, m, col: TEAMCOL[m.team] });
+  });
+  tags.sort((a, b) => b.p.d - a.p.d);
+  tags.forEach(t => {
+    const bw = 46;
+    cx.fillStyle = '#16191E'; cx.strokeStyle = '#343B43'; cx.lineWidth = 1;
+    cx.fillRect(t.p.x - bw / 2, t.p.y, bw, 6); cx.strokeRect(t.p.x - bw / 2, t.p.y, bw, 6);
+    cx.fillStyle = t.col; cx.fillRect(t.p.x - bw / 2 + 1, t.p.y + 1, (bw - 2) * Math.max(0, t.m.hpNow / t.m.hp), 4);
+    if (t.m.shieldMax > 0){ cx.fillStyle = '#7FA6C9'; cx.fillRect(t.p.x - bw / 2 + 1, t.p.y + 7, (bw - 2) * Math.max(0, (t.m.shieldNow || 0) / t.m.shieldMax), 2); }
+    cx.fillStyle = '#E7EBEF'; cx.font = 'bold 9px monospace'; cx.textAlign = 'center';
+    cx.fillText(t.m.name, t.p.x, t.p.y - 3);
+  });
+  // ===== bandeau broadcast =====
+  const secs = Math.round(sim.tick / (sim.tickRate || 15));
+  const mm = ('0' + Math.floor(secs / 60)).slice(-2), ss = ('0' + (secs % 60)).slice(-2);
+  cx.fillStyle = 'rgba(7,9,12,.78)'; cx.fillRect(W / 2 - 190, 8, 380, 42);
+  cx.strokeStyle = '#2E3946'; cx.lineWidth = 1; cx.strokeRect(W / 2 - 190, 8, 380, 42);
+  cx.textAlign = 'center'; cx.font = 'bold 18px monospace';
+  cx.fillStyle = '#D93432'; cx.fillText('' + matchCtx.winsYou, W / 2 - 118, 38);
+  cx.fillStyle = '#E7EBEF'; cx.fillText('—', W / 2, 38);
+  cx.fillStyle = '#AAB2BA'; cx.fillText('' + matchCtx.winsOpp, W / 2 + 118, 38);
+  cx.font = '8px monospace'; cx.fillStyle = '#6E7780';
+  cx.fillText(G.org.name, W / 2 - 118, 20); cx.fillText(oppTeam(matchCtx.oppId).nom, W / 2 + 118, 20);
+  cx.font = 'bold 12px monospace'; cx.fillStyle = '#E3A23B'; cx.fillText(mm + ':' + ss, W / 2, 24);
+  cx.font = '9px monospace'; cx.fillStyle = '#6E7780'; cx.textAlign = 'right';
+  cx.fillText('CAM BROADCAST — GREYBOX — ' + divisionLabel(G.org.division), W - 12, H - 12);
+  cx.textAlign = 'left';
+  cx.fillText('DUEL ' + (matchCtx.idx + 1) + '/' + matchCtx.duels.length + ' — [C] CAM — v0.9.0', 12, H - 12);
 }
 
 // ==== NAVIGATION + BOOT ====
