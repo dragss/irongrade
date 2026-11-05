@@ -6,7 +6,7 @@
 <script type="importmap">
 { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/" } }
 </script>
-<title>IRONGRADE — Prototype manager v0.14.0</title>
+<title>IRONGRADE — Prototype manager v0.14.1</title>
 <style>
   :root { font-family: 'Inter', system-ui, sans-serif; background: #0B0E12; color: #E7EBEF; }
   * { box-sizing: border-box; margin: 0; }
@@ -145,7 +145,7 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.14.0 — MECHCORE v1.5.0 — GREYBOX, VISUEL DE PROTOTYPE</div>
+  <div class="footer">IRONGRADE v0.14.1 — MECHCORE v1.5.1 — GREYBOX, VISUEL DE PROTOTYPE</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -288,10 +288,10 @@
 <div class="screen" id="screen-about">
   <div class="tophead"><span class="org">À PROPOS</span></div>
   <div class="panel">
-    <h3>IRONGRADE — prototype manager v0.14.0</h3>
-    <div class="hint">Vertical slice de gestion : la boucle complète (roster, garage, ligue, matchs observés, rapport, sauvegarde) sur MECHCORE v1.5.0 déterministe 15 Hz.</div>
+    <h3>IRONGRADE — prototype manager v0.14.1</h3>
+    <div class="hint">Vertical slice de gestion : la boucle complète (roster, garage, ligue, matchs observés, rapport, sauvegarde) sur MECHCORE v1.5.1 déterministe 15 Hz.</div>
     <table>
-      <tr><td><b>MOTEUR</b></td><td>MECHCORE v1.5.0 — spawns d'arène (D-027), précision &amp; stabilité (D-026), ciblage par profil (D-024), fumigène (D-025), affinités d'escouade (D-035), saut d'obstacles + zones d'eau + arènes de campagne (D-037), élévation réelle : escalade des plateformes + perchoirs (D-038), inertie du châssis : accélération/freinage/dérapage + tir en élan (D-039), corps &amp; envergure : rayon par châssis, séparation corps-corps, mêlée bord-à-bord, répulsion anticipée (D-040). Rétrocompatible bit-à-bit sans config bodies.</td></tr>      <tr><td><b>FORMAT</b></td><td>Un match = UNE bataille d'équipe 3v3 simultanée (6 mechs sur le terrain), résultat collectif décliné par slot. Les pilotes partagent des origines et blocs régionaux → liaisons de visée vivantes + PHALANX (v0.10.0).</td></tr>
+      <tr><td><b>MOTEUR</b></td><td>MECHCORE v1.5.1 — spawns d'arène (D-027), précision &amp; stabilité (D-026), ciblage par profil (D-024), fumigène (D-025), affinités d'escouade (D-035), saut d'obstacles + zones d'eau + arènes de campagne (D-037), élévation réelle : escalade des plateformes + perchoirs (D-038), inertie du châssis (D-039), corps &amp; envergure : rayon par châssis, séparation corps-corps, mêlée bord-à-bord, répulsion anticipée (D-040), fix : les gros châssis grimpent à nouveau, les épaves restent où elles tombent, budget de détour (D-041). Rétrocompatible bit-à-bit sans config bodies.</td></tr>      <tr><td><b>FORMAT</b></td><td>Un match = UNE bataille d'équipe 3v3 simultanée (6 mechs sur le terrain), résultat collectif décliné par slot. Les pilotes partagent des origines et blocs régionaux → liaisons de visée vivantes + PHALANX (v0.10.0).</td></tr>
       <tr><td><b>SAUVEGARDE</b></td><td>Locale (navigateur), une seule par appareil. « Nouvelle carrière » écrase la sauvegarde.</td></tr>
       <tr><td><b>ÉCONOMIE</b></td><td>Monnaie unique (crédits). Toutes les récompenses, prix et barèmes XP de ce prototype sont des hypothèses d'équilibrage data-driven, à valider par l'owner avant tout contenu réel.</td></tr>
       <tr><td><b>GOUVERNANCE</b></td><td>Aucune loot box, aucun achat, aucune probabilité de drop dans ce prototype — les taux restent une décision owner.</td></tr>
@@ -351,7 +351,7 @@ class CombatSim {
       hpNow: r.mechs[cfg.mechId].hp, shieldMax: r.mechs[cfg.mechId].shield, shieldNow: r.mechs[cfg.mechId].shield,
       heat: 0, cooldown: 0, cooldown2: 0, meleeState: null, pinned: false, stunTicks: 0, staggeredTicks: 0, staggerImmunityTicks: 0,
       damageDealt: 0, damageTaken: 0, shotsFired: 0, shotsHit: 0, crits: 0, dodges: 0, ticksMoved: 0, ticksStationary: 0,
-      improvShield: 0, improvLabel: null,
+      improvShield: 0, improvLabel: null, detourTicks: 0, // v0.14.1 (D-041) : budget de détour par épave
       smokeUsed: false, loggedDead: false,
       baseSpeedMps: r.mechs[cfg.mechId].speed_mps, droppedOnce: false, prevWeaponId: null,
       jumpT: 0, jumpCd: 0, // v1.2.0 (D-037) : saut — ticks restants en vol / recharge ; inactif sans combat.jump
@@ -418,8 +418,8 @@ class CombatSim {
     for (const o of this.obstacles){ if (!o.blocks_los) continue;
       const x1 = o.x - o.w / 2, x2 = o.x + o.w / 2, z1 = o.z - o.h / 2, z2 = o.z + o.h / 2;
       if (segRect(a, b, x1, z1, x2, z2)) return false; } return true; }
-  blockedAt(x, z, r){ const rr = (r != null) ? r : 1.0; for (const o of this.obstacles){ // v1.5.0 (D-040) : marge = envergure du châssis (défaut 1.0 = comportement v1.4.0)
-      if (Math.abs(x - o.x) < o.w / 2 + rr && Math.abs(z - o.z) < o.h / 2 + rr) return true; } return false; }
+  blockedAt(x, z, r){ const rr = (r != null) ? r : 1.0; for (const o of this.obstacles){ const ro = ((o.climb && o.zh > 0) ? Math.min(rr, 1.0) : rr); // v1.5.0 (D-040) : marge = envergure ; v0.14.1 (D-041) : une plateforme escaladable se laisse approcher au bord (marge 1.0), sinon un gros châssis ne peut plus grimper
+      if (Math.abs(x - o.x) < o.w / 2 + ro && Math.abs(z - o.z) < o.h / 2 + ro) return true; } return false; }
   bodyBlocked(m, x, z){ // v1.5.0 (D-040) : un châssis n'entre pas dans un autre châssis (contact bord-à-bord autorisé) — inactive sans combat.bodies
     if (!this.bodiesCfg()) return false;
     for (const o of this.mechs){
@@ -432,11 +432,12 @@ class CombatSim {
   platformAt(x, z){ for (const o of this.platforms){ if (Math.abs(x - o.x) < o.w / 2 && Math.abs(z - o.z) < o.h / 2) return o; } return null; } // v1.3.0 (D-038)
   edgeDist(o, x, z){ const dx = Math.max(Math.abs(x - o.x) - o.w / 2, 0), dz = Math.max(Math.abs(z - o.z) - o.h / 2, 0); return Math.hypot(dx, dz); } // v1.3.0 (D-038) : distance au bord de l'empreinte
   pushOutOfFootprint(m){ const pm = this.bodiesCfg() ? (m.r || 1.2) : undefined; const mr = (pm != null) ? pm : 1.0; // v1.5.0 (D-040) : sortie à l'envergure du châssis (défaut 1.0 = comportement v1.3.0)
+    const mg = o => ((o.climb && o.zh > 0) ? Math.min(mr, 1.0) : mr); // v0.14.1 (D-041) : une plateforme se laisse approcher au bord
     for (let k = 0; k < 8 && this.blockedAt(m.pos.x, m.pos.z, pm); k++){ // v1.3.0 (D-038) : sortie déterministe de l'empreinte (après une descente)
-      const o = this.obstacles.find(o => Math.abs(m.pos.x - o.x) < o.w / 2 + mr && Math.abs(m.pos.z - o.z) < o.h / 2 + mr);
+      const o = this.obstacles.find(o => Math.abs(m.pos.x - o.x) < o.w / 2 + mg(o) && Math.abs(m.pos.z - o.z) < o.h / 2 + mg(o));
       if (!o) break;
       const dx = m.pos.x - o.x, dz = m.pos.z - o.z;
-      if (dx / (o.w / 2) > dz / (o.h / 2)) m.pos.x = o.x + Math.sign(dx || 1) * (o.w / 2 + mr + 0.2); else m.pos.z = o.z + Math.sign(dz || 1) * (o.h / 2 + mr + 0.2); }
+      if (dx / (o.w / 2) > dz / (o.h / 2)) m.pos.x = o.x + Math.sign(dx || 1) * (o.w / 2 + mg(o) + 0.2); else m.pos.z = o.z + Math.sign(dz || 1) * (o.h / 2 + mg(o) + 0.2); }
     const W = this.arena.width / 2, D = this.arena.depth / 2;
     m.pos.x = Math.max(-W + 1, Math.min(W - 1, m.pos.x)); m.pos.z = Math.max(-D + 1, Math.min(D - 1, m.pos.z)); }
   motionCfg(){ return (this.ruleset.combat.motion && this.ruleset.combat.motion.enabled) ? this.ruleset.combat.motion : null; } // v1.4.0 (D-039)
@@ -524,13 +525,14 @@ class CombatSim {
       this.log('smoke_deployed', i, { x: +m.pos.x.toFixed(2), z: +m.pos.z.toFixed(2), r: sm.radius, ticks: sm.duration_ticks, threshold: th }); } }
 
   stepMech(i){ const m = this.mechs[i];
+    if (this.bodiesCfg() && m.hpNow <= 0) return; // v0.14.1 (D-041) : un châssis détruit reste où il est tombé — plus d'épave qui continue à marcher/tirer
     m.prevPos = { ...m.pos };
     if (m.jumpCd > 0) m.jumpCd--; // v1.2.0 (D-037) : recharge du saut (no-op sans config)
     if (m.jumpT > 0){ m.jumpT--; if (m.jumpT === 0){ this.log('jump_landed', i, {});
-      if (this.bodiesCfg()) this.pushOutOfFootprint(m); // v1.5.0 (D-040) : l'atterrissage ne laisse pas le châssis dans la marge d'un obstacle
       const pf = this.platformAt(m.pos.x, m.pos.z); // v1.3.0 (D-038) : atterrissage sur une plateforme = on se perche d'un bond
       if (pf){ m.z = pf.zh; m.zTgt = pf.zh; m.zRender = pf.zh; m.pos.zEl = pf.zh; m.climbPlat = pf;
-        this.log('perch_landed', i, { platform: pf.id, z: pf.zh }); } } }
+        this.log('perch_landed', i, { platform: pf.id, z: pf.zh }); }
+      else if (this.bodiesCfg()) this.pushOutOfFootprint(m); } } // v0.14.1 (D-041) : éjection de la marge d'obstacle seulement si pas perché — le perchage-saut est prioritaire
     if (m.climbCd > 0) m.climbCd--; // v1.3.0 (D-038)
     if (m.climbT > 0){ m.climbT--; m.zRender = m.zTgt * (1 - m.climbT / m.climbTotal); // v1.3.0 : progression d'escalade (déterministe, zéro RNG)
       if (m.climbT === 0){ const plat = m.climbPlat;
@@ -629,11 +631,13 @@ class CombatSim {
     // objectif intermédiaire (D-020) : un mêlée qui affronte un tireur fait un détour par une épave ramassable
     let tgtX = foe.pos.x, tgtZ = foe.pos.z;
     if (!m.improvShield && (isMelee || wantSecMelee) && foe.weapon.type === 'ranged' && dist > m.meleeReach + 3){
-      let bd = 14 * 14, bw = null; // rayon de détour = hypothèse D-020
-      for (const o of this.obstacles){ if (!o.pickable) continue;
-        const dd = (o.x - m.pos.x) ** 2 + (o.z - m.pos.z) ** 2;
-        if (dd < bd){ bd = dd; bw = o; } }
-      if (bw){ tgtX = bw.x; tgtZ = bw.z; } }
+      const dtMax = this.bodiesCfg() ? 90 : Infinity; // v0.14.1 (D-041) : budget de détour — on ne s'acharne pas sur une épave inaccessible (6 s max, déterministe)
+      if (m.detourTicks < dtMax){
+        let bd = 14 * 14, bw = null; // rayon de détour = hypothèse D-020
+        for (const o of this.obstacles){ if (!o.pickable) continue;
+          const dd = (o.x - m.pos.x) ** 2 + (o.z - m.pos.z) ** 2;
+          if (dd < bd){ bd = dd; bw = o; } }
+        if (bw){ tgtX = bw.x; tgtZ = bw.z; m.detourTicks++; } else m.detourTicks = 0; } }
     // v1.3.0 (D-038) : prise de hauteur — un tireur en rechargement à portée de marche d'une plateforme escaladable va la tenir
     const cf = (this.ruleset.combat.climb && this.ruleset.combat.climb.enabled && this.platforms.length) ? this.ruleset.combat.climb : null;
     m.wantClimb = null;
@@ -3991,7 +3995,7 @@ function renderBattleBroadcast(){
   cx.font = '9px monospace'; cx.fillStyle = '#6E7780'; cx.textAlign = 'right';
   cx.fillText('CAM BROADCAST — GREYBOX — ' + divisionLabel(G.org.division), W - 12, H - 12);
   cx.textAlign = 'left';
-  cx.fillText('BATAILLE D' + String.fromCharCode(39) + 'ESCOUADE 3v3 — [C] CAM — v0.14.0', 12, H - 12);
+  cx.fillText('BATAILLE D' + String.fromCharCode(39) + 'ESCOUADE 3v3 — [C] CAM — v0.14.1', 12, H - 12);
 }
 
 // ==== NAVIGATION + BOOT ====
