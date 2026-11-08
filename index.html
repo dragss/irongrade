@@ -7,7 +7,7 @@
 <script type="importmap">
 { "imports": { "three": "./vendor/three/build/three.module.js", "three/addons/": "./vendor/three/examples/jsm/" } }
 </script>
-<title>IRONGRADE — Prototype manager v0.14.1</title>
+<title>IRONGRADE — Prototype manager v0.15.0</title>
 <style>
   @font-face { font-family: Inter; font-style: normal; font-weight: 100 900; font-display: swap; src: url("vendor/fonts/inter-latin.woff2") format("woff2"); }
   :root {
@@ -2373,6 +2373,12 @@ $('bt-cam').onclick = () => setBattleCam(battleCam === 'broadcast' ? 'tactical' 
 if (typeof document.addEventListener === 'function') document.addEventListener('keydown', e => {
   if ((e.key === 'c' || e.key === 'C') && state === 'battle') setBattleCam(battleCam === 'broadcast' ? 'tactical' : 'broadcast');
 });
+function fitCanvas(){
+  const r = cv.getBoundingClientRect();
+  const w = Math.max(320, Math.floor(r.width));
+  const h = Math.max(240, Math.floor(r.height));
+  if (cv.width !== w || cv.height !== h){ cv.width = w; cv.height = h; }
+}
 function renderBattle(){
   pumpBattleFx();
   fitCanvas();
