@@ -7,7 +7,7 @@
 <script type="importmap">
 { "imports": { "three": "./vendor/three/build/three.module.js", "three/addons/": "./vendor/three/examples/jsm/" } }
 </script>
-<title>IRONGRADE — Prototype manager v0.16.0</title>
+<title>IRONGRADE — Prototype manager v0.16.1</title>
 <style>
   @font-face { font-family: Inter; font-style: normal; font-weight: 100 900; font-display: swap; src: url("vendor/fonts/inter-latin.woff2") format("woff2"); }
   :root {
@@ -236,7 +236,11 @@
   .msscore { text-align: center; color: #8B97A6; font-size: 12px; letter-spacing: .08em; padding: 4px 0; background: #0C1016; }
   .msscore b { color: var(--ink); }
   .endbanner { text-align: center; font-size: 22px; font-weight: 800; letter-spacing: .12em; padding: 8px; }
-  #gcanvas { flex: 1 1 0; height: 0; min-height: 0; width: 100%; display: block; background: #10151C; border: 0; }
+  #battle-view { position: relative; flex: 1 1 0; height: 0; min-height: 0; width: 100%; }
+  #gcanvas, #b3d { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: #10151C; border: 0; }
+  #b3d { display: none; }
+  #screen-battle.cam-live #b3d { display: block; }
+  #screen-battle.cam-live #gcanvas { visibility: hidden; }
 
   #screen-boot.active { position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; height: 100vh; overflow: hidden; padding: 48px; gap: 18px; }
   #boot-stage { position: absolute; inset: 0; z-index: 0; }
@@ -246,6 +250,7 @@
   .menu-col button, .menu-col input { width: 100%; text-align: left; }
   #gar-3d-bg { position: fixed; inset: 0 0 0 208px; z-index: 0; display: none; }
   #screen-garage .tophead, #screen-garage .subnav, #screen-garage .stage { position: relative; z-index: 1; }
+  #screen-garage.gar3d .stage { max-height: calc(100vh - 500px); }
 
   /* Pico met le fond primaire sur [type=button]. On reprend la main. */
   .pico :is(button, [type=button], [type=submit], [role=button]) {
@@ -292,7 +297,7 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.16.0 — MECHCORE v1.5.1 — FLOTTE CC0 QUATERNIUS, REMPLAÇABLE</div>
+  <div class="footer">IRONGRADE v0.16.1 — MECHCORE v1.5.1 — FLOTTE CC0 QUATERNIUS, REMPLAÇABLE</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -423,7 +428,10 @@
       </div>
     </div>
     <div class="msscore" id="ms-score"></div>
-    <canvas id="gcanvas" width="900" height="480"></canvas>
+    <div id="battle-view">
+      <canvas id="gcanvas" width="900" height="480"></canvas>
+      <canvas id="b3d"></canvas>
+    </div>
     <div class="endbanner" id="bt-banner" style="display:none"></div>
     <div style="text-align:center; margin: 8px 0 4px;">
       <button class="primary" id="btn-next" style="display:none">DUEL SUIVANT ▸</button>
@@ -1147,7 +1155,7 @@ function setHangarView(mode){
 }
 $('at-cam3d').onclick = () => setHangarView(at3d.mode === '3d' ? 'svg' : '3d');
 function initAt3D(){
-  if (at3d.ok){ atelierRecompute(); startAt3DLoop(); return; }
+  if (at3d.ok){ loadLeagueLib(() => { if (at3d.mode === '3d'){ at3d.key = ''; atelierRecompute(); } }); atelierRecompute(); startAt3DLoop(); return; }
   if (at3d.loading) return;
   at3d.loading = true;
   $('at-3d-msg').style.display = 'block';
@@ -1159,6 +1167,7 @@ function initAt3D(){
     $('at-3d-msg').style.display = 'none';
     buildAt3DScene();
     startAt3DLoop();
+    loadLeagueLib(() => { if (at3d.ok && at3d.mode === '3d'){ at3d.key = ''; atelierRecompute(); } });
     atelierRecompute();
   });
 }
@@ -1315,9 +1324,13 @@ function buildMech3D(lo, chId, hot){
   at3d.hot = hot || null;
   if (hotOnly){ updateAt3DHot(); return; }
   at3d.key = key;
-  if (at3d.group){ at3d.scene.remove(at3d.group); at3d.group.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); }
-  const built = mech3DGroup(atelierMech, lo, chId);
-  at3d.group = built.grp; at3d.parts = built.parts;
+  if (at3d.group){
+    at3d.scene.remove(at3d.group);
+    if (!at3d.group.userData.shared) at3d.group.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
+  }
+  const league = presentLeague(chId, 0);
+  const built = league ? { grp: league, parts: {} } : mech3DGroup(atelierMech, lo, chId);
+  at3d.group = built.grp; at3d.parts = built.parts; at3d.mixer = league ? league.userData.mixer : null;
   at3d.scene.add(built.grp);
   updateAt3DHot();
 }
@@ -1352,6 +1365,7 @@ function startAt3DLoop(){
     at3d.camera.position.set(at3d.r * Math.sin(at3d.phi) * Math.sin(at3d.theta), at3d.r * Math.cos(at3d.phi) + 1.2, at3d.r * Math.sin(at3d.phi) * Math.cos(at3d.theta));
     at3d.camera.lookAt(0, at3d.ly, 0);
     if (at3d.group) at3d.group.position.y = Math.sin(t / 700) * .04; // idle
+    if (at3d.mixer) at3d.mixer.update(dt / 1000);
     if (at3d.fx && atelierMech) at3d.fx.update(dt, t, [{ x: 0, y: 0, z: 0, damaged: atelierMech.condition < 100 }]);
     at3d.renderer.render(at3d.scene, at3d.camera);
     at3d.raf = requestAnimationFrame(tick3d);
@@ -1482,12 +1496,44 @@ function spawnLeague(chId){
   const root = window.THREE.SkeletonUtils.clone(src.scene);
   root.traverse(o => { if (o.material && o.material.isMaterial) o.material = o.material.clone(); });
   const mixer = new window.THREE.AnimationMixer(root);
-  const clips = src.animations;
-  const idle = clips.find(c => /idle|stand/i.test(c.name)) || clips.find(c => /walk/i.test(c.name)) || clips[0];
-  if (idle) mixer.clipAction(idle).play();
+  const actions = {};
+  src.animations.forEach(c => { actions[c.name] = mixer.clipAction(c); });
+  const idle = actions.Idle || actions.Walk || actions[src.animations[0] && src.animations[0].name];
+  if (idle) idle.play();
   root.userData.mixer = mixer;
+  root.userData.actions = actions;
+  root.userData.clip = idle ? (actions.Idle ? 'Idle' : 'Walk') : '';
   root.userData.shared = true;
   return root;
+}
+function setClip(root, name){
+  const actions = root && root.userData.actions;
+  if (!actions) return;
+  const nextName = [name].concat(name === 'Run' ? ['Run_Tall', 'Run_Holding', 'Walk_Tall', 'Walk'] : name === 'Walk' ? ['Walk_Tall', 'Walk_Holding', 'Run'] : []).find(n => actions[n]);
+  if (!nextName || root.userData.clip === nextName) return;
+  const next = actions[nextName];
+  const prev = actions[root.userData.clip];
+  if (nextName === 'Death'){ next.setLoop(window.THREE.LoopOnce, 1); next.clampWhenFinished = true; }
+  next.reset().fadeIn(0.18).play();
+  if (prev && prev !== next) prev.fadeOut(0.18);
+  root.userData.clip = nextName;
+}
+function presentLeague(chId, team){
+  const body = spawnLeague(chId);
+  if (!body) return null;
+  const grp = new window.THREE.Group();
+  grp.add(body);
+  grp.userData.mixer = body.userData.mixer;
+  grp.userData.actions = body.userData.actions;
+  grp.userData.clip = body.userData.clip;
+  grp.userData.shared = true;
+  const ring = new window.THREE.Mesh(
+    new window.THREE.TorusGeometry(1.15, 0.035, 8, 32),
+    new window.THREE.MeshStandardMaterial({ color: team === 1 ? 0x7FA6C9 : 0xD93432, emissive: team === 1 ? 0x7FA6C9 : 0xD93432, emissiveIntensity: 0.55 })
+  );
+  ring.rotation.x = Math.PI / 2; ring.position.y = 0.03;
+  grp.add(ring);
+  return grp;
 }
 let boot3d = { on: false, raf: 0, renderer: null, scene: null, camera: null, mixers: [] };
 function boot3dEnter(){
@@ -1550,7 +1596,7 @@ function boot3dLoop(){
 }
 
 // ==== v0.9.2 : HANGAR 3D DU GARAGE — la flotte en fond du menu ====
-let gar3d = { ok: false, loading: false, active: false, renderer: null, scene: null, camera: null, groups: {}, fx: null, raf: 0, key: '', anchors: [] };
+let gar3d = { ok: false, loading: false, active: true, renderer: null, scene: null, camera: null, groups: {}, fx: null, raf: 0, key: '', anchors: [] };
 // ==== v0.10.1 — VITRINE TRIPO : GLB du dépôt montés automatiquement (D-036) ====
 // Convention (spec owner) : 1 GLB par châssis models/mch_<id>.glb, 1 par arme models/wep_<id>.glb,
 // Y-up, origine au sol entre les pieds, canon d'arme vers +Z. Normalisation auto (hauteur châssis 4.8, arme 2.4 en Z),
@@ -1630,8 +1676,8 @@ function gar3dStart(){
     gar3d.raf = 0;
     if (state !== 'garage' || !gar3d.active) return;
     const dt = last ? Math.min(50, t - last) : 16; last = t;
-    gar3d.camera.position.set(Math.sin(t / 11000) * 1.4, 1.55, 12.5);
-    gar3d.camera.lookAt(0, 3.6, 0);
+    gar3d.camera.position.set(Math.sin(t / 11000) * 0.6, 1.05, 17.5);
+    gar3d.camera.lookAt(0, 10.2, 0);
     Object.keys(gar3d.groups).forEach(id => { const g = gar3d.groups[id]; if (!g.grp) return;
       g.grp.position.y = Math.sin(t / 700 + g.ph) * .04;
       if (g.mixer) g.mixer.update(dt / 1000); });
@@ -1672,11 +1718,14 @@ function buildGar3DFleet(){
     if (g.shared) return;
     g.grp.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material){ const mats = [].concat(o.material); mats.forEach(mm => mm.dispose && mm.dispose()); } }); });
   gar3d.groups = {}; gar3d.anchors = [];
-  const n = G.mechs.length, sp = 4.4;
+  const n = G.mechs.length, sp = 4.2;
   G.mechs.forEach((m, i) => {
     const lo = m.loadout || (PRESETS[m.preset] ? PRESETS[m.preset].loadout : {});
     const chId = m.chassis || (PRESETS[m.preset] ? PRESETS[m.preset].mechId : 'hound_prime');
-    const built = mech3DGroup(m, lo, chId);
+    const league = presentLeague(chId, 0);
+    const glb = league ? null : tripoMech(m, lo, chId);
+    const built = league ? { grp: league, parts: {}, shared: true, mixer: league.userData.mixer }
+      : (glb ? { grp: glb, parts: {}, shared: true, mixer: glb.userData.mixer || null } : mech3DGroup(m, lo, chId));
     const x = (i - (n - 1) / 2) * sp;
     built.grp.position.x = x;
     built.grp.rotation.y = (i - (n - 1) / 2) * -.06;
@@ -2373,11 +2422,138 @@ function fitCanvas(){
   const h = Math.max(240, Math.floor(r.height));
   if (cv.width !== w || cv.height !== h){ cv.width = w; cv.height = h; }
 }
+let b3 = { ok: false, renderer: null, scene: null, camera: null, actors: [], shots: [], world: [], worldKey: '', last: 0 };
+function battleChassisOf(i){
+  const slots = matchCtx && matchCtx.duels;
+  if (!slots || !slots.length) return 'hound_prime';
+  const d = i < slots.length ? slots[i] : slots[i - slots.length];
+  const mech = d && (i < slots.length ? d.mech : d.oppMech);
+  return (mech && chassisIdOf(mech)) || 'hound_prime';
+}
+function renderBattle3D(dt){
+  const THREE = window.THREE;
+  const view = $('battle-view');
+  const w = Math.max(320, Math.floor(view.clientWidth || cv.width || 900));
+  const h = Math.max(240, Math.floor(view.clientHeight || cv.height || 480));
+  b3.v2 = b3.v2 || new THREE.Vector2();
+  b3.renderer.getSize(b3.v2);
+  if (b3.v2.width !== w){
+    b3.renderer.setSize(w, h, false);
+    b3.camera.aspect = w / h;
+    b3.camera.updateProjectionMatrix();
+  }
+  const rubbleN = (sim.obstacles || []).reduce((n, o) => n + (o.rubble ? 1 : 0), 0);
+  const wkey = sim.arena.width + 'x' + sim.arena.depth + ':' + (sim.obstacles || []).length + ':' + rubbleN;
+  if (b3.worldKey !== wkey){
+    b3.world.forEach(o => {
+      b3.scene.remove(o);
+      if (o.geometry) o.geometry.dispose();
+      [].concat(o.material || []).forEach(mm => mm && mm.dispose && mm.dispose());
+    });
+    b3.world = [];
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(sim.arena.width + 10, sim.arena.depth + 10), new THREE.MeshStandardMaterial({ color: 0x1A212B, roughness: 0.92, metalness: 0.04 }));
+    floor.rotation.x = -Math.PI / 2; b3.scene.add(floor); b3.world.push(floor);
+    const grid = new THREE.GridHelper(Math.max(sim.arena.width, sim.arena.depth), 24, 0x2E3946, 0x1C232C);
+    b3.scene.add(grid); b3.world.push(grid);
+    (sim.obstacles || []).forEach(o => {
+      const hh = o.rubble ? 0.65 : (o.zh || (o.kind === 'building' ? 6.5 : (o.kind === 'tree' ? 3.2 : (o.kind === 'rock' ? 2 : 1.4))));
+      const geo = o.kind === 'tree' && !o.rubble
+        ? new THREE.ConeGeometry(Math.max(0.5, o.w * 0.42), hh, 7)
+        : new THREE.BoxGeometry(Math.max(0.4, o.w), hh, Math.max(0.4, o.d || o.h || o.w));
+      const col = o.rubble ? 0x4A3E34 : (o.kind === 'building' ? 0x323A47 : (o.kind === 'tree' ? 0x31493A : 0x3E4442));
+      const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: col, roughness: 0.88, metalness: 0.06 }));
+      mesh.position.set(o.x, hh / 2, o.z);
+      b3.scene.add(mesh); b3.world.push(mesh);
+    });
+    b3.worldKey = wkey;
+  }
+  const akey = sim.mechs.map((m, i) => battleChassisOf(i) + ':' + m.name).join('|');
+  if (b3.akey !== akey){
+    b3.actors.forEach(a => b3.scene.remove(a.root));
+    b3.actors = sim.mechs.map((m, i) => {
+      const root = presentLeague(battleChassisOf(i), m.team) || new THREE.Group();
+      b3.scene.add(root);
+      return { root, px: m.pos.x, pz: m.pos.z, spd: 0, hold: 0 };
+    });
+    b3.akey = akey;
+  }
+  let cx0 = 0, cz0 = 0, live = 0;
+  sim.mechs.forEach((m, i) => {
+    const a = b3.actors[i]; if (!a) return;
+    const y = jArc(m) + ((m.zRender || m.z) || 0);
+    a.root.position.set(m.pos.x, y, m.pos.z);
+    a.root.rotation.y = Math.PI / 2 - (m.heading || 0);
+    const step = Math.hypot(m.pos.x - a.px, m.pos.z - a.pz);
+    if (step > 0.02){ a.spd = step / Math.max(0.016, dt); a.hold = 0.25; }
+    else a.hold = Math.max(0, (a.hold || 0) - dt);
+    a.px = m.pos.x; a.pz = m.pos.z;
+    const spd = a.hold > 0 ? a.spd : 0;
+    if (m.hpNow <= 0) setClip(a.root, 'Death');
+    else if (spd > 3.2) setClip(a.root, 'Run');
+    else if (spd > 0.25) setClip(a.root, 'Walk');
+    else setClip(a.root, 'Idle');
+    if (a.root.userData.mixer) a.root.userData.mixer.update(dt);
+    if (m.hpNow > 0){ cx0 += m.pos.x; cz0 += m.pos.z; live++; }
+  });
+  if (live){ cx0 /= live; cz0 /= live; }
+  let minX = 1e9, maxX = -1e9, minZ = 1e9, maxZ = -1e9;
+  sim.mechs.forEach(m => {
+    if (m.hpNow <= 0) return;
+    minX = Math.min(minX, m.pos.x); maxX = Math.max(maxX, m.pos.x);
+    minZ = Math.min(minZ, m.pos.z); maxZ = Math.max(maxZ, m.pos.z);
+  });
+  const span = live ? Math.max(14, maxX - minX, maxZ - minZ) : 24;
+  const dist = span * 0.72 + 11;
+  const shake = (bShake || 0) * 0.015;
+  b3.camera.position.set(cx0 + dist * 0.42 + shake, dist * 0.62, cz0 + dist * 0.9);
+  b3.camera.lookAt(cx0, 1.6, cz0);
+  const prs = sim.projectiles || [];
+  while (b3.shots.length < prs.length){
+    const s = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 8), new THREE.MeshStandardMaterial({ color: 0xE3A23B, emissive: 0xE3A23B, emissiveIntensity: 0.9 }));
+    b3.scene.add(s); b3.shots.push(s);
+  }
+  b3.shots.forEach((s, i) => {
+    const pr = prs[i];
+    s.visible = !!pr;
+    if (!pr) return;
+    s.position.set(pr.x, pr.y != null ? pr.y : 2.1, pr.z);
+    const hex = pr.delivery === 'emp' ? 0x7EB6C1 : 0xE3A23B;
+    s.material.color.setHex(hex); s.material.emissive.setHex(hex);
+  });
+  b3.renderer.render(b3.scene, b3.camera);
+}
 function renderBattle(){
   pumpBattleFx();
   fitCanvas();
-  if (battleCam === 'tactical') return renderBattleTactical();
-  renderBattleBroadcast();
+  if (battleCam === 'tactical'){ $('screen-battle').classList.remove('cam-live'); return renderBattleTactical(); }
+  const now = performance.now();
+  const dt = b3.last ? Math.min(0.05, (now - b3.last) / 1000) : 0.016;
+  b3.last = now;
+  if (!b3.ok || !leagueLib.ready){
+    if (!b3.booting){
+      b3.booting = true;
+      loadLeagueLib(ok => {
+        b3.booting = false;
+        if (!ok || b3.ok) return;
+        const THREE = window.THREE;
+        b3.renderer = new THREE.WebGLRenderer({ canvas: $('b3d'), antialias: true });
+        b3.renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
+        b3.renderer.outputColorSpace = THREE.SRGBColorSpace;
+        b3.scene = new THREE.Scene();
+        b3.scene.background = new THREE.Color(0x10151C);
+        b3.scene.fog = new THREE.Fog(0x10151C, 48, 140);
+        b3.camera = new THREE.PerspectiveCamera(38, 1, 0.2, 260);
+        b3.scene.add(new THREE.HemisphereLight(0x9BB0C4, 0x16120e, 0.9));
+        const sun = new THREE.DirectionalLight(0xFFF2E4, 1.45); sun.position.set(18, 30, 14); b3.scene.add(sun);
+        const rim = new THREE.DirectionalLight(0xD93432, 0.4); rim.position.set(-18, 8, -12); b3.scene.add(rim);
+        b3.ok = true;
+      });
+    }
+    $('screen-battle').classList.remove('cam-live');
+    return renderBattleBroadcast();
+  }
+  $('screen-battle').classList.add('cam-live');
+  renderBattle3D(dt);
 }
 function bcShade(col, k){
   const n = parseInt(col.slice(1), 16);
