@@ -2170,12 +2170,6 @@ $('btn-pause').onclick = e => { playing = !playing; e.target.textContent = playi
 [1, 2, 4].forEach(v => { const b = document.querySelector('[data-spd="' + v + '"]'); if (b) b.onclick = () => { speed = v; [1, 2, 4].forEach(x => { const e2 = document.querySelector('[data-spd="' + x + '"]'); if (e2) e2.classList.toggle('active-tog', x === v); }); }; });
 $('btn-abandon').onclick = () => duelFinished(true);
 $('btn-next').onclick = () => nextDuel();
-function fitCanvas(){
-  const r = cv.getBoundingClientRect();
-  const w = Math.max(320, Math.floor(r.width));
-  const h = Math.max(240, Math.floor(r.height));
-  if (cv.width !== w || cv.height !== h){ cv.width = w; cv.height = h; }
-}
 function loop(now){
   if (state !== 'battle') return;
   const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now;
