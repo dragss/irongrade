@@ -7,7 +7,7 @@
 <script type="importmap">
 { "imports": { "three": "./vendor/three/build/three.module.js", "three/addons/": "./vendor/three/examples/jsm/" } }
 </script>
-<title>IRONGRADE — Prototype manager v0.16.1</title>
+<title>IRONGRADE — Prototype manager v0.16.2</title>
 <style>
   @font-face { font-family: Inter; font-style: normal; font-weight: 100 900; font-display: swap; src: url("vendor/fonts/inter-latin.woff2") format("woff2"); }
   :root {
@@ -297,7 +297,7 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.16.1 — MECHCORE v1.5.1 — FLOTTE CC0 QUATERNIUS, REMPLAÇABLE</div>
+  <div class="footer">IRONGRADE v0.16.2 — MECHCORE v1.5.1 — FLOTTE CC0 QUATERNIUS, REMPLAÇABLE</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -2430,6 +2430,83 @@ function battleChassisOf(i){
   const mech = d && (i < slots.length ? d.mech : d.oppMech);
   return (mech && chassisIdOf(mech)) || 'hound_prime';
 }
+function b3RestH(o){
+  if (o.zh && o.zh > 1.2 && !o.rubble) return o.zh;
+  if (o.kind === 'building') return 8.5;
+  if (o.kind === 'tree') return 3.4;
+  if (o.kind === 'pillar') return 6;
+  if (o.kind === 'rock') return 2.6;
+  return 1.4;
+}
+function b3BaseCol(o){
+  if (o.kind === 'building') return 0x323A47;
+  if (o.kind === 'tree') return 0x31493A;
+  if (o.kind === 'rock') return 0x3E4442;
+  return 0x3A434D;
+}
+function b3AddFx(mesh, life, kind){
+  b3.fx = b3.fx || [];
+  b3.scene.add(mesh);
+  b3.fx.push({ mesh, life, max: life, kind });
+}
+function b3GroundDisc(x, z, radius, color, opacity, life, y){
+  const THREE = window.THREE;
+  const mesh = new THREE.Mesh(
+    new THREE.CircleGeometry(Math.max(0.4, radius), 28),
+    new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, side: THREE.DoubleSide })
+  );
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.set(x, y || 0.07, z);
+  b3AddFx(mesh, life, 'fade');
+  return mesh;
+}
+function b3GroundRing(x, z, radius, color, life){
+  const THREE = window.THREE;
+  const mesh = new THREE.Mesh(
+    new THREE.RingGeometry(Math.max(0.3, radius * 0.72), radius, 32),
+    new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.95, depthWrite: false, side: THREE.DoubleSide })
+  );
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.set(x, 0.12, z);
+  mesh.userData.r0 = radius;
+  b3AddFx(mesh, life, 'ring');
+}
+function b3Chunks(x, z, n){
+  const THREE = window.THREE;
+  for (let i = 0; i < n; i++){
+    const s = 0.28 + (i % 3) * 0.16;
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(s, s * 0.55, s * 0.8),
+      new THREE.MeshStandardMaterial({ color: 0x6B5344, roughness: 0.92 })
+    );
+    mesh.position.set(x + (i - (n - 1) / 2) * 0.55, 1.6 + (i % 3) * 0.45, z + ((i % 2) ? 0.45 : -0.4));
+    mesh.userData.vx = (i - (n - 1) / 2) * 2.2;
+    mesh.userData.vz = (i % 2 ? 1.4 : -1.6);
+    mesh.userData.vy = 4.2 + (i % 3);
+    b3AddFx(mesh, 8, 'chunk');
+  }
+}
+function b3ReadEvents(){
+  const evts = sim.events || [];
+  if ((b3.seen || 0) > evts.length) b3.seen = 0;
+  for (let i = b3.seen || 0; i < evts.length; i++){
+    const e = evts[i];
+    if (e.type === 'ordnance_burst'){
+      const R = e.r || 4;
+      const emp = e.delivery === 'emp';
+      b3GroundDisc(e.x, e.z, R, emp ? 0x1A3040 : 0x140E0C, 0.78, 14, 0.06);
+      b3GroundRing(e.x, e.z, R, emp ? 0x7EB6C1 : 0xE3A23B, 0.7);
+      b3Chunks(e.x, e.z, 4);
+    } else if (e.type === 'structure_break'){
+      b3GroundDisc(e.x, e.z, 3.2, 0x2A2118, 0.7, 16, 0.05);
+      b3GroundRing(e.x, e.z, 3.6, 0xE23B38, 0.55);
+      b3Chunks(e.x, e.z, 7);
+    } else if (e.type === 'structure_hit' || e.type === 'structure_slam'){
+      b3GroundRing(e.x != null ? e.x : (sim.mechs[e.mech] ? sim.mechs[e.mech].pos.x : 0), e.z != null ? e.z : (sim.mechs[e.mech] ? sim.mechs[e.mech].pos.z : 0), 1.5, 0xE7C27A, 0.35);
+    }
+  }
+  b3.seen = evts.length;
+}
 function renderBattle3D(dt){
   const THREE = window.THREE;
   const view = $('battle-view');
@@ -2442,8 +2519,7 @@ function renderBattle3D(dt){
     b3.camera.aspect = w / h;
     b3.camera.updateProjectionMatrix();
   }
-  const rubbleN = (sim.obstacles || []).reduce((n, o) => n + (o.rubble ? 1 : 0), 0);
-  const wkey = sim.arena.width + 'x' + sim.arena.depth + ':' + (sim.obstacles || []).length + ':' + rubbleN;
+  const wkey = sim.arena.width + 'x' + sim.arena.depth + ':' + (sim.obstacles || []).length;
   if (b3.worldKey !== wkey){
     b3.world.forEach(o => {
       b3.scene.remove(o);
@@ -2456,17 +2532,31 @@ function renderBattle3D(dt){
     const grid = new THREE.GridHelper(Math.max(sim.arena.width, sim.arena.depth), 24, 0x2E3946, 0x1C232C);
     b3.scene.add(grid); b3.world.push(grid);
     (sim.obstacles || []).forEach(o => {
-      const hh = o.rubble ? 0.65 : (o.zh || (o.kind === 'building' ? 6.5 : (o.kind === 'tree' ? 3.2 : (o.kind === 'rock' ? 2 : 1.4))));
-      const geo = o.kind === 'tree' && !o.rubble
+      const hh = b3RestH(o);
+      const geo = o.kind === 'tree'
         ? new THREE.ConeGeometry(Math.max(0.5, o.w * 0.42), hh, 7)
         : new THREE.BoxGeometry(Math.max(0.4, o.w), hh, Math.max(0.4, o.d || o.h || o.w));
-      const col = o.rubble ? 0x4A3E34 : (o.kind === 'building' ? 0x323A47 : (o.kind === 'tree' ? 0x31493A : 0x3E4442));
-      const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: col, roughness: 0.88, metalness: 0.06 }));
+      const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: b3BaseCol(o), emissive: 0x000000, roughness: 0.88, metalness: 0.06 }));
+      mesh.userData.fullH = hh;
       mesh.position.set(o.x, hh / 2, o.z);
       b3.scene.add(mesh); b3.world.push(mesh);
     });
     b3.worldKey = wkey;
   }
+  (sim.obstacles || []).forEach((o, i) => {
+    const mesh = b3.world[i + 2];
+    if (!mesh || !mesh.userData.fullH) return;
+    const full = mesh.userData.fullH;
+    const hurt = (o.structMax > 0 && !o.rubble) ? 1 - Math.max(0, o.struct) / o.structMax : (o.rubble ? 1 : 0);
+    const target = o.rubble ? Math.min(0.22, 0.7 / full) : 1;
+    mesh.scale.y += (target - mesh.scale.y) * Math.min(1, dt * 6);
+    mesh.position.y = full * mesh.scale.y / 2;
+    if (o.rubble) mesh.material.color.setHex(0x4A3E34);
+    else mesh.material.color.setHex(b3BaseCol(o)).lerp(b3.hurtCol || (b3.hurtCol = new THREE.Color(0x6A3028)), Math.min(1, hurt));
+    mesh.material.emissive.setHex(hurt > 0.2 && !o.rubble ? 0xE23B38 : 0x000000);
+    mesh.material.emissiveIntensity = o.rubble ? 0 : hurt * 0.65;
+  });
+  b3ReadEvents();
   const akey = sim.mechs.map((m, i) => battleChassisOf(i) + ':' + m.name).join('|');
   if (b3.akey !== akey){
     b3.actors.forEach(a => b3.scene.remove(a.root));
@@ -2488,6 +2578,8 @@ function renderBattle3D(dt){
     else a.hold = Math.max(0, (a.hold || 0) - dt);
     a.px = m.pos.x; a.pz = m.pos.z;
     const spd = a.hold > 0 ? a.spd : 0;
+    if ((m.knockT || 0) > 0) a.air = true;
+    else if (a.air){ a.air = false; b3GroundDisc(m.pos.x, m.pos.z, 1.8, 0xC4B49A, 0.55, 1.4, 0.08); b3Chunks(m.pos.x, m.pos.z, 3); }
     if (m.hpNow <= 0) setClip(a.root, 'Death');
     else if (spd > 3.2) setClip(a.root, 'Run');
     else if (spd > 0.25) setClip(a.root, 'Walk');
@@ -2519,7 +2611,55 @@ function renderBattle3D(dt){
     s.position.set(pr.x, pr.y != null ? pr.y : 2.1, pr.z);
     const hex = pr.delivery === 'emp' ? 0x7EB6C1 : 0xE3A23B;
     s.material.color.setHex(hex); s.material.emissive.setHex(hex);
+    s.scale.setScalar(pr.armed ? 2.4 : 1);
   });
+  const armed = prs.filter(p => p.armed);
+  b3.armRings = b3.armRings || [];
+  while (b3.armRings.length < armed.length){
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(0.72, 1, 32),
+      new THREE.MeshBasicMaterial({ color: 0xE3A23B, transparent: true, opacity: 0.9, depthWrite: false, side: THREE.DoubleSide })
+    );
+    ring.rotation.x = -Math.PI / 2;
+    b3.scene.add(ring);
+    b3.armRings.push(ring);
+  }
+  b3.armRings.forEach((ring, i) => {
+    const p = armed[i];
+    ring.visible = !!p;
+    if (!p) return;
+    const R = p.blast || 4;
+    ring.scale.set(R, R, 1);
+    ring.position.set(p.x, 0.14, p.z);
+    const emp = p.delivery === 'emp';
+    ring.material.color.setHex(emp ? 0x7EB6C1 : 0xE3A23B);
+    ring.material.opacity = 0.45 + 0.5 * Math.abs(Math.sin((p.fuseLeft || 1) * 1.7));
+  });
+  b3.fx = b3.fx || [];
+  for (let i = b3.fx.length - 1; i >= 0; i--){
+    const fx = b3.fx[i];
+    fx.life -= dt;
+    if (fx.kind === 'chunk'){
+      const u = fx.mesh.userData;
+      u.vy -= 14 * dt;
+      fx.mesh.position.x += u.vx * dt;
+      fx.mesh.position.z += u.vz * dt;
+      fx.mesh.position.y += u.vy * dt;
+      if (fx.mesh.position.y < 0.18){ fx.mesh.position.y = 0.18; u.vy = 0; u.vx *= 0.5; u.vz *= 0.5; }
+    } else if (fx.kind === 'ring'){
+      const k = 1 - Math.max(0, fx.life) / fx.max;
+      fx.mesh.scale.setScalar(1 + k * 0.65);
+      fx.mesh.material.opacity = Math.max(0, 1 - k);
+    } else if (fx.mesh.material && fx.mesh.material.opacity != null){
+      fx.mesh.material.opacity = Math.max(0, (fx.life / fx.max) * 0.8);
+    }
+    if (fx.life <= 0){
+      b3.scene.remove(fx.mesh);
+      if (fx.mesh.geometry) fx.mesh.geometry.dispose();
+      if (fx.mesh.material && fx.mesh.material.dispose) fx.mesh.material.dispose();
+      b3.fx.splice(i, 1);
+    }
+  }
   b3.renderer.render(b3.scene, b3.camera);
 }
 function renderBattle(){
