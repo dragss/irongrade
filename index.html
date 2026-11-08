@@ -129,6 +129,24 @@
   #screen-garage.gar3d .navrow button { background: rgba(14,17,22,.92); }
   #gar-3d-tog { margin-left: auto; }
   .hint { line-height: 1.5; }
+
+  /* coque : la fenêtre tient l'écran, la carte de combat prend le reste */
+  .screen.active { align-items: stretch; }
+  #screen-boot.active { align-items: center; }
+  .panel, .tophead, .battlewrap { max-width: none; }
+  #screen-battle.active { overflow: hidden; padding: 10px 14px 8px; }
+  #screen-battle .battlewrap { flex: 1 1 auto; min-height: 0; width: 100%; display: flex; flex-direction: column; }
+  .hud { flex-wrap: nowrap; align-items: flex-start; }
+  .hud .hpbars { min-width: 0; }
+  .hud-tools { display: flex; flex-wrap: wrap; gap: 6px; flex: 0 1 auto; }
+  .hud-tools button { width: auto; flex: 0 0 auto; }
+  #gcanvas { flex: 1 1 0; height: 0; min-height: 0; width: 100%; display: block; }
+  #an-lineups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  #an-lineups > .duelrow { min-width: 0; margin: 0; }
+  @media (max-width: 1100px) {
+    #an-lineups { grid-template-columns: 1fr; }
+    .hud { flex-wrap: wrap; }
+  }
 </style>
 </head>
 <body>
@@ -231,12 +249,14 @@
         <div class="lbl"><span id="hud-name-o">ADVERSAIRE</span><span id="hud-tick">TICK 0</span></div>
         <div class="hpb o"><i id="hp-o" style="width:100%"></i></div>
       </div>
-      <button class="small" id="btn-pause">⏸ PAUSE</button>
-      <button class="small active-tog" data-spd="1">×1</button>
-      <button class="small" data-spd="2">×2</button>
-      <button class="small" data-spd="4">×4</button>
-      <button class="small" id="bt-cam">📹 CAM BROADCAST</button>
-      <button class="small ghost" id="btn-abandon">ABANDONNER LE DUEL</button>
+      <div class="hud-tools">
+        <button class="small" id="btn-pause" type="button">⏸ PAUSE</button>
+        <button class="small active-tog" data-spd="1" type="button">×1</button>
+        <button class="small" data-spd="2" type="button">×2</button>
+        <button class="small" data-spd="4" type="button">×4</button>
+        <button class="small" id="bt-cam" type="button">📹 CAM BROADCAST</button>
+        <button class="small ghost" id="btn-abandon" type="button">ABANDONNER</button>
+      </div>
     </div>
     <div class="msscore" id="ms-score"></div>
     <canvas id="gcanvas" width="900" height="480"></canvas>
@@ -3773,7 +3793,14 @@ $('bt-cam').onclick = () => setBattleCam(battleCam === 'broadcast' ? 'tactical' 
 if (typeof document.addEventListener === 'function') document.addEventListener('keydown', e => {
   if ((e.key === 'c' || e.key === 'C') && state === 'battle') setBattleCam(battleCam === 'broadcast' ? 'tactical' : 'broadcast');
 });
+function fitCanvas(){
+  const r = cv.getBoundingClientRect();
+  const w = Math.max(320, Math.floor(r.width));
+  const h = Math.max(240, Math.floor(r.height));
+  if (cv.width !== w || cv.height !== h){ cv.width = w; cv.height = h; }
+}
 function renderBattle(){
+  fitCanvas();
   if (battleCam === 'tactical') return renderBattleTactical();
   renderBattleBroadcast();
 }
