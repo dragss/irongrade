@@ -6,7 +6,7 @@
 <script type="importmap">
 { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/" } }
 </script>
-<title>IRONGRADE — Prototype manager v0.14.1</title>
+<title>IRONGRADE — Prototype manager v0.15.0</title>
 <style>
   :root { font-family: 'Inter', system-ui, sans-serif; background: #0B0E12; color: #E7EBEF; }
   * { box-sizing: border-box; margin: 0; }
@@ -147,9 +147,38 @@
     #an-lineups { grid-template-columns: 1fr; }
     .hud { flex-wrap: wrap; }
   }
+
+  /* v0.15.0 — coque manager : menu à gauche, vues dans la colonne */
+  #app-nav { display: none; }
+  body.in-app { display: grid; grid-template-columns: 220px minmax(0, 1fr); height: 100vh; overflow: hidden; }
+  body.in-app #app-nav {
+    display: flex; flex-direction: column; gap: 2px; min-width: 0;
+    background: #0C1016; border-right: 1px solid #24303C; z-index: 5;
+  }
+  #app-nav .brand { font-weight: 800; letter-spacing: .14em; font-size: 18px; padding: 22px 16px 16px; color: #F4F7FA; }
+  #app-nav .brand span { color: #E23B38; }
+  #app-nav button { width: 100%; text-align: left; background: transparent; border: 0; border-left: 3px solid transparent; color: #AAB2BA; padding: 13px 16px; letter-spacing: .12em; }
+  #app-nav button.cur { background: #161C24; border-left-color: #E23B38; color: #fff; }
+  body.in-app .screen { position: relative; inset: auto; height: 100vh; overflow: auto; background-image: none; align-items: stretch; }
+  body.in-app .navrow { display: none !important; }
+  body.in-app .tophead { position: sticky; top: 0; z-index: 2; background: #0B0E12; max-width: none; padding: 14px 4px; }
+  body.in-app .panel { max-width: none; }
+  #screen-hub.active {
+    display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr);
+    grid-template-rows: auto auto minmax(0, 1fr); gap: 14px; align-content: start; overflow: auto;
+  }
+  #screen-hub .tophead { grid-column: 1 / -1; margin: 0; }
+  #hub-next, #hub-alerts-box, #hub-standings-box { margin: 0; min-width: 0; }
+  #hub-standings-box { grid-column: 2; grid-row: 2 / span 2; }
+  body.in-app #gar-3d-bg { left: 220px; }
+  @media (max-width: 1100px) {
+    #screen-hub.active { grid-template-columns: 1fr; }
+    #hub-standings-box { grid-column: 1; grid-row: auto; }
+  }
 </style>
 </head>
 <body>
+<aside id="app-nav"></aside>
 
 <!-- ÉCRAN D'ACCUEIL / CARRIÈRE -->
 <div class="screen" id="screen-boot">
@@ -163,15 +192,15 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.14.1 — MECHCORE v1.5.1 — GREYBOX, VISUEL DE PROTOTYPE</div>
+  <div class="footer">IRONGRADE v0.15.0 — MECHCORE v1.5.1 — GREYBOX, VISUEL DE PROTOTYPE</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
 <div class="screen" id="screen-hub">
   <div class="tophead"><span class="org" id="hub-org"></span><span class="res" id="hub-credits"></span><span class="meta" id="hub-division"></span><span class="meta" id="hub-rep"></span></div>
   <div class="panel" id="hub-next"></div>
-  <div class="panel"><h3>Alertes de l'organisation</h3><div id="hub-alerts"></div></div>
-  <div class="panel"><h3>Classement</h3><div id="hub-standings"></div></div>
+  <div class="panel" id="hub-alerts-box"><h3>Alertes de l'organisation</h3><div id="hub-alerts"></div></div>
+  <div class="panel" id="hub-standings-box"><h3>Classement</h3><div id="hub-standings"></div></div>
   <div class="navrow" id="nav-hub"></div>
 </div>
 
@@ -2374,6 +2403,8 @@ let hotZone = null; // zone de maquette mise en avant (survol de slot)
 
 const SCREENS = ['boot', 'hub', 'roster', 'garage', 'league', 'analysis', 'setup', 'battle', 'report', 'season', 'rules', 'about'];
 function show(name){ SCREENS.forEach(s => { const el = $('screen-' + s); if (el) el.classList.toggle('active', s === name); }); state = name;
+  document.body.classList.toggle('in-app', ['hub','roster','garage','league','analysis','setup','report','season'].includes(name));
+  document.querySelectorAll('#app-nav button').forEach(b => b.classList.toggle('cur', b.dataset.nav === name));
   if (typeof window !== 'undefined'){ if (name === 'garage') gar3dEnter(); else gar3dLeave(); } }
 function save(){ if (G) store.set(SAVE_KEY, JSON.stringify(G)); }
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
@@ -4028,14 +4059,12 @@ function renderBattleBroadcast(){
 // ==== NAVIGATION + BOOT ====
 const NAV = [['hub', 'COMMANDEMENT'], ['roster', 'ROSTER'], ['garage', 'GARAGE'], ['league', 'CHAMPIONNAT']];
 function buildNav(){
-  ['hub', 'roster', 'garage', 'league', 'analysis'].forEach(screenId => {
-    const row = $('nav-' + screenId); if (!row) return;
-    NAV.forEach(([target, label]) => {
-      const b = document.createElement('button'); b.className = 'small' + (target === screenId ? ' cur' : '');
-      b.textContent = label;
-      b.onclick = () => { if (target === 'hub') renderHub(); if (target === 'roster') renderRoster(); if (target === 'garage') renderGarage(); if (target === 'league') renderLeague(); show(target); };
-      row.appendChild(b);
-    });
+  const row = $('app-nav'); if (!row) return;
+  const brand = document.createElement('div'); brand.className = 'brand'; brand.innerHTML = 'IRON<span>RADE</span>'; row.appendChild(brand);
+  NAV.forEach(([target, label]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.dataset.nav = target; b.textContent = label;
+    b.onclick = () => { if (target === 'hub') renderHub(); if (target === 'roster') renderRoster(); if (target === 'garage') renderGarage(); if (target === 'league') renderLeague(); show(target); };
+    row.appendChild(b);
   });
 }
 $('btn-new').onclick = () => { newGame($('orgname').value); renderHub(); show('hub'); };
