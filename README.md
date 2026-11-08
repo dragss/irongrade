@@ -14,8 +14,10 @@ KAIJU — mechas vs créatures géantes).
   `index.html` à la racine.
   *Activation (une fois) : Settings → Pages → Source « Deploy from a branch » → branche `main`,
   dossier `/ (root)` → Save.*
-- **En local** : téléchargez le dépôt (Code → Download ZIP) et ouvrez `index.html` dans un
-  navigateur. Aucune installation, sauvegarde automatique (localStorage, bouton CONTINUER).
+- **En local** : depuis la racine du dépôt, `python3 -m http.server 8080`, puis
+  [http://localhost:8080](http://localhost:8080). Les modules du moteur ne se chargent pas en
+  `file://`. Sauvegarde automatique (localStorage, bouton CONTINUER).
+- **Campagne** (coquille vide, même moteur) : [http://localhost:8080/games/campagne/](http://localhost:8080/games/campagne/).
 
 Boucle de jeu : nouvelle carrière → centre de commandement → roster (5 pilotes) → garage
 (atelier 14 slots, processeur par mech) → championnat LIGUE FER (6 équipes, 10 journées) →
@@ -40,7 +42,7 @@ fumigène, ciblage par équipe, spawns dérivés par côté d'entrée. Formats l
 ### Valider
 
 ```bash
-node validation/regression.mjs   # dissociation bit-identique vs moteur v0.6.0 de référence : 8/8
+node validation/regression.mjs   # moteur vivant bit-identique au gel v0.6.0, sur le ruleset gelé
 node validation/test_kaiju.mjs    # pack KAIJU : 17/17 + audit d'équilibrage
 node validation/audit_kaiju.mjs  # table d'équilibrage rapide
 ```
@@ -48,11 +50,14 @@ node validation/audit_kaiju.mjs  # table d'équilibrage rapide
 ## Structure
 
 ```
-index.html                 Le jeu manager v0.7.0 (autonome, zéro dépendance)
-engine/mechcore.mjs        Moteur générique (zéro donnée de jeu)
-packs/irongrade.mjs        Pack de données IRONGRADE (ruleset v0.6.0)
+index.html                 Coquille IRONGRADE — ligue, garage, écrans, hangar 3D (prototype)
+games/campagne/index.html  Coquille campagne — vide, branchée sur le moteur
+engine/mechcore.mjs        Moteur vivant (zéro donnée de jeu, zéro loot)
+engine/loadout.mjs         Résolveur de loadout (catalogue → stats de sim)
+packs/irongrade.mjs        Pack ligue vivant
 packs/kaiju.mjs            Pack de démonstration KAIJU (hypothèses v0.1.0)
-reference/sim_v0.6.0.mjs   Moteur v0.6.0 d'origine (pour la preuve bit-identique)
+games/irongrade/catalog.mjs  Atelier IRONGRADE (châssis, modules, presets)
+reference/sim_v0.6.0.mjs   Gel v0.6.0 (preuve bit-identique, ruleset inclus)
 validation/                Harnesses de validation + audits
 docs/MECHCORE.md           Documentation moteur
 ```

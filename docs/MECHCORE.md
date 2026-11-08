@@ -8,12 +8,15 @@ démonstration **KAIJU** (mechas de défense contre des créatures géantes).
 ## Structure
 
 ```
-engine/mechcore.mjs        Moteur (SplitMix64, CombatSim, segRect) — zéro donnée de jeu
-reference/sim_v0.6.0.mjs   Moteur IRONGRADE v0.6.0 d'origine (pour la preuve bit-identique)
-packs/irongrade.mjs       Pack IRONGRADE : ruleset v0.6.0 déplacé tel quel (deep equal prouvé)
-packs/kaiju.mjs           Pack KAIJU v0.1.0 (HYPOTHÈSES) — démo de réutilisation
-validation/regression.mjs Preuve de dissociation (8/8)
-validation/test_kaiju.mjs Validation du pack KAIJU + audit (17/17)
+engine/mechcore.mjs        Moteur vivant (SplitMix64, CombatSim, segRect) — zéro donnée de jeu
+engine/loadout.mjs         Résolveur de loadout, partagé, sans catalogue
+games/irongrade/           Coquille ligue : atelier (catalog.mjs). Les écrans restent dans index.html
+games/campagne/            Coquille campagne, vide
+reference/sim_v0.6.0.mjs   Gel v0.6.0 (moteur + ruleset) pour la preuve bit-identique
+packs/irongrade.mjs        Pack ligue vivant
+packs/kaiju.mjs            Pack KAIJU v0.1.0 (HYPOTHÈSES) — démo de réutilisation
+validation/regression.mjs  Bit-identité du moteur vivant contre le gel, sur le ruleset gelé
+validation/test_kaiju.mjs  Validation du pack KAIJU + audit (17/17)
 validation/audit_kaiju.mjs Runner d'audit d'itération (même battery, rapide)
 ```
 
@@ -43,12 +46,14 @@ improvisés, largage d'arme, couvert actif, fumigène, ciblage d'équipe, spawns
 sa propre attaque sans arme (KAIJU : `griffes`). Sans la clé, comportement v0.6.0 inchangé —
 bit-identité prouvée.
 
-## Preuve de dissociation — `validation/regression.mjs` (8/8)
+## Preuve — `validation/regression.mjs`
 
-- Pack IRONGRADE == RULESET v0.6.0 embarqué (deep equal).
-- **Bit-identité** moteur extrait vs moteur v0.6.0 : 192 batailles 1v1 (4 châssis × 4 arènes ×
-  3 seeds), 2v2 (ciblage/fumigène/spawns dérivés), largage→poings→récupération (canyon).
+Le moteur vivant est comparé au gel v0.6.0 **sur le ruleset gelé** (`reference/sim_v0.6.0.mjs`).
+Le pack ligue vivant n'est plus ce gel : il porte le saut, l'inertie et les corps.
+
+- **Bit-identité** : 192 batailles 1v1 (4 châssis × 4 arènes × 3 seeds), 2v2, largage→poings→récupération.
 - Déterminisme interne 10/10 ; hook unarmed sans clé → `fists`/POINGS.
+- Les presets de l'atelier passent le résolveur sur le pack vivant.
 
 ## Pack KAIJU v0.1.0 — `validation/test_kaiju.mjs` (17/17)
 
@@ -85,13 +90,13 @@ d'entrée. Timeouts 0% partout.
   créatures d'une œuvre existante) est interdit dans un produit final — noms originaux requis.
 - Le moteur reste la future bibliothèque C# partagée client/serveur de la spec : MECHCORE en est
   le miroir JS de référence ; les deltas de portage sont dans PORT_NOTES.md du zip v0.6.0.
-- Les canvases IRONGRADE (jeu, replay, garage) embarquent chacun leur copie moteur : ils restent
-  autonomes et inchangés ; MECHCORE devient la source de vérité pour tout nouveau jeu.
+- La coquille IRONGRADE importe le moteur. Le hangar 3D reste dans cette coquille : visuel de
+  prototype, à refaire avec la techno finale. La campagne est une deuxième entrée, vide pour l'instant.
 
 ## Lancer les validations
 
 ```bash
-node validation/regression.mjs   # dissociation bit-identique : 8/8
+node validation/regression.mjs   # moteur vivant bit-identique au gel v0.6.0 : 9/9
 node validation/test_kaiju.mjs   # pack KAIJU : 17/17 + audit
 node validation/audit_kaiju.mjs  # itération rapide d'équilibrage
 ```

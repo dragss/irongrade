@@ -1,5 +1,7 @@
+// Pack IRONGRADE — catalogue de la ligue (arènes, armes, châssis, processeurs).
+// Le gel v0.6.0 de la preuve bit-identique est dans reference/sim_v0.6.0.mjs.
 export const IRONGRADE_RULESET = {
-  "version": "0.6.0",
+  "version": "0.10.0",
   "simulation": {
     "tick_hz": 15,
     "battle_timeout_seconds": 120
@@ -20,8 +22,18 @@ export const IRONGRADE_RULESET = {
         }
       ],
       "spawn_sides": {
-        "alpha": { "type": "drop", "x": -36, "z": 0, "dir": 0 },
-        "omega": { "type": "drop", "x": 36, "z": 0, "dir": 3.14159 }
+        "alpha": {
+          "type": "drop",
+          "x": -36,
+          "z": 0,
+          "dir": 0
+        },
+        "omega": {
+          "type": "drop",
+          "x": 36,
+          "z": 0,
+          "dir": 3.14159
+        }
       },
       "obstacles": [
         {
@@ -101,8 +113,18 @@ export const IRONGRADE_RULESET = {
         }
       ],
       "spawn_sides": {
-        "alpha": { "type": "corridor", "x": -41, "z": 0, "dir": 0 },
-        "omega": { "type": "corridor", "x": 41, "z": 0, "dir": 3.14159 }
+        "alpha": {
+          "type": "corridor",
+          "x": -41,
+          "z": 0,
+          "dir": 0
+        },
+        "omega": {
+          "type": "corridor",
+          "x": 41,
+          "z": 0,
+          "dir": 3.14159
+        }
       },
       "obstacles": [
         {
@@ -164,8 +186,18 @@ export const IRONGRADE_RULESET = {
         }
       ],
       "spawn_sides": {
-        "alpha": { "type": "corridor", "x": -31, "z": 0, "dir": 0 },
-        "omega": { "type": "corridor", "x": 31, "z": 0, "dir": 3.14159 }
+        "alpha": {
+          "type": "corridor",
+          "x": -31,
+          "z": 0,
+          "dir": 0
+        },
+        "omega": {
+          "type": "corridor",
+          "x": 31,
+          "z": 0,
+          "dir": 3.14159
+        }
       },
       "obstacles": [
         {
@@ -272,8 +304,18 @@ export const IRONGRADE_RULESET = {
         }
       ],
       "spawn_sides": {
-        "alpha": { "type": "drop", "x": -45, "z": 0, "dir": 0 },
-        "omega": { "type": "drop", "x": 45, "z": 0, "dir": 3.14159 }
+        "alpha": {
+          "type": "drop",
+          "x": -45,
+          "z": 0,
+          "dir": 0
+        },
+        "omega": {
+          "type": "drop",
+          "x": 45,
+          "z": 0,
+          "dir": 3.14159
+        }
       },
       "obstacles": [
         {
@@ -328,14 +370,608 @@ export const IRONGRADE_RULESET = {
           "label": "ÉPAVE"
         }
       ]
+    },
+    "downtown_kestrel": {
+      "label": "CENTRE-VILLE DE KESTREL",
+      "width": 110,
+      "depth": 55,
+      "spawns": [
+        {
+          "x": -44,
+          "z": -8
+        },
+        {
+          "x": 44,
+          "z": 8
+        }
+      ],
+      "spawn_sides": {
+        "alpha": {
+          "type": "drop",
+          "x": -50,
+          "z": 0,
+          "dir": 0
+        },
+        "omega": {
+          "type": "drop",
+          "x": 50,
+          "z": 0,
+          "dir": 3.14159
+        }
+      },
+      "obstacles": [
+        {
+          "id": "bld_n1",
+          "x": -38,
+          "z": -16,
+          "w": 12,
+          "h": 9,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "bld_n2",
+          "x": -13,
+          "z": -19,
+          "w": 10,
+          "h": 8,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "bld_n3",
+          "x": 13,
+          "z": -17,
+          "w": 12,
+          "h": 9,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "bld_n4",
+          "x": 38,
+          "z": -15,
+          "w": 10,
+          "h": 8,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "bld_s1",
+          "x": -36,
+          "z": 16,
+          "w": 10,
+          "h": 8,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "bld_s2",
+          "x": -10,
+          "z": 19,
+          "w": 12,
+          "h": 9,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "bld_s3",
+          "x": 16,
+          "z": 17,
+          "w": 10,
+          "h": 8,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "bld_s4",
+          "x": 38,
+          "z": 19,
+          "w": 12,
+          "h": 9,
+          "blocks_los": true,
+          "kind": "building"
+        },
+        {
+          "id": "tower_mid",
+          "x": 0,
+          "z": 0,
+          "w": 5,
+          "h": 5,
+          "blocks_los": true,
+          "kind": "pillar",
+          "climb": true,
+          "zh": 5
+        },
+        {
+          "id": "kiosk_a",
+          "x": -24,
+          "z": 3,
+          "w": 4,
+          "h": 4,
+          "blocks_los": true,
+          "kind": "crate"
+        },
+        {
+          "id": "kiosk_b",
+          "x": 24,
+          "z": -3,
+          "w": 4,
+          "h": 4,
+          "blocks_los": true,
+          "kind": "crate"
+        },
+        {
+          "id": "wreck_a",
+          "x": -30,
+          "z": 8,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        },
+        {
+          "id": "wreck_b",
+          "x": 30,
+          "z": -8,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        }
+      ]
+    },
+    "ironwood_forest": {
+      "label": "FORÊT DE FER-NOIR",
+      "width": 100,
+      "depth": 60,
+      "spawns": [
+        {
+          "x": -38,
+          "z": -6
+        },
+        {
+          "x": 38,
+          "z": 6
+        }
+      ],
+      "spawn_sides": {
+        "alpha": {
+          "type": "corridor",
+          "x": -45,
+          "z": 0,
+          "dir": 0
+        },
+        "omega": {
+          "type": "corridor",
+          "x": 45,
+          "z": 0,
+          "dir": 3.14159
+        }
+      },
+      "obstacles": [
+        {
+          "id": "tree_01",
+          "x": -40,
+          "z": -20,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_02",
+          "x": -32,
+          "z": -9,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_03",
+          "x": -36,
+          "z": 7,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_04",
+          "x": -28,
+          "z": 18,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_05",
+          "x": -22,
+          "z": -14,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_06",
+          "x": -18,
+          "z": -2,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_07",
+          "x": -24,
+          "z": 22,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_08",
+          "x": -12,
+          "z": 10,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_09",
+          "x": -8,
+          "z": -18,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_10",
+          "x": -4,
+          "z": 14,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_11",
+          "x": 2,
+          "z": -8,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_12",
+          "x": 6,
+          "z": 20,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_13",
+          "x": 12,
+          "z": -16,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_14",
+          "x": 16,
+          "z": 3,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_15",
+          "x": 22,
+          "z": -21,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_16",
+          "x": 26,
+          "z": 12,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_17",
+          "x": 34,
+          "z": -6,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_18",
+          "x": 30,
+          "z": 19,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_19",
+          "x": 40,
+          "z": -15,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "tree_20",
+          "x": 38,
+          "z": 8,
+          "w": 2.6,
+          "h": 2.6,
+          "blocks_los": true,
+          "kind": "tree"
+        },
+        {
+          "id": "rock_mid",
+          "x": 0,
+          "z": 0,
+          "w": 5,
+          "h": 4,
+          "blocks_los": true,
+          "kind": "rock",
+          "climb": true,
+          "zh": 2.2
+        },
+        {
+          "id": "rock_n",
+          "x": -15,
+          "z": 25,
+          "w": 4,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "rock",
+          "climb": true,
+          "zh": 2.2
+        },
+        {
+          "id": "rock_s",
+          "x": 20,
+          "z": -25,
+          "w": 4,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "rock",
+          "climb": true,
+          "zh": 2.2
+        },
+        {
+          "id": "wreck_a",
+          "x": -20,
+          "z": 4,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        },
+        {
+          "id": "wreck_b",
+          "x": 18,
+          "z": -4,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        }
+      ]
+    },
+    "kessari_delta": {
+      "label": "DELTA DE KESSARI",
+      "width": 105,
+      "depth": 50,
+      "spawns": [
+        {
+          "x": -40,
+          "z": -7
+        },
+        {
+          "x": 40,
+          "z": 7
+        }
+      ],
+      "spawn_sides": {
+        "alpha": {
+          "type": "drop",
+          "x": -48,
+          "z": 0,
+          "dir": 0
+        },
+        "omega": {
+          "type": "drop",
+          "x": 48,
+          "z": 0,
+          "dir": 3.14159
+        }
+      },
+      "water": [
+        {
+          "id": "river_mid",
+          "x": 0,
+          "z": 0,
+          "w": 30,
+          "d": 46
+        },
+        {
+          "id": "pool_west",
+          "x": -36,
+          "z": 10,
+          "w": 18,
+          "d": 20
+        },
+        {
+          "id": "pool_east",
+          "x": 34,
+          "z": -12,
+          "w": 20,
+          "d": 18
+        }
+      ],
+      "obstacles": [
+        {
+          "id": "pile_n1",
+          "x": 0,
+          "z": -14,
+          "w": 2.5,
+          "h": 2.5,
+          "blocks_los": true,
+          "kind": "pillar"
+        },
+        {
+          "id": "pile_n2",
+          "x": -5,
+          "z": 0,
+          "w": 2.5,
+          "h": 2.5,
+          "blocks_los": true,
+          "kind": "pillar"
+        },
+        {
+          "id": "pile_s",
+          "x": 0,
+          "z": 14,
+          "w": 2.5,
+          "h": 2.5,
+          "blocks_los": true,
+          "kind": "pillar"
+        },
+        {
+          "id": "pont_e",
+          "x": 9,
+          "z": 0,
+          "w": 12,
+          "h": 3,
+          "blocks_los": false,
+          "kind": "platform",
+          "climb": true,
+          "zh": 3
+        },
+        {
+          "id": "pont_w",
+          "x": -10,
+          "z": 0,
+          "w": 10,
+          "h": 3,
+          "blocks_los": false,
+          "kind": "platform",
+          "climb": true,
+          "zh": 3
+        },
+        {
+          "id": "bank_w",
+          "x": -20,
+          "z": 12,
+          "w": 6,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "cover"
+        },
+        {
+          "id": "bank_w2",
+          "x": -22,
+          "z": -10,
+          "w": 6,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "cover"
+        },
+        {
+          "id": "bank_e",
+          "x": 22,
+          "z": 10,
+          "w": 6,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "cover"
+        },
+        {
+          "id": "bank_e2",
+          "x": 24,
+          "z": -12,
+          "w": 6,
+          "h": 3,
+          "blocks_los": true,
+          "kind": "cover"
+        },
+        {
+          "id": "wreck_a",
+          "x": -14,
+          "z": 2,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        },
+        {
+          "id": "wreck_b",
+          "x": 16,
+          "z": -4,
+          "w": 2,
+          "h": 2,
+          "blocks_los": false,
+          "kind": "prop",
+          "pickable": true,
+          "prop_hp": 12,
+          "label": "ÉPAVE"
+        }
+      ]
     }
   },
   "combat": {
+    "jump": {
+      "enabled": true,
+      "duration_ticks": 18,
+      "cooldown_ticks": 90
+    },
+    "water_speed_factor": 0.65,
     "overheat_threshold": 100,
     "overheat_stun_seconds": 3,
     "min_damage_after_armor": 1,
     "proj_hit_radius": 1.5,
-    "aim_error_factor": 0.18,    "aim_lead_factor": 0.75,
+    "aim_error_factor": 0.18,
+    "aim_lead_factor": 0.75,
     "retreat_speed_factor": 0.7,
     "brace_move_factor": 0.6,
     "drop_speed_bonus": 0.25,
@@ -352,7 +988,38 @@ export const IRONGRADE_RULESET = {
       "default_hp_threshold": 0.5,
       "phantom_hp_threshold": 0.85,
       "charges": 1
-    }
+    },
+    "climb": {
+      "enabled": true,
+      "ticks_per_meter": 6,
+      "cooldown_ticks": 45,
+      "seek_radius": 9,
+      "aim_bonus": 0.04,
+      "aim_height": 2,
+      "los_height": 2,
+      "patience_ticks": 30
+    },
+    "motion": {
+      "enabled": true,
+      "launch_ticks": 18,
+      "settle_ticks": 10,
+      "moving_aim_penalty": 0.35,
+      "brake_m": 8
+    },
+    "bodies": {
+      "enabled": true,
+      "avoid_pad_m": 1.5
+    },
+    "ballistics": {
+      "enabled": true,
+      "splash_m": 3.2,
+      "splash_factor": 0.4
+    },
+    "squad": { "enabled": true },
+    "world": { "enabled": true },
+    "ordnance": { "enabled": true },
+    "front": { "enabled": true },
+    "trade": { "enabled": true, "fiche_step": 80, "fiche_cap": 5 }
   },
   "weapons": {
     "autocannon_mk1": {
@@ -381,6 +1048,10 @@ export const IRONGRADE_RULESET = {
       "crit_chance": 0.15,
       "crit_mult": 1.75,
       "stabilization_ticks": 2,
+      "delivery": "lob",
+      "fuse_ticks": 10,
+      "blast_m": 5.5,
+      "apex_m": 10,
       "label": "SERAPH LRM"
     },
     "reaver_blade": {
@@ -394,6 +1065,7 @@ export const IRONGRADE_RULESET = {
       "crit_chance": 0.2,
       "crit_mult": 2,
       "stagger": true,
+      "impact": 5.4,
       "label": "LAME REAVER"
     },
     "impact_ram": {
@@ -407,6 +1079,7 @@ export const IRONGRADE_RULESET = {
       "crit_chance": 0.1,
       "crit_mult": 1.75,
       "stagger": true,
+      "impact": 7.6,
       "label": "BÉLIER D'IMPACT"
     },
     "rail_gun_mk1": {
@@ -448,6 +1121,7 @@ export const IRONGRADE_RULESET = {
       "crit_chance": 0.15,
       "crit_mult": 1.75,
       "stagger": true,
+      "impact": 4.8,
       "label": "PIQUE D'ASSAUT"
     },
     "grinder_mk1": {
@@ -461,6 +1135,7 @@ export const IRONGRADE_RULESET = {
       "crit_chance": 0.1,
       "crit_mult": 1.25,
       "stagger": false,
+      "impact": 2.4,
       "label": "BROYEUR À CHAÎNES"
     },
     "fists": {
@@ -475,7 +1150,45 @@ export const IRONGRADE_RULESET = {
       "crit_mult": 1.5,
       "stagger": false,
       "hidden": true,
+      "impact": 2.2,
       "label": "POINGS"
+    },
+    "pulse_emp": {
+      "type": "ranged",
+      "range": 55,
+      "min_range": 12,
+      "damage": 8,
+      "cooldown_ticks": 40,
+      "heat": 8,
+      "accuracy": 0.8,
+      "proj_speed_mps": 46,
+      "crit_chance": 0,
+      "crit_mult": 1,
+      "stabilization_ticks": 3,
+      "delivery": "emp",
+      "fuse_ticks": 14,
+      "blast_m": 7,
+      "apex_m": 8,
+      "stun_ticks": 18,
+      "label": "IEM PULSE"
+    },
+    "frag_charge": {
+      "type": "ranged",
+      "range": 32,
+      "min_range": 6,
+      "damage": 22,
+      "cooldown_ticks": 20,
+      "heat": 6,
+      "accuracy": 0.78,
+      "proj_speed_mps": 34,
+      "crit_chance": 0.08,
+      "crit_mult": 1.5,
+      "stabilization_ticks": 2,
+      "delivery": "lob",
+      "fuse_ticks": 5,
+      "blast_m": 4.2,
+      "apex_m": 6,
+      "label": "GRENADE"
     }
   },
   "mechs": {
@@ -492,7 +1205,8 @@ export const IRONGRADE_RULESET = {
         "hp_threshold": 0.5,
         "dr_bonus": 0.25
       },
-      "label": "HOUND PRIME (HEAVY)"
+      "label": "HOUND PRIME (HEAVY)",
+      "radius_m": 1.6
     },
     "longbow_mk1": {
       "class": "artillery",
@@ -507,7 +1221,8 @@ export const IRONGRADE_RULESET = {
         "regen_delay_ticks": 60,
         "regen_per_s": 4
       },
-      "label": "LONGBOW MK1 (ARTILLERY)"
+      "label": "LONGBOW MK1 (ARTILLERY)",
+      "radius_m": 1.3
     },
     "warden_x1": {
       "class": "assault",
@@ -522,7 +1237,8 @@ export const IRONGRADE_RULESET = {
         "hp_threshold": 0.5,
         "dr_bonus": 0.25
       },
-      "label": "WARDEN X1 (ASSAUT)"
+      "label": "WARDEN X1 (ASSAUT)",
+      "radius_m": 1.8
     },
     "ghost_lt": {
       "class": "scout",
@@ -537,7 +1253,8 @@ export const IRONGRADE_RULESET = {
         "regen_delay_ticks": 60,
         "regen_per_s": 4
       },
-      "label": "GHOST LT (ÉCLAIREUR)"
+      "label": "GHOST LT (ÉCLAIREUR)",
+      "radius_m": 1.1
     }
   },
   "processors": {
@@ -549,6 +1266,7 @@ export const IRONGRADE_RULESET = {
       "evasion_frequency": 0.1,
       "retreat_threshold": 0.05,
       "targeting": "closest",
+      "squad": "dogpile",
       "smoke_hp_threshold": 0.5,
       "label": "BERSERKER"
     },
@@ -560,6 +1278,7 @@ export const IRONGRADE_RULESET = {
       "evasion_frequency": 0.3,
       "retreat_threshold": 0.3,
       "targeting": "weakest",
+      "squad": "focus",
       "smoke_hp_threshold": 0.5,
       "label": "TACTICIAN"
     },
@@ -571,6 +1290,7 @@ export const IRONGRADE_RULESET = {
       "evasion_frequency": 0.2,
       "retreat_threshold": 0.5,
       "targeting": "protector",
+      "squad": "peel",
       "smoke_hp_threshold": 0.5,
       "label": "GUARDIAN"
     },
@@ -582,6 +1302,7 @@ export const IRONGRADE_RULESET = {
       "evasion_frequency": 0.7,
       "retreat_threshold": 0.25,
       "targeting": "weakest",
+      "squad": "flank",
       "smoke_hp_threshold": 0.85,
       "label": "PHANTOM"
     }
