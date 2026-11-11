@@ -590,13 +590,13 @@ const STARTING_MECHS = [ // 3 mechs de départ de l'orga (presets garage, proces
 const BAY_MAX = 5;
 const FRAMES = {
   hound_prime: { chassis: 'hound_prime', label: 'HOUND PRIME', rare: false, price: 1600, blurb: 'Châssis lourd de série.' },
-  hound_citadelle: { chassis: 'hound_prime', label: 'HOUND CITADELLE', rare: true, price: 3400, blurb: 'Plaques plus épaisses, jambes plus lentes.', mods: { hp: 32, armor: 6, speed: -0.5, shield: -10 } },
+  hound_citadelle: { chassis: 'hound_prime', label: 'HOUND CITADELLE', rare: true, price: 3400, blurb: 'Gilet de plaques boulonnées sur la poitrine. Plus d’intégrité, jambes plus lentes.', mods: { hp: 32, armor: 6, speed: -0.5, shield: -10 } },
   longbow_mk1: { chassis: 'longbow_mk1', label: 'LONGBOW MK1', rare: false, price: 1700, blurb: 'Châssis d’artillerie de série.' },
-  longbow_sirocco: { chassis: 'longbow_mk1', label: 'LONGBOW SIROCCO', rare: true, price: 3600, blurb: 'Visée plus stable, cellule plus fragile.', mods: { acc: 0.04, stability: 8, hp: -18, speed: -0.25 } },
+  longbow_sirocco: { chassis: 'longbow_mk1', label: 'LONGBOW SIROCCO', rare: true, price: 3600, blurb: 'Aileron stabilisateur dans le dos. Visée plus stable, cellule plus fragile.', mods: { acc: 0.04, stability: 8, hp: -18, speed: -0.25 } },
   warden_x1: { chassis: 'warden_x1', label: 'WARDEN X1', rare: false, price: 1500, blurb: 'Châssis d’assaut de série.' },
-  warden_eclat: { chassis: 'warden_x1', label: 'WARDEN ÉCLAT', rare: true, price: 3200, blurb: 'Il arrive plus vite et encaisse moins.', mods: { speed: 0.4, hp: -14, armor: -3 } },
+  warden_eclat: { chassis: 'warden_x1', label: 'WARDEN ÉCLAT', rare: true, price: 3200, blurb: 'Pod de poussée sur le flanc. Il arrive plus vite et encaisse moins.', mods: { speed: 0.4, hp: -14, armor: -3 } },
   ghost_lt: { chassis: 'ghost_lt', label: 'GHOST LT', rare: false, price: 1800, blurb: 'Châssis d’éclaireur de série.' },
-  ghost_voile: { chassis: 'ghost_lt', label: 'GHOST VOILE', rare: true, price: 3500, blurb: 'Bouclier surdimensionné, ossature plus mince.', mods: { shield: 22, hp: -20, speed: 0.2 } }
+  ghost_voile: { chassis: 'ghost_lt', label: 'GHOST VOILE', rare: true, price: 3500, blurb: 'Capuche-capteur par-dessus la tête. Bouclier plus large, ossature plus mince.', mods: { shield: 22, hp: -20, speed: 0.2 } }
 };
 const FRAME_PRESET = { hound_prime: 'bulwark', longbow_mk1: 'artillery', warden_x1: 'sweeper', ghost_lt: 'marksman' };
 const SHOP_PARTS = [
@@ -607,7 +607,16 @@ const SHOP_PARTS = [
   { id: 'shoulder_plate_L', price: 360 }, { id: 'shoulder_plate_R', price: 360 },
   { id: 'pulse_emp', price: 1100 }, { id: 'frag_charge', price: 980 },
   { id: 'grinder_mk1', price: 760 }, { id: 'rail_gun_mk1', price: 1400 },
-  { id: 'seraph_lrm_pod', price: 1500 }, { id: 'reaver_blade', price: 900 }
+  { id: 'seraph_lrm_pod', price: 1500 }, { id: 'reaver_blade', price: 900 },
+  { id: 'arm_left_heavy', price: 560 }, { id: 'arm_right_heavy', price: 560 },
+  { id: 'arm_left_light', price: 500 }, { id: 'arm_right_light', price: 500 },
+  { id: 'arm_left_claw', price: 640 }, { id: 'arm_right_claw', price: 640 },
+  { id: 'leg_left_anchor', price: 620 }, { id: 'leg_right_anchor', price: 620 },
+  { id: 'torso_light', price: 680 }, { id: 'head_relay', price: 500 },
+  { id: 'shoulder_spike_L', price: 400 }, { id: 'shoulder_spike_R', price: 400 },
+  { id: 'shield_tower', price: 780 },
+  { id: 'rotary_mk1', price: 820 }, { id: 'laser_mk1', price: 980 },
+  { id: 'srm_pack', price: 1200 }, { id: 'maul_mk1', price: 1040 }
 ];
 const IA_TEAMS = { // organisations adverses (ligue pro médiatisée — univers hybride sport/militaire)
   fer: [
@@ -1121,8 +1130,11 @@ function mechSVG(m, size, opts){
   const HULL = '#3A424C', PLATE = '#4A545F', DARK = '#1A1F26', LIGHT = '#E7EBEF';
   // cubes lisibles : la forme du châssis et de l'arme suffisent à distinguer les mechs
   const sprint = (lo.left_leg && lo.left_leg.indexOf('sprint') >= 0) || (lo.right_leg && lo.right_leg.indexOf('sprint') >= 0);
+  const anchor = (lo.left_leg && lo.left_leg.indexOf('anchor') >= 0) || (lo.right_leg && lo.right_leg.indexOf('anchor') >= 0);
   const fortified = lo.torso && lo.torso.indexOf('fortified') >= 0;
+  const lightTorso = lo.torso && lo.torso.indexOf('light') >= 0;
   const scope = lo.head && (lo.head.indexOf('target') >= 0 || lo.head.indexOf('sensor') >= 0);
+  const relay = lo.head && lo.head.indexOf('relay') >= 0;
   const box = { hound_prime: [40, 28], warden_x1: [36, 34], longbow_mk1: [26, 42], ghost_lt: [22, 22] };
   const dim = box[chId] || [32, 28];
   const bw = dim[0], bh = dim[1];
@@ -1131,29 +1143,37 @@ function mechSVG(m, size, opts){
   let g = '<svg width="' + size + '" height="' + Math.round(size * 1.25) + '" viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg">';
   g += '<rect x="18" y="132" width="84" height="6" fill="#000" opacity=".35"/>';
   g += '<g' + hot('legs') + '>';
-  const legW = sprint ? 7 : 10, legH = chId === 'ghost_lt' ? 28 : 36;
+  const legW = sprint ? 7 : (anchor ? 13 : 10), legH = chId === 'ghost_lt' ? 28 : 36;
   [-1, 1].forEach(sd => {
     g += R(cx + sd * (bw * .28) - legW / 2, top + bh - 2, legW, legH, sprint ? procCol : HULL);
-    g += R(cx + sd * (bw * .28) - legW / 2 - 2, top + bh + legH - 6, legW + 6, 6, PLATE);
+    g += R(cx + sd * (bw * .28) - legW / 2 - 2, top + bh + legH - 6, legW + (anchor ? 10 : 6), 6, PLATE);
   });
   g += '</g>';
   g += '<g' + hot('torso') + '>';
-  g += R(cx - bw / 2, top, bw, bh, fortified ? PLATE : HULL);
+  const torsoW = lightTorso ? bw - 6 : bw;
+  g += R(cx - torsoW / 2, top, torsoW, bh, fortified ? PLATE : HULL);
   if (fortified) g += '<rect x="' + (cx - bw / 2 - 3) + '" y="' + (top - 3) + '" width="' + (bw + 6) + '" height="' + (bh + 6) + '" fill="none" stroke="' + PLATE + '" stroke-width="3"/>';
   g += R(cx - 5, top + bh * .55, 10, 10, procCol, procCol);
   if (lo.cooling && lo.cooling.indexOf('deluxe') >= 0) g += R(cx - bw / 2, top + bh - 5, bw, 4, '#7EB6C1', '#7EB6C1');
-  if (lo.shield) g += R(cx - bw / 2 - 10, top + 4, 8, bh * .6, '#7FA6C9', '#7FA6C9');
+  if (lo.shield) g += R(cx - bw / 2 - (lo.shield.indexOf('tower') >= 0 ? 14 : 10), top + 4, lo.shield.indexOf('tower') >= 0 ? 12 : 8, bh * .75, '#7FA6C9', '#7FA6C9');
   g += '</g>';
-  g += '<g' + hot('lsh') + '>' + (lo.left_shoulder ? R(cx - bw / 2 - 12, top, 12, 12, PLATE) : R(cx - bw / 2 - 8, top + 2, 8, 8, HULL)) + '</g>';
-  g += '<g' + hot('rsh') + '>' + (lo.right_shoulder ? R(cx + bw / 2, top, 12, 12, PLATE) : R(cx + bw / 2, top + 2, 8, 8, HULL)) + '</g>';
+  const shL = lo.left_shoulder || '', shR = lo.right_shoulder || '';
+  g += '<g' + hot('lsh') + '>' + (shL ? R(cx - bw / 2 - 12, top, 12, 12, PLATE) : R(cx - bw / 2 - 8, top + 2, 8, 8, HULL)) + (shL.indexOf('spike') >= 0 ? R(cx - bw / 2 - 16, top - 6, 4, 8, acc) : '') + '</g>';
+  g += '<g' + hot('rsh') + '>' + (shR ? R(cx + bw / 2, top, 12, 12, PLATE) : R(cx + bw / 2, top + 2, 8, 8, HULL)) + (shR.indexOf('spike') >= 0 ? R(cx + bw / 2 + 12, top - 6, 4, 8, acc) : '') + '</g>';
   g += '<g' + hot('head') + '>';
   g += R(cx - 7, top - 14, 14, 12, PLATE);
   g += R(cx - 5, top - 10, 10, 4, procCol, procCol);
   if (scope) g += '<rect x="' + (cx + 8) + '" y="' + (top - 12) + '" width="10" height="4" fill="' + acc + '"/>';
+  if (relay){ g += R(cx - 10, top - 26, 2, 12, LIGHT); g += R(cx + 8, top - 26, 2, 12, LIGHT); }
   g += '</g>';
   g += '<g' + hot('arms') + '>';
-  g += R(cx - bw / 2 - 8, top + 16, 8, bh * .55, HULL);
-  g += R(cx + bw / 2, top + 16, 8, bh * .55, HULL);
+  [-1, 1].forEach(sd => {
+    const aid = (sd < 0 ? lo.left_arm : lo.right_arm) || '';
+    const aw = aid.indexOf('heavy') >= 0 ? 11 : (aid.indexOf('light') >= 0 ? 5 : 8);
+    const ax = sd < 0 ? cx - bw / 2 - aw : cx + bw / 2;
+    g += R(ax, top + 16, aw, bh * .55, HULL);
+    if (aid.indexOf('claw') >= 0) g += R(ax, top + 16 + bh * .55, aw, 6, acc);
+  });
   g += '</g>';
   g += '<g' + hot('weapon') + '>';
   const wx = cx + bw / 2 + 8, wy = top + bh * .45;
@@ -1166,6 +1186,12 @@ function mechSVG(m, size, opts){
   else if (wid === 'reaver_blade') g += '<polygon points="' + wx + ',' + (wy + 8) + ' ' + (wx + 26) + ',' + (wy - 18) + ' ' + (wx + 18) + ',' + (wy + 4) + '" fill="' + acc + '"/>';
   else if (wid === 'grinder_mk1') g += '<circle cx="' + (wx + 8) + '" cy="' + (wy + 4) + '" r="9" fill="' + PLATE + '" stroke="' + acc + '" stroke-width="3"/>';
   else if (wid === 'impact_ram') g += R(cx - bw / 2, top + bh * .35, bw, 10, acc);
+  else if (wid === 'rotary_mk1'){ g += R(wx, wy, 16, 8, LIGHT); g += R(wx + 16, wy + 1, 10, 2, procCol); g += R(wx + 16, wy + 5, 10, 2, procCol); }
+  else if (wid === 'laser_mk1') g += R(wx, wy + 2, 30, 3, '#7EB6C1', '#7EB6C1');
+  else if (wid === 'srm_pack') g += R(wx, wy - 4, 12, 16, acc);
+  else if (wid === 'maul_mk1'){ g += R(wx + 2, wy - 8, 4, 22, HULL); g += R(wx - 2, wy - 14, 16, 8, PLATE); }
+  else if (wid === 'pulse_emp') g += R(wx, wy - 2, 12, 12, '#7EB6C1', '#7EB6C1');
+  else if (wid === 'frag_charge') g += '<circle cx="' + (wx + 6) + '" cy="' + (wy + 4) + '" r="6" fill="' + acc + '"/>';
   if (info.secondary && info.secondary !== 'fists') g += R(cx - bw / 2 - 16, wy, 8, 8, acc);
   g += '</g>';
   if (opts.hs || (opts.live !== true && cond < 50)) g += '<rect x="8" y="8" width="104" height="134" fill="#0B0E12" opacity=".55"/><text x="60" y="78" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="' + acc + '">HS</text>';
@@ -1284,20 +1310,24 @@ function mech3DGroup(mech, lo, chId){
     (P[zone] || (P[zone] = [])).push(mesh);
     return mesh;
   }
-  const sprint = (lo.left_leg && lo.left_leg.indexOf('sprint') >= 0) || (lo.right_leg && lo.right_leg.indexOf('sprint') >= 0);
   const fortified = lo.torso && lo.torso.indexOf('fortified') >= 0;
+  const lightTorso = lo.torso && lo.torso.indexOf('light') >= 0;
   const deco = lo.torso && lo.torso.indexOf('decal') >= 0;
   const scope = lo.head && (lo.head.indexOf('target') >= 0 || lo.head.indexOf('sensor') >= 0);
+  const relay = lo.head && lo.head.indexOf('relay') >= 0;
   // proportions par châssis (hauteur totale ≈ 4.6-5)
-  const legH = heavy ? 1.6 : (arty ? 2.0 : 1.75), torsoH = heavy ? 1.85 : 1.55, legX = heavy ? .62 : .5;
-  const tw = heavy ? 2.3 : (scout ? 1.55 : 1.95);
+  const legH = heavy ? 1.6 : (arty ? 2.0 : 1.75), torsoH = heavy ? 1.85 : (lightTorso ? 1.35 : 1.55), legX = heavy ? .62 : .5;
+  const tw = heavy ? 2.3 : (scout || lightTorso ? 1.55 : 1.95);
   const ty0 = legH + .55, hy = ty0 + torsoH;
   // JAMBES
   [-1, 1].forEach(sd => {
-    add('legs', new THREE.BoxGeometry(.55, legH, .6), at3dMat(0x343B43), sd * legX, legH / 2, 0);
+    const legId = (sd < 0 ? lo.left_leg : lo.right_leg) || '';
+    const sprintLeg = legId.indexOf('sprint') >= 0, anchorLeg = legId.indexOf('anchor') >= 0;
+    const thigh = anchorLeg ? .72 : (sprintLeg ? .4 : .55);
+    add('legs', new THREE.BoxGeometry(thigh, legH, anchorLeg ? .75 : .6), at3dMat(0x343B43), sd * legX, legH / 2, 0);
     add('legs', new THREE.BoxGeometry(.75, .28, .85), at3dMat(0x3D444D), sd * legX, legH + .12, 0);
-    add('legs', new THREE.BoxGeometry(.8, .22, 1.1), at3dMat(0x232830), sd * legX, .11, .05);
-    if (sprint) add('legs', new THREE.ConeGeometry(.22, .6, 12), at3dMat(0x111418, { emissive: new THREE.Color(procCol), emissiveIntensity: .9 }), sd * legX, -.28, -.05);
+    add('legs', new THREE.BoxGeometry(anchorLeg ? 1.15 : .8, .22, anchorLeg ? 1.35 : 1.1), at3dMat(0x232830), sd * legX, .11, .05);
+    if (sprintLeg) add('legs', new THREE.ConeGeometry(.22, .6, 12), at3dMat(0x111418, { emissive: new THREE.Color(procCol), emissiveIntensity: .9 }), sd * legX, -.28, -.05);
   });
   add('legs', new THREE.BoxGeometry(1.5, .4, .8), at3dMat(0x3D444D), 0, legH + .38, 0);
   // TORSE + réacteur
@@ -1313,16 +1343,28 @@ function mech3DGroup(mech, lo, chId){
   add('head', new THREE.BoxGeometry(.7, .48, .6), at3dMat(0x3D444D), 0, hy + .28, 0);
   add('head', new THREE.BoxGeometry(.6, .16, .1), at3dMat(0x2A3138, { emissive: 0x7FA6C9, emissiveIntensity: .8 }), 0, hy + .3, .36);
   if (scope) add('head', new THREE.CylinderGeometry(.09, .09, .5, 12), at3dMat(0x232830), .3, hy + .62, 0, 0, 0, Math.PI / 2.6);
+  if (relay) [-.28, .28].forEach(o => add('head', new THREE.CylinderGeometry(.03, .03, .55, 6), at3dMat(0xE7EBEF), o, hy + .7, -.05));
   if (scout) add('head', new THREE.CylinderGeometry(.02, .02, .7, 6), at3dMat(0xE7EBEF), -.35, hy + .7, -.1, .2, 0, .3);
   // ÉPAULES + BRAS
   const padW = heavy ? 1.1 : .9;
   [-1, 1].forEach(sd => {
-    add(sd < 0 ? 'lsh' : 'rsh', new THREE.BoxGeometry(padW, .95, 1.3), at3dMat(lo[sd < 0 ? 'left_shoulder' : 'right_shoulder'] ? 0x3D444D : 0x343B43), sd * (tw / 2 + padW / 2 - .08), hy - .28, 0);
-    add('arms', new THREE.BoxGeometry(.55, 1.3, .6), at3dMat(0x343B43), sd * (tw / 2 + .25), ty0 + .5, 0);
+    const shId = lo[sd < 0 ? 'left_shoulder' : 'right_shoulder'] || '';
+    const armId = lo[sd < 0 ? 'left_arm' : 'right_arm'] || '';
+    add(sd < 0 ? 'lsh' : 'rsh', new THREE.BoxGeometry(padW, .95, 1.3), at3dMat(shId ? 0x3D444D : 0x343B43), sd * (tw / 2 + padW / 2 - .08), hy - .28, 0);
+    if (shId.indexOf('spike') >= 0) add(sd < 0 ? 'lsh' : 'rsh', new THREE.ConeGeometry(.12, .45, 5), at3dMat(0xD93432), sd * (tw / 2 + padW), hy + .15, .2);
+    const aw = armId.indexOf('heavy') >= 0 ? .78 : (armId.indexOf('light') >= 0 ? .36 : .55);
+    add('arms', new THREE.BoxGeometry(aw, armId.indexOf('light') >= 0 ? 1.15 : 1.3, aw), at3dMat(0x343B43), sd * (tw / 2 + .25), ty0 + .5, 0);
+    if (armId.indexOf('claw') >= 0) add('arms', new THREE.BoxGeometry(.5, .16, .22), at3dMat(0xD93432), sd * (tw / 2 + .25), ty0 - .2, .2);
   });
-  if (lo.shield){ const sm = new THREE.Mesh(new THREE.TorusGeometry(1.5, .07, 10, 40, Math.PI * 1.15),
-      at3dMat(0x7FA6C9, { emissive: 0x7FA6C9, emissiveIntensity: .7, transparent: true, opacity: .85 }));
-    sm.position.set(-(tw / 2 + .6), ty0 + torsoH * .55, 0); sm.rotation.x = Math.PI / 2; sm.rotation.z = Math.PI / 2; grp.add(sm); P.arms.push(sm); }
+  if (lo.shield){
+    const tower = lo.shield.indexOf('tower') >= 0;
+    const sm = tower
+      ? new THREE.Mesh(new THREE.BoxGeometry(.16, 2.1, 1.35), at3dMat(0x7FA6C9, { emissive: 0x7FA6C9, emissiveIntensity: .35 }))
+      : new THREE.Mesh(new THREE.TorusGeometry(1.5, .07, 10, 40, Math.PI * 1.15), at3dMat(0x7FA6C9, { emissive: 0x7FA6C9, emissiveIntensity: .7, transparent: true, opacity: .85 }));
+    sm.position.set(-(tw / 2 + .6), ty0 + torsoH * .55, tower ? .15 : 0);
+    if (!tower){ sm.rotation.x = Math.PI / 2; sm.rotation.z = Math.PI / 2; }
+    grp.add(sm); P.arms.push(sm);
+  }
   // ===== ARMES procédurales (sockets prêts pour GLB Tripo) =====
   const wy = ty0 + .45;
   function mkWeapon(wid, sd, scale){
@@ -1361,6 +1403,33 @@ function mech3DGroup(mech, lo, chId){
     if (wid === 'scatter_gun_mk1'){ // fusil à éclats court
       add('weapon', new THREE.BoxGeometry(.4, .4, .95 * (scale || 1)), at3dMat(0x3D444D), sx, wy, .55);
       add('weapon', new THREE.BoxGeometry(.55, .55, .18), at3dMat(0x232830), sx, wy, 1.1);
+      return;
+    }
+    if (wid === 'rotary_mk1'){
+      add('weapon', new THREE.BoxGeometry(.42, .42, .7), at3dMat(0x3D444D), sx, wy, .4);
+      [-.12, 0, .12].forEach(o => add('weapon', new THREE.CylinderGeometry(.05, .05, .8, 8), at3dMat(0xE7EBEF), sx + o, wy, .95, Math.PI / 2));
+      return;
+    }
+    if (wid === 'laser_mk1'){
+      add('weapon', new THREE.BoxGeometry(.16, .16, 1.8 * (scale || 1)), at3dMat(0x7EB6C1, { emissive: 0x7EB6C1, emissiveIntensity: .45 }), sx, wy, .8);
+      return;
+    }
+    if (wid === 'srm_pack'){
+      add('weapon', new THREE.BoxGeometry(.55, .7, .7), at3dMat(0x3D444D), sx, wy, .35);
+      [-.12, .12].forEach(o => [-.12, .12].forEach(v => add('weapon', new THREE.CylinderGeometry(.05, .05, .35, 8), at3dMat(0xD93432), sx + o, wy + v, .7, Math.PI / 2)));
+      return;
+    }
+    if (wid === 'maul_mk1'){
+      add('weapon', new THREE.CylinderGeometry(.07, .07, 1.3, 8), at3dMat(0x3D444D), sx, wy + .4, .3);
+      add('weapon', new THREE.BoxGeometry(.55, .4, .4), at3dMat(0xE7EBEF, { metalness: .8 }), sx, wy + 1.05, .3);
+      return;
+    }
+    if (wid === 'pulse_emp'){
+      add('weapon', new THREE.CylinderGeometry(.22, .28, .7, 10), at3dMat(0x7EB6C1, { emissive: 0x7EB6C1, emissiveIntensity: .4 }), sx, wy, .45, Math.PI / 2);
+      return;
+    }
+    if (wid === 'frag_charge'){
+      add('weapon', new THREE.SphereGeometry(.28, 12, 10), at3dMat(0xD93432, { emissive: 0xD93432, emissiveIntensity: .35 }), sx, wy, .4);
       return;
     }
     // autocanon + défaut tireur
