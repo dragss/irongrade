@@ -7,7 +7,7 @@
 <script type="importmap">
 { "imports": { "three": "./vendor/three/build/three.module.js", "three/addons/": "./vendor/three/examples/jsm/" } }
 </script>
-<title>IRONGRADE — Prototype manager v0.16.3</title>
+<title>IRONGRADE — Prototype manager v0.17.0</title>
 <style>
   @font-face { font-family: Inter; font-style: normal; font-weight: 100 900; font-display: swap; src: url("vendor/fonts/inter-latin.woff2") format("woff2"); }
   :root {
@@ -99,6 +99,8 @@
   .badge.ok { color: #8FD3A8; border-color: #245C3C; }
   .badge.warn { color: #E3A23B; border-color: #6A4E1E; }
   .badge.err { color: #E07A78; border-color: #6A2E2C; }
+  .shoprow { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; align-items: center; }
+  .shoprow .sub2 { margin: 2px 0 0; }
   table { border-collapse: collapse; width: 100%; font-size: 14px; }
   th { color: #6E7780; font-size: 11px; letter-spacing: .1em; text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
   td { padding: 10px; border-bottom: 1px solid #1C2430; color: #C6CDD4; }
@@ -299,7 +301,7 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.16.3 — MECHCORE v1.5.1 — FLOTTE CC0 QUATERNIUS, REMPLAÇABLE</div>
+  <div class="footer">IRONGRADE v0.17.0 — MECHCORE v1.5.1</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -337,11 +339,13 @@
   <div class="tophead"><span class="org">Garage</span><span class="res" id="gar-credits"></span><span class="hint" id="gar-tripo" style="color:#D93432;letter-spacing:1px"></span><button class="small" id="gar-3d-tog">Hangar 3D : off</button></div>
   <nav class="subnav">
     <button type="button" class="cur" data-pane="fleet">Flotte</button>
+    <button type="button" data-pane="shop">Boutique</button>
     <button type="button" data-pane="configs">Configurations</button>
   </nav>
   <nav class="subnav" id="gar-switch" data-with-pane="fleet"></nav>
   <div class="stage">
     <div class="pane" data-pane="fleet"><div class="fillscroll" id="garage-mechs"></div></div>
+    <div class="pane" data-pane="shop" hidden><div class="fillscroll" id="shop-bay"></div></div>
     <div class="pane" data-pane="configs" hidden><div class="fillscroll" id="config-lib"></div></div>
   </div>
   <div class="modal" id="atelier-panel" hidden>
@@ -478,7 +482,7 @@
     <table>
       <tr><td><b>1. CENTRE DE COMMANDEMENT</b></td><td>Suivez les finances, la réputation, le prochain match et les alertes.</td></tr>
       <tr><td><b>2. ROSTER</b></td><td>Recrutez et entraînez vos pilotes (3 actifs + 2 réserves). La précision et le sang-froid d'un pilote améliorent la visée et la stabilité de son mech.</td></tr>
-      <tr><td><b>3. GARAGE</b></td><td>Réparez vos mechs (crédits), changez le processeur, montez les modules à l'atelier (budgets masse/puissance/chaleur).</td></tr>
+      <tr><td><b>3. GARAGE</b></td><td>Le châssis de départ est la structure : il ne se change pas. L’atelier monte les pièces que vous possédez. La boutique vend le reste, et certaines journées un châssis entier — de série, ou une version rare qui gagne d’un côté et perd de l’autre. Les crédits paient aussi les réparations.</td></tr>
       <tr><td><b>4. CHAMPIONNAT</b></td><td>Ligue à 6 équipes, 10 journées. Un match = UNE bataille d'équipe 3v3 SIMULTANÉE : les 6 mechs sont sur le terrain en même temps, chaque processeur choisit sa cible. Victoire collective par destruction totale ou score HP au timeout (D-035).</td></tr><tr><td><b>4b. AFFINITÉS</b></td><td>Liaisons d'escouade : deux pilotes de la même origine → +3% visée chacun par liaison VIVANTE ; même bloc régional → +2%. Escouade 100% même bloc → PHALANX : +3 stabilité chacun. Les liaisons s'éteignent quand le coéquipier tombe.</td></tr><tr><td><b>4c. TERRAINS</b></td><td>7 arènes en rotation : les batailles traversent des terrains de campagne — <b>CENTRE-VILLE DE KESTREL</b> (bâtiments), <b>FORÊT DE FER-NOIR</b> (arbres, rochers), <b>DELTA DE KESSARI</b> (eau : déplacement ralenti, pontons) + les 4 d'origine. Un mech bloqué par un obstacle <b>saute par-dessus</b> (1,2 s en vol, recharge 6 s — ni tir ni mêlée en l'air, et une cible en vol est intouchable en mêlée).</td></tr><tr><td><b>4d. HAUTEUR</b></td><td>Les plateformes marquées <b>▲</b> (pontons du delta, tour du centre-ville, rochers de la forêt) s'<b>escaladent</b> : un tireur en rechargement à portée de marche prend la hauteur (0,4 s/m, recharge 3 s). Perché : <b>+4% visée</b> sur une cible au sol, ligne de tir <b>par-dessus les obstacles</b> — mais <b>intouchable en mêlée</b>, et une cible entrée dans sa portée minimale le force à redescendre. Un saut peut aussi y atterrir directement.</td></tr><tr><td><b>4e. INERTIE</b></td><td>Les châssis pèsent des dizaines de tonnes : un mech <b>se lance comme un coureur</b> (≈1,2 s pour atteindre sa pleine vitesse, ≈0,7 s pour s'arrêter), <b>dérape dans les virages</b> — son élan le porte — et <b>tirer en mouvement élargit son erreur de visée de +35 %</b> à pleine vitesse. Un mech perché tient son perchoir sans bouger.</td></tr><tr><td><b>4f. ENVERGURE</b></td><td>Chaque châssis a une <b>envergure physique</b> (ghost 1,1 m &lt; longbow 1,3 &lt; hound 1,6 &lt; warden 1,8 m de rayon) : les corps <b>se repoussent</b> au contact, la mêlée se joue <b>bord-à-bord</b>, un gros châssis est <b>plus facile à toucher</b> au tir et ne passe pas dans les passages étroits. Les alliés se répartissent autour de la cible au lieu de se coller.</td></tr>
       <tr><td><b>5. PRÉPARATION</b></td><td>Analysez l'adversaire, choisissez qui engage quel mech et avec quel processeur.</td></tr>
       <tr><td><b>6. MATCH</b></td><td>Vous observez : les processeurs dirigent les mechs. Caméra tactique, pause, ×1/×2/×4.</td></tr>
@@ -583,6 +587,28 @@ const STARTING_MECHS = [ // 3 mechs de départ de l'orga (presets garage, proces
   { id: 'm2', label: 'VIF-ARGENT', preset: 'skirmisher', proc: 'tactician' },
   { id: 'm3', label: 'TONNERRE', preset: 'artillery', proc: 'tactician' }
 ];
+const BAY_MAX = 5;
+const FRAMES = {
+  hound_prime: { chassis: 'hound_prime', label: 'HOUND PRIME', rare: false, price: 1600, blurb: 'Châssis lourd de série.' },
+  hound_citadelle: { chassis: 'hound_prime', label: 'HOUND CITADELLE', rare: true, price: 3400, blurb: 'Plaques plus épaisses, jambes plus lentes.', mods: { hp: 32, armor: 6, speed: -0.5, shield: -10 } },
+  longbow_mk1: { chassis: 'longbow_mk1', label: 'LONGBOW MK1', rare: false, price: 1700, blurb: 'Châssis d’artillerie de série.' },
+  longbow_sirocco: { chassis: 'longbow_mk1', label: 'LONGBOW SIROCCO', rare: true, price: 3600, blurb: 'Visée plus stable, cellule plus fragile.', mods: { acc: 0.04, stability: 8, hp: -18, speed: -0.25 } },
+  warden_x1: { chassis: 'warden_x1', label: 'WARDEN X1', rare: false, price: 1500, blurb: 'Châssis d’assaut de série.' },
+  warden_eclat: { chassis: 'warden_x1', label: 'WARDEN ÉCLAT', rare: true, price: 3200, blurb: 'Il arrive plus vite et encaisse moins.', mods: { speed: 0.4, hp: -14, armor: -3 } },
+  ghost_lt: { chassis: 'ghost_lt', label: 'GHOST LT', rare: false, price: 1800, blurb: 'Châssis d’éclaireur de série.' },
+  ghost_voile: { chassis: 'ghost_lt', label: 'GHOST VOILE', rare: true, price: 3500, blurb: 'Bouclier surdimensionné, ossature plus mince.', mods: { shield: 22, hp: -20, speed: 0.2 } }
+};
+const FRAME_PRESET = { hound_prime: 'bulwark', longbow_mk1: 'artillery', warden_x1: 'sweeper', ghost_lt: 'marksman' };
+const SHOP_PARTS = [
+  { id: 'torso_fortified', price: 720 }, { id: 'head_targeter', price: 540 },
+  { id: 'leg_left_sprint', price: 480 }, { id: 'leg_right_sprint', price: 480 },
+  { id: 'engine_vx6', price: 860 }, { id: 'cooling_deluxe', price: 640 },
+  { id: 'utility_gyro', price: 520 }, { id: 'utility_targeting', price: 520 },
+  { id: 'shoulder_plate_L', price: 360 }, { id: 'shoulder_plate_R', price: 360 },
+  { id: 'pulse_emp', price: 1100 }, { id: 'frag_charge', price: 980 },
+  { id: 'grinder_mk1', price: 760 }, { id: 'rail_gun_mk1', price: 1400 },
+  { id: 'seraph_lrm_pod', price: 1500 }, { id: 'reaver_blade', price: 900 }
+];
 const IA_TEAMS = { // organisations adverses (ligue pro médiatisée — univers hybride sport/militaire)
   fer: [
     { id: 'forge_rouge', nom: 'FORGE ROUGE', style: 'RUSH — mêlée et pression',
@@ -631,9 +657,18 @@ function pilotById(id){ return G.pilots.find(p => p.id === id); }
 function mechAvailable(m){ return m.condition >= GAME.condition_indisponible; }
 function pilotAvailable(p){ return p.blessure === 0 && p.fatigue < GAME.fatigue_max_alignable; }
 function repairCost(m){ const base = mechBaseHp(m); return Math.round((100 - m.condition) / 100 * base * GAME.cr_reparation_par_hp); }
+function frameOf(m){ return m && FRAMES[m.frame] || null; }
+function frameMods(m){ const f = frameOf(m); return (f && f.mods) || {}; }
 function mechBaseHp(m){
-  if (m.loadout){ const v = validateLoadout(m.chassis, m.loadout); return v.stats ? v.stats.hp : 100; }
-  return RSG.mechs[m.preset] ? RSG.mechs[m.preset].hp : 100;
+  let hp;
+  if (m.loadout){ const v = validateLoadout(m.chassis, m.loadout); hp = v.stats ? v.stats.hp : 100; }
+  else hp = RSG.mechs[m.preset] ? RSG.mechs[m.preset].hp : 100;
+  return Math.max(40, hp + (frameMods(m).hp || 0));
+}
+function partLabel(id){
+  if (MODULES[id]) return MODULES[id].label;
+  if (RULESET.weapons[id]) return RULESET.weapons[id].label;
+  return id;
 }
 function mechLabel(m){ return m.label + (m.loadout ? ' [custom]' : ' [' + (PRESETS[m.preset] ? PRESETS[m.preset].label : m.preset) + ']'); }
 function accBonus(p){ return (p.prec - 5) * PILOT_ACC_PER_PT; }
@@ -650,8 +685,18 @@ function ficheLv(p, chassisId){
   const cap = (RULESET.combat.trade && RULESET.combat.trade.fiche_cap) || 5;
   return Math.min(cap, Math.floor((p.fiche[chassisId] || 0) / step));
 }
+function migrateBay(){
+  if (!G || !G.mechs) return;
+  if (!G.locker) G.locker = [];
+  G.mechs.forEach(m => {
+    if (!m.chassis && PRESETS[m.preset]) m.chassis = PRESETS[m.preset].mechId;
+    if (!m.frame) m.frame = m.chassis;
+    if (!m.loadout && PRESETS[m.preset]) m.loadout = JSON.parse(JSON.stringify(PRESETS[m.preset].loadout));
+  });
+}
 function migrateFiche(){
   if (!G || !G.pilots) return;
+  migrateBay();
   G.pilots.forEach(p => {
     if (p.fiche) return;
     p.fiche = {};
@@ -684,6 +729,7 @@ function newGame(orgName){
     org: { name: (orgName || 'ORGANISATION SANS NOM').toUpperCase(), credits: GAME.credits_depart, rep: 0, division: 'fer', saison: 1, journee: 1 },
     pilots: PILOT_POOL.map(p => ({ ...p, xp: 0, niveau: 1, moral: 60, fatigue: 0, blessure: 0, mechId: null })),
     mechs: STARTING_MECHS.map(m => ({ ...m, condition: 100, chassis: null, loadout: null })),
+    locker: [],
     configs: [],
     agents: AGENTS.map(a => ({ ...a })),
     teams: ia.map(t => ({ ...t })),
@@ -693,6 +739,7 @@ function newGame(orgName){
   };
   // assignations de départ : les 3 actifs prennent les 3 mechs
   G.mechs.forEach((m, i) => { if (G.pilots[i]) { G.pilots[i].mechId = m.id; m.pilotId = G.pilots[i].id; } });
+  migrateBay();
   save();
 }
 function oppTeam(oppId){ return G.teams.find(t => t.id === oppId); }
@@ -709,6 +756,13 @@ function mechEntryFor(rs, mech, pilot){
       accuracy_bonus: s.accuracy_bonus, stability: s.stability, cooling_per_s: rs.mechs[mech.chassis].cooling_per_s,
       passive: rs.mechs[mech.chassis].passive, label: mech.label };
   } else entry = { ...rs.mechs[mech.preset], label: mech.label };
+  const d = frameMods(mech);
+  if (d.hp) entry.hp = Math.max(40, entry.hp + d.hp);
+  if (d.armor) entry.armor = Math.max(0, (entry.armor || 0) + d.armor);
+  if (d.shield) entry.shield = Math.max(0, (entry.shield || 0) + d.shield);
+  if (d.speed) entry.speed_mps = Math.max(0.6, Math.round((entry.speed_mps + d.speed) * 100) / 100);
+  if (d.acc) entry.accuracy_bonus = (entry.accuracy_bonus || 0) + d.acc;
+  if (d.stability) entry.stability = (entry.stability || 0) + d.stability;
   if (pilot){
     const tr = traitOf(pilot);
     entry.accuracy_bonus = (entry.accuracy_bonus || 0) + accBonus(pilot) + (tr && tr.acc || 0);
@@ -1330,7 +1384,7 @@ function buildMech3D(lo, chId, hot){
     at3d.scene.remove(at3d.group);
     if (!at3d.group.userData.shared) at3d.group.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
   }
-  const league = presentLeague(chId, 0);
+  const league = presentLeague(chId, 0, atelierMech.frame);
   const built = league ? { grp: league, parts: {} } : mech3DGroup(atelierMech, lo, chId);
   at3d.group = built.grp; at3d.parts = built.parts; at3d.mixer = league ? league.userData.mixer : null;
   at3d.scene.add(built.grp);
@@ -1368,6 +1422,7 @@ function startAt3DLoop(){
     at3d.camera.lookAt(0, at3d.ly, 0);
     if (at3d.group) at3d.group.position.y = Math.sin(t / 700) * .04; // idle
     if (at3d.mixer) at3d.mixer.update(dt / 1000);
+    if (at3d.group) voxelPose(at3d.group, dt / 1000, 0.35, false, false);
     if (at3d.fx && atelierMech) at3d.fx.update(dt, t, [{ x: 0, y: 0, z: 0, damaged: atelierMech.condition < 100 }]);
     at3d.renderer.render(at3d.scene, at3d.camera);
     at3d.raf = requestAnimationFrame(tick3d);
@@ -1462,50 +1517,110 @@ function hangarProps(scene, mode){
     bx.position.set(x, .6 * sc, z); bx.rotation.y = ry; scene.add(bx); });
 }
 
-// Flotte CC0 Quaternius — un GLB par châssis, en attendant les modèles propres du dépôt.
-const LEAGUE_CDN = 'assets/league/'; // CC0 Quaternius, en local : le CDN dépasse la limite jsDelivr
+// Silhouettes voxel par châssis. Les GLB Quaternius restent dans assets/league, prêts à remplacer ce bloc.
 const LEAGUE_GLB = { hound_prime: 'Stan.glb', longbow_mk1: 'Leela.glb', warden_x1: 'Mike.glb', ghost_lt: 'George.glb' };
-let leagueLib = { ready: false, loading: false, wait: [], templates: {} };
+const VOXEL_SPEC = {
+  hound_prime: { hull: 0xC4322E, dark: 0x16181E, eye: 0xF4F7FF, glow: 0x7DFF6A, torso: [1.5, 1.08, 0.96], cannon: true },
+  longbow_mk1: { hull: 0x2F6FE0, dark: 0x141820, eye: 0xFFF3A0, glow: 0xFFE14A, torso: [1.02, 1.28, 0.76], wing: 1.15 },
+  warden_x1: { hull: 0x1F9A56, dark: 0x141A16, eye: 0xE8FFB0, glow: 0xFFE14A, torso: [1.24, 1.14, 0.86], wing: 0.42 },
+  ghost_lt: { hull: 0x3A4454, dark: 0x12151A, eye: 0x9DEBFF, glow: 0x7EE0FF, torso: [0.78, 1.02, 0.6], slim: true }
+};
+let leagueLib = { ready: false, loading: false, wait: [] };
 function loadLeagueLib(cb){
   if (leagueLib.ready) return cb(true);
-  ensureTHREE(ok => {
-    if (!ok) return cb(false);
-    if (leagueLib.ready) return cb(true);
-    if (leagueLib.loading){ leagueLib.wait.push(cb); return; }
-    leagueLib.loading = true; leagueLib.wait = [cb];
-    const ld = new window.THREE.GLTFLoader();
-    const ids = Object.keys(LEAGUE_GLB);
-    let left = ids.length;
-    const finish = () => { leagueLib.ready = true; leagueLib.loading = false; const w = leagueLib.wait; leagueLib.wait = []; w.forEach(f => f(!!Object.keys(leagueLib.templates).length)); };
-    ids.forEach(id => ld.load(LEAGUE_CDN + LEAGUE_GLB[id], g => {
-      const root = g.scene;
-      root.updateMatrixWorld(true);
-      root.traverse(o => { if (o.isSkinnedMesh && o.skeleton) o.skeleton.update(); });
-      const box = new window.THREE.Box3().setFromObject(root);
-      const h = Math.max(1e-4, box.max.y - box.min.y);
-      root.scale.multiplyScalar(4.6 / h);
-      root.updateMatrixWorld(true);
-      const b2 = new window.THREE.Box3().setFromObject(root);
-      root.position.set(-(b2.min.x + b2.max.x) / 2, -b2.min.y, -(b2.min.z + b2.max.z) / 2);
-      leagueLib.templates[id] = { scene: root, animations: g.animations || [] };
-      if (--left === 0) finish();
-    }, undefined, () => { if (--left === 0) finish(); }));
-  });
+  ensureTHREE(ok => { leagueLib.ready = !!ok; cb(!!ok); });
 }
-function spawnLeague(chId){
-  const src = leagueLib.templates[chId];
-  if (!src || !window.THREE || !window.THREE.SkeletonUtils) return null;
-  const root = window.THREE.SkeletonUtils.clone(src.scene);
-  root.traverse(o => { if (o.material && o.material.isMaterial) o.material = o.material.clone(); });
-  const mixer = new window.THREE.AnimationMixer(root);
-  const actions = {};
-  src.animations.forEach(c => { actions[c.name] = mixer.clipAction(c); });
-  const idle = actions.Idle || actions.Walk || actions[src.animations[0] && src.animations[0].name];
-  if (idle) idle.play();
-  root.userData.mixer = mixer;
-  root.userData.actions = actions;
-  root.userData.clip = idle ? (actions.Idle ? 'Idle' : 'Walk') : '';
-  root.userData.shared = true;
+function voxMat(color, em, ei){
+  return new window.THREE.MeshStandardMaterial({ color, roughness: 0.58, metalness: 0.22, emissive: em || 0x000000, emissiveIntensity: ei || 0 });
+}
+function voxBox(parent, w, h, d, x, y, z, mat){
+  const mesh = new window.THREE.Mesh(new window.THREE.BoxGeometry(w, h, d), mat);
+  mesh.position.set(x, y, z);
+  parent.add(mesh);
+  return mesh;
+}
+function voxelPose(root, dt, spd, dead, air){
+  const u = root && root.userData;
+  if (!u || !u.voxel) return;
+  u.phase = (u.phase || 0) + dt * (dead || air ? 0 : 2.2 + Math.min(7, spd || 0));
+  const swing = dead || air ? 0 : Math.sin(u.phase) * Math.min(0.48, 0.08 + (spd || 0) * 0.07);
+  (u.legs || []).forEach((leg, i) => { leg.rotation.x = swing * (i % 2 ? -1 : 1); });
+  (u.arms || []).forEach((arm, i) => { arm.rotation.x = swing * 0.4 * (i % 2 ? 1 : -1); });
+  if (u.body) u.body.position.y = u.bodyHome + (dead || air ? 0 : Math.abs(Math.sin(u.phase * 2)) * 0.03);
+  root.rotation.x = dead ? 1.15 : 0;
+  root.rotation.z = !dead && air ? 0.7 : 0;
+  (u.eyes || []).forEach(m => { if (m.material) m.material.emissiveIntensity = dead ? 0.04 : 0.75 + Math.abs(Math.sin(u.phase * 0.6)) * 0.45; });
+}
+function spawnLeague(chId, frameId){
+  if (!window.THREE) return null;
+  const THREE = window.THREE;
+  const spec = VOXEL_SPEC[chId] || VOXEL_SPEC.hound_prime;
+  const root = new THREE.Group();
+  const hull = voxMat(spec.hull);
+  const dark = voxMat(spec.dark);
+  const eyeM = () => voxMat(spec.dark, spec.eye, 1.15);
+  const glowM = () => voxMat(spec.dark, spec.glow, 1.25);
+  const slim = !!spec.slim;
+  const hip = slim ? 1.95 : 1.68;
+  const thick = slim ? 0.2 : 0.34;
+  const legs = [], arms = [], eyes = [];
+  [-1, 1].forEach(side => {
+    const leg = new THREE.Group();
+    leg.position.set(side * (slim ? 0.22 : 0.34), hip, 0);
+    voxBox(leg, thick, 0.72, thick, 0, -0.42, 0, dark);
+    voxBox(leg, thick * 0.9, 0.7, thick, 0, -1.1, 0.02, hull);
+    voxBox(leg, thick * 1.25, 0.16, 0.55, 0, -1.5, 0.1, dark);
+    root.add(leg); legs.push(leg);
+    const arm = new THREE.Group();
+    arm.position.set(side * (spec.torso[0] * 0.5 + 0.22), hip + 0.85, 0);
+    voxBox(arm, 0.28, 0.7, 0.28, 0, -0.4, 0, dark);
+    voxBox(arm, 0.32, 0.28, 0.46, 0, -0.85, 0.08, hull);
+    root.add(arm); arms.push(arm);
+  });
+  const body = new THREE.Group();
+  body.position.y = hip + 0.15;
+  root.add(body);
+  const [tw, th, td] = spec.torso;
+  voxBox(body, tw, th, td, 0, th * 0.45, 0, hull);
+  voxBox(body, tw * 0.55, 0.16, 0.08, 0, th * 0.55, td * 0.5 + 0.02, glowM());
+  eyes.push(voxBox(body, 0.16, 0.16, 0.08, -0.16, th * 0.72, td * 0.5 + 0.02, eyeM()));
+  eyes.push(voxBox(body, 0.16, 0.16, 0.08, 0.16, th * 0.72, td * 0.5 + 0.02, eyeM()));
+  const head = voxBox(body, slim ? 0.46 : 0.7, slim ? 0.36 : 0.48, slim ? 0.46 : 0.62, 0, th + (slim ? 0.24 : 0.32), 0, hull);
+  eyes.push(voxBox(body, 0.12, 0.1, 0.06, -0.14, head.position.y + 0.02, td * 0.42, eyeM()));
+  eyes.push(voxBox(body, 0.12, 0.1, 0.06, 0.14, head.position.y + 0.02, td * 0.42, eyeM()));
+  if (spec.cannon){
+    [-1, 1].forEach(side => {
+      voxBox(body, 0.62, 0.48, 0.7, side * (tw * 0.5 + 0.28), th * 0.72, 0.05, hull);
+      voxBox(body, 0.22, 0.22, 0.85, side * (tw * 0.5 + 0.28), th * 0.72, 0.7, dark);
+      eyes.push(voxBox(body, 0.1, 0.1, 0.06, side * (tw * 0.5 + 0.28), th * 0.72, 1.12, glowM()));
+    });
+  }
+  if (spec.wing){
+    [-1, 1].forEach(side => {
+      const pod = new THREE.Group();
+      pod.position.set(side * (tw * 0.5 + 0.12), th * 0.85, -0.05);
+      pod.rotation.z = side * -0.7 * Math.min(1, spec.wing);
+      voxBox(pod, 0.42, 0.95 * spec.wing + 0.35, 0.38, 0, 0.45, 0, hull);
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.045, 6, 14), glowM());
+      ring.position.set(0, 0.35, 0.22); ring.rotation.y = Math.PI / 2;
+      pod.add(ring); eyes.push(ring);
+      body.add(pod);
+    });
+  }
+  if (frameId === 'hound_citadelle') voxBox(body, tw * 0.86, th * 0.45, 0.12, 0, th * 0.4, td * 0.5 + 0.06, dark);
+  if (frameId === 'longbow_sirocco') voxBox(body, 0.5, 0.1, 0.1, 0, th + 0.62, td * 0.2, glowM());
+  if (frameId === 'warden_eclat') [-1, 1].forEach(side => eyes.push(voxBox(root, 0.08, 0.4, 0.06, side * 0.2, hip - 0.3, thick, glowM())));
+  if (frameId === 'ghost_voile') voxBox(arms[0], 0.12, 0.7, 0.55, -0.22, -0.45, 0.05, hull);
+  root.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(root);
+  root.position.y -= box.min.y;
+  root.userData.voxel = true;
+  root.userData.legs = legs;
+  root.userData.arms = arms;
+  root.userData.body = body;
+  root.userData.bodyHome = body.position.y;
+  root.userData.eyes = eyes;
+  root.userData.shared = false;
   return root;
 }
 function setClip(root, name){
@@ -1520,15 +1635,19 @@ function setClip(root, name){
   if (prev && prev !== next) prev.fadeOut(0.18);
   root.userData.clip = nextName;
 }
-function presentLeague(chId, team){
-  const body = spawnLeague(chId);
+function presentLeague(chId, team, frameId){
+  const body = spawnLeague(chId, frameId);
   if (!body) return null;
   const grp = new window.THREE.Group();
   grp.add(body);
-  grp.userData.mixer = body.userData.mixer;
-  grp.userData.actions = body.userData.actions;
-  grp.userData.clip = body.userData.clip;
-  grp.userData.shared = true;
+  grp.userData.voxel = true;
+  grp.userData.legs = body.userData.legs;
+  grp.userData.arms = body.userData.arms;
+  grp.userData.body = body.userData.body;
+  grp.userData.bodyHome = body.userData.bodyHome;
+  grp.userData.eyes = body.userData.eyes;
+  grp.userData.phase = 0;
+  grp.userData.shared = false;
   const ring = new window.THREE.Mesh(
     new window.THREE.TorusGeometry(1.15, 0.035, 8, 32),
     new window.THREE.MeshStandardMaterial({ color: team === 1 ? 0x7FA6C9 : 0xD93432, emissive: team === 1 ? 0x7FA6C9 : 0xD93432, emissiveIntensity: 0.55 })
@@ -1559,7 +1678,7 @@ function boot3dEnter(){
     const rim = new THREE.DirectionalLight(0xD93432, 0.7); rim.position.set(-7, 4, -3); boot3d.scene.add(rim);
     const floor = new THREE.Mesh(new THREE.CircleGeometry(14, 48), new THREE.MeshStandardMaterial({ color: 0x14181e, roughness: 0.9, metalness: 0.15 }));
     floor.rotation.x = -Math.PI / 2; boot3d.scene.add(floor);
-    const ids = Object.keys(LEAGUE_GLB);
+    const ids = Object.keys(VOXEL_SPEC);
     ids.forEach((id, i) => {
       const m = spawnLeague(id); if (!m) return;
       const x = (i - (ids.length - 1) / 2) * 3.8;
@@ -1588,6 +1707,7 @@ function boot3dLoop(){
     if (!boot3d.on || state !== 'boot') return;
     const dt = last ? Math.min(0.05, (t - last) / 1000) : 0.016; last = t;
     boot3d.mixers.forEach(m => m.update(dt));
+    boot3d.scene.children.forEach(o => voxelPose(o, dt, 0.45, false, false));
     const a = t / 14000;
     boot3d.camera.position.set(Math.sin(a) * 2.4, 3.4, 17.5);
     boot3d.camera.lookAt(0, 1.8, 0);
@@ -1682,7 +1802,8 @@ function gar3dStart(){
     gar3d.camera.lookAt(0, 10.2, 0);
     Object.keys(gar3d.groups).forEach(id => { const g = gar3d.groups[id]; if (!g.grp) return;
       g.grp.position.y = Math.sin(t / 700 + g.ph) * .04;
-      if (g.mixer) g.mixer.update(dt / 1000); });
+      if (g.mixer) g.mixer.update(dt / 1000);
+      voxelPose(g.grp, dt / 1000, 0.4, false, false); });
     if (gar3d.fx) gar3d.fx.update(dt, t, gar3d.anchors);
     gar3d.renderer.render(gar3d.scene, gar3d.camera);
     gar3d.raf = requestAnimationFrame(tick);
@@ -1711,7 +1832,7 @@ function buildGar3D(){
 }
 function buildGar3DFleet(){
   if (!gar3d.ok) return;
-  const key = G.mechs.map(m => m.id + ':' + (m.chassis || m.preset) + ':' + JSON.stringify(m.loadout || {}) + ':' + m.proc + ':' + Math.round(m.condition)).join('|');
+  const key = G.mechs.map(m => m.id + ':' + (m.frame || '') + ':' + (m.chassis || m.preset) + ':' + JSON.stringify(m.loadout || {}) + ':' + m.proc + ':' + Math.round(m.condition)).join('|');
   if (key === gar3d.key) return;
   gar3d.key = key;
   (gar3d.decor || []).forEach(o => gar3d.scene.remove(o));
@@ -1724,9 +1845,9 @@ function buildGar3DFleet(){
   G.mechs.forEach((m, i) => {
     const lo = m.loadout || (PRESETS[m.preset] ? PRESETS[m.preset].loadout : {});
     const chId = m.chassis || (PRESETS[m.preset] ? PRESETS[m.preset].mechId : 'hound_prime');
-    const league = presentLeague(chId, 0);
+    const league = presentLeague(chId, 0, m.frame);
     const glb = league ? null : tripoMech(m, lo, chId);
-    const built = league ? { grp: league, parts: {}, shared: true, mixer: league.userData.mixer }
+    const built = league ? { grp: league, parts: {}, shared: !!league.userData.shared, mixer: league.userData.mixer }
       : (glb ? { grp: glb, parts: {}, shared: true, mixer: glb.userData.mixer || null } : mech3DGroup(m, lo, chId));
     const x = (i - (n - 1) / 2) * sp;
     built.grp.position.x = x;
@@ -1759,7 +1880,7 @@ function renderHub(){
   $('hub-credits').textContent = Math.round(G.org.credits) + ' CRÉDITS';
   $('hub-division').textContent = divisionLabel(G.org.division) + ' — SAISON ' + G.org.saison + ' — JOURNÉE ' + Math.min(G.org.journee, GAME.journees) + '/' + GAME.journees;
   $('hub-rep').textContent = 'RÉPUTATION ' + G.org.rep;
-  armTip($('hub-credits'), 'CRÉDITS', 'Monnaie de l’organisation. Les réparations et les signatures de pilotes se paient avec.');
+  armTip($('hub-credits'), 'CRÉDITS', 'Monnaie de l’organisation. Les réparations, les signatures de pilotes et la boutique se paient avec.');
   armTip($('hub-rep'), 'RÉPUTATION', 'Monte avec les victoires. C’est le prestige de l’organisation, pas un bonus de tir.');
   armTip($('hub-division'), 'SAISON', 'Ligue à 6 équipes, 10 journées. Une victoire vaut 3 points.');
   const day = Math.min(G.org.journee, GAME.journees);
@@ -1873,10 +1994,10 @@ function configCatalog(){
 }
 function mountConfig(mechId, cfg){
   const m = mechById(mechId); if (!m || !cfg) return;
-  const v = validateLoadout(cfg.chassis, cfg.loadout);
-  if (!v.ok) return;
-  m.chassis = cfg.chassis;
-  m.loadout = JSON.parse(JSON.stringify(cfg.loadout));
+  migrateBay();
+  if (cfg.chassis !== m.chassis){ $('gar-tripo').textContent = 'Ce plan est prévu pour un autre châssis.'; return; }
+  if (!commitLoadout(m, JSON.parse(JSON.stringify(cfg.loadout)))){ $('gar-tripo').textContent = 'Pièces manquantes — la boutique vend le reste.'; return; }
+  $('gar-tripo').textContent = '';
   save(); renderGarage();
 }
 function renderConfigLib(){
@@ -1927,12 +2048,13 @@ function renderGarage(){
     const procLabel = RULESET.processors[m.proc] ? RULESET.processors[m.proc].label : m.proc;
     c.innerHTML = '<div class="mrow">' + mechView(m, 86, { hs: !mechAvailable(m) }) + '<div class="port-body"><div class="port-row">' +
       (assigned ? pilotSVG(assigned, 64) : '') +
-      '<div><div class="t">' + esc(m.label) + '</div><div class="sub2">' + (m.loadout ? 'BUILD ATELIER' : 'SÉRIE ' + (PRESETS[m.preset] ? PRESETS[m.preset].label : m.preset)) + '</div>' +
+      '<div><div class="t">' + esc(m.label) + '</div><div class="sub2">' + esc(frameOf(m) ? frameOf(m).label : (CHASSIS[m.chassis] ? CHASSIS[m.chassis].label : m.preset)) + (frameOf(m) && frameOf(m).rare ? ' · RARE' : ' · STRUCTURE FIXE') + '</div>' +
+      (frameOf(m) && frameOf(m).rare ? '<div class="hint">' + esc(frameOf(m).blurb) + '</div>' : '') +
       '<div class="trait">' + (assigned ? esc(assigned.nom) + ' · ' + esc(traitLine(assigned)) : 'SANS PILOTE') + '</div></div></div>' +
       '<div class="stats">' +
         statBox('red', 'INTÉGRITÉ', 'Points de structure en match. À 0 le mech est détruit et son pilote est blessé une journée.', hp + '<small> HP</small>') +
         statBox('cyan', 'PROCESSEUR', procBlurb(m.proc).lines.join('\n'), esc(procLabel)) +
-        statBox('steel', 'VITESSE', 'Vitesse de déplacement du châssis, en mètres par seconde.', ((m.loadout ? validateLoadout(m.chassis, m.loadout).stats.speed_mps : (base && base.speed_mps)) || '—') + (m.loadout || base ? '<small> m/s</small>' : '')) +
+        statBox('steel', 'VITESSE', 'Vitesse de déplacement du châssis, en mètres par seconde.', (() => { const st = m.loadout ? validateLoadout(m.chassis, m.loadout).stats : null; const spd = st ? st.speed_mps : (base && base.speed_mps); return spd == null ? '—' : Math.max(0.6, Math.round((spd + (frameMods(m).speed || 0)) * 100) / 100) + '<small> m/s</small>'; })()) +
       '</div>' +
       meterBox(m.condition >= 80 ? 'green' : (mechAvailable(m) ? 'amber' : 'red'), 'ÉTAT', 'Pourcentage restant après les matchs. Sous ' + GAME.condition_indisponible + ' % le mech est hors service jusqu’à réparation.', Math.max(0, m.condition), Math.max(0, Math.round(m.condition)) + '%' + (mechAvailable(m) ? '' : ' HS')) +
       '</div></div>' + procNoteHTML(m.proc);
@@ -1940,9 +2062,15 @@ function renderGarage(){
     const bProc = document.createElement('select');
     PROC_IDS.forEach(pr => { const o = document.createElement('option'); o.value = pr; o.textContent = procBlurb(pr).title; bProc.appendChild(o); });
     bProc.value = m.proc; bProc.onchange = () => { m.proc = bProc.value; save(); renderGarage(); };
-    if (m.loadout){ // un build d'atelier peut redevenir son preset d'origine
-      const bReset = document.createElement('button'); bReset.className = 'small ghost'; bReset.textContent = 'REVENIR AU SÉRIE';
-      bReset.onclick = () => { m.loadout = null; m.chassis = null; save(); renderGarage(); };
+    if (m.loadout){
+      const bReset = document.createElement('button'); bReset.className = 'small ghost'; bReset.textContent = 'KIT DE SÉRIE';
+      bReset.onclick = () => {
+        const preset = FRAME_PRESET[m.chassis] || m.preset;
+        const lo = JSON.parse(JSON.stringify(PRESETS[preset].loadout));
+        if (!commitLoadout(m, lo)){ $('gar-tripo').textContent = 'Le kit de série n’est plus entier dans la réserve.'; return; }
+        $('gar-tripo').textContent = '';
+        save(); renderGarage();
+      };
       row.appendChild(bReset);
     }
     const bRep = document.createElement('button'); bRep.className = 'small'; bRep.textContent = 'RÉPARER (' + repairCost(m) + ' CR)';
@@ -1957,6 +2085,7 @@ function renderGarage(){
   });
   if (gar3d.active && gar3d.ok) buildGar3DFleet();
   renderConfigLib();
+  renderShop();
 }
 // ---- atelier (14 slots — module garage embarqué) ----
 const AT_SLOTS = SLOTS;
@@ -1966,22 +2095,28 @@ function openAtelier(m){
   $('atelier-panel').style.display = '';
   $('at-title').textContent = m.label;
   const chassisSel = $('at-chassis');
-  if (!chassisSel._populated){ const first = document.createElement('option'); first.value = ''; first.textContent = '—'; chassisSel.appendChild(first);
-    for (const c in CHASSIS){ const o = document.createElement('option'); o.value = c; o.textContent = CHASSIS[c].label + ' — ' + CHASSIS[c].mass_max + 'T'; chassisSel.appendChild(o); }
-    chassisSel._populated = true; }
-  chassisSel.value = m.loadout ? m.chassis : (PRESETS[m.preset] ? PRESETS[m.preset].mechId : '');
-  chassisSel.onchange = atelierRecompute;
+  chassisSel.innerHTML = '';
+  chassisSel.disabled = true;
+  const only = document.createElement('option');
+  only.value = m.chassis;
+  only.textContent = (frameOf(m) ? frameOf(m).label : m.chassis) + ' — STRUCTURE FIXE';
+  chassisSel.appendChild(only);
+  let frameNote = $('at-frame-note');
+  if (!frameNote){ frameNote = document.createElement('div'); frameNote.id = 'at-frame-note'; frameNote.className = 'hint'; chassisSel.parentElement.appendChild(frameNote); }
+  frameNote.textContent = (frameOf(m) ? frameOf(m).blurb + ' ' : '') + 'Le châssis ne se démonte pas. L’atelier ne propose que les pièces en réserve ou déjà montées ici.';
   const slotsBox = $('at-slots'); slotsBox.innerHTML = '';
   AT_SLOTS.forEach(slot => {
     const row = document.createElement('div'); row.className = 'slotrow';
     const lab = document.createElement('span'); lab.className = 'tag'; lab.textContent = slot.replace(/_/g, ' ');
     const sel = document.createElement('select'); sel.id = 'at-slot-' + slot; sel.dataset.slot = slot;
     const eo = document.createElement('option'); eo.value = ''; eo.textContent = slot === 'weapon_secondary' ? '— VIDE (POINGS) —' : '— VIDE —'; sel.appendChild(eo);
+    const curId = (m.loadout && m.loadout[slot]) || '';
+    const offer = id => id === 'fists' || id === curId || (G.locker || []).includes(id) || Object.values(m.loadout || {}).includes(id);
     if (slot === 'weapon_primary' || slot === 'weapon_secondary'){
-      for (const w in WEAPONS_GARAGE){ if (!WEAPONS_GARAGE[w].slots.includes(slot)) continue;
+      for (const w in WEAPONS_GARAGE){ if (!WEAPONS_GARAGE[w].slots.includes(slot) || !offer(w)) continue;
         const o = document.createElement('option'); o.value = w; o.textContent = ((RULESET.weapons[w] && RULESET.weapons[w].label) || w) + ' — ' + WEAPONS_GARAGE[w].mass + 'T'; sel.appendChild(o); }
     } else {
-      for (const md in MODULES){ if (MODULES[md].slot !== slot) continue;
+      for (const md in MODULES){ if (MODULES[md].slot !== slot || !offer(md)) continue;
         const o = document.createElement('option'); o.value = md; o.textContent = MODULES[md].label + ' — ' + MODULES[md].mass + 'T' + (MODULES[md].functional ? '' : ' [COSMÉTIQUE]'); sel.appendChild(o); }
     }
     sel.onchange = atelierRecompute;
@@ -2023,8 +2158,12 @@ function atelierRecompute(){
 $('at-cfg-load').onchange = () => {
   const c = configCatalog().find(x => x.id === $('at-cfg-load').value);
   if (!c || !atelierMech) return;
-  $('at-chassis').value = c.chassis;
-  AT_SLOTS.forEach(slot => { const s = $('at-slot-' + slot); if (s) s.value = (c.loadout && c.loadout[slot]) || ''; });
+  AT_SLOTS.forEach(slot => {
+    const s = $('at-slot-' + slot); if (!s) return;
+    const want = (c.loadout && c.loadout[slot]) || '';
+    if ([...s.options].some(o => o.value === want)) s.value = want;
+  });
+  if (c.chassis !== atelierMech.chassis) $('at-frame-note').textContent = 'Ce plan vise un autre châssis. Seules les pièces que tu possèdes sont reprises. Le châssis reste ' + (frameOf(atelierMech) ? frameOf(atelierMech).label : atelierMech.chassis) + '.';
   atelierRecompute();
 };
 $('at-save-cfg').onclick = () => {
@@ -2038,12 +2177,99 @@ $('at-save-cfg').onclick = () => {
   save(); renderConfigLib(); fillCfgSelect();
 };
 $('at-apply').onclick = () => {
-  const lo = atelierCurrentLoadout(), chId = $('at-chassis').value;
+  const lo = atelierCurrentLoadout(), chId = atelierMech.chassis;
   const v = validateLoadout(chId, lo);
   if (!v.ok) return;
-  atelierMech.loadout = lo; atelierMech.chassis = chId; save();
+  if (!commitLoadout(atelierMech, lo)){
+    $('at-validation').innerHTML = '<div class="valid-err">✘ CETTE PIÈCE N’EST LÀ QU’EN UN EXEMPLAIRE</div>';
+    return;
+  }
+  save();
   $('atelier-panel').hidden = true; renderGarage();
 };
+function commitLoadout(mech, lo){
+  const pool = [];
+  (G.locker || []).forEach(id => pool.push(id));
+  Object.values(mech.loadout || {}).forEach(id => { if (id && id !== 'fists') pool.push(id); });
+  for (const slot of AT_SLOTS){
+    const id = lo[slot];
+    if (!id || id === 'fists') continue;
+    const i = pool.indexOf(id);
+    if (i < 0) return false;
+    pool.splice(i, 1);
+  }
+  G.locker = pool;
+  mech.loadout = lo;
+  mech.chassis = mech.chassis || (PRESETS[mech.preset] && PRESETS[mech.preset].mechId);
+  return true;
+}
+function shopRng(){
+  let a = (G.org.saison * 997 + G.org.journee * 17 + 3) | 0;
+  return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+function shopOffers(){
+  const rng = shopRng(), parts = SHOP_PARTS.slice();
+  for (let i = parts.length - 1; i > 0; i--){ const j = Math.floor(rng() * (i + 1)); const t = parts[i]; parts[i] = parts[j]; parts[j] = t; }
+  const stock = ['hound_prime', 'longbow_mk1', 'warden_x1', 'ghost_lt'];
+  const rare = ['hound_citadelle', 'longbow_sirocco', 'warden_eclat', 'ghost_voile'];
+  const frames = [];
+  if (G.org.journee % 3 === 1) frames.push(stock[(G.org.journee + G.org.saison) % stock.length]);
+  if (G.org.journee % 4 === 0) frames.push(rare[(G.org.saison + G.org.journee) % rare.length]);
+  return { parts: parts.slice(0, 4), frames };
+}
+function buyPart(id, price){
+  if (G.org.credits < price) return;
+  G.org.credits -= price;
+  G.locker.push(id);
+  save(); renderGarage();
+}
+function buyFrame(frameId){
+  const f = FRAMES[frameId];
+  if (!f || G.mechs.length >= BAY_MAX || G.org.credits < f.price) return;
+  G.org.credits -= f.price;
+  const preset = FRAME_PRESET[f.chassis];
+  let label = f.label;
+  if (G.mechs.some(m => m.label === label)) label = f.label + ' ' + (G.mechs.length + 1);
+  G.mechs.push({
+    id: 'm' + Date.now(), label, preset, proc: preset === 'bulwark' ? 'berserker' : (preset === 'marksman' ? 'phantom' : 'tactician'),
+    condition: 100, chassis: f.chassis, frame: frameId, pilotId: null,
+    loadout: JSON.parse(JSON.stringify(PRESETS[preset].loadout))
+  });
+  save(); renderGarage();
+}
+function renderShop(){
+  const box = $('shop-bay'); if (!box || !G) return;
+  const offer = shopOffers();
+  const locker = {};
+  (G.locker || []).forEach(id => { locker[id] = (locker[id] || 0) + 1; });
+  const spare = Object.keys(locker).map(id => partLabel(id) + ' ×' + locker[id]).join(' · ');
+  let html = '<div class="card"><div class="t">Boutique</div><div class="sub2">Journée ' + G.org.journee + ' — la vitrine change à la journée suivante. Hangar ' + G.mechs.length + '/' + BAY_MAX + '.</div>' +
+    '<div class="hint">Le châssis est la structure. Celui de départ reste monté. Ici, les pièces au-dessus du kit, et parfois un châssis entier. Une version rare est meilleure d’un côté et plus faible de l’autre. La fiche du pilote suit le châssis de base.</div>' +
+    (spare ? '<div class="hint">En réserve : ' + esc(spare) + '</div>' : '') + '</div>';
+  box.innerHTML = html;
+  offer.frames.forEach(id => {
+    const f = FRAMES[id];
+    const card = document.createElement('div'); card.className = 'card shoprow';
+    const mods = f.mods ? Object.keys(f.mods).map(k => {
+      const n = f.mods[k];
+      const name = { hp: 'intégrité', armor: 'armure', speed: 'vitesse', shield: 'bouclier', acc: 'visée', stability: 'stabilité' }[k] || k;
+      return (n > 0 ? '+' : '') + n + ' ' + name;
+    }).join(' · ') : 'Kit de série inclus. Même fiche que le châssis de base.';
+    card.innerHTML = '<div><div class="t">' + (f.rare ? '<span class="badge warn">RARE</span> ' : '<span class="badge">SÉRIE</span> ') + esc(f.label) + '</div><div class="sub2">' + esc(f.blurb) + '</div><div class="hint">' + esc(mods) + '</div></div><b>' + f.price + ' CR</b>';
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'small primary'; b.textContent = 'Acheter le châssis';
+    b.disabled = G.org.credits < f.price || G.mechs.length >= BAY_MAX;
+    b.onclick = () => buyFrame(id);
+    card.appendChild(b); box.appendChild(card);
+  });
+  offer.parts.forEach(p => {
+    const card = document.createElement('div'); card.className = 'card shoprow';
+    card.innerHTML = '<div><div class="t">' + esc(partLabel(p.id)) + '</div><div class="sub2">Pièce — se monte à l’atelier si le châssis a le slot et la masse.</div></div><b>' + p.price + ' CR</b>';
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'small primary'; b.textContent = 'Acheter';
+    b.disabled = G.org.credits < p.price;
+    b.onclick = () => buyPart(p.id, p.price);
+    card.appendChild(b); box.appendChild(card);
+  });
+}
 $('at-cancel').onclick = () => { $('atelier-panel').hidden = true; };
 
 // ---- championnat ----
@@ -2285,7 +2511,12 @@ function drawSpawnSide(sideId){ const ss = sim.arena.spawn_sides && sim.arena.sp
   cx.globalAlpha = 1;
 }
 function jArc(m){ // v0.11.0 (D-037) : hauteur visuelle du saut (arc sinusoïdal) — 0 au sol
-  if (!m || !(m.jumpT > 0)) return 0;
+  if (!m) return 0;
+  if ((m.knockT || 0) > 0){
+    const sp = Math.hypot(m.knockVx || 0, m.knockVz || 0);
+    return Math.min(2.6, 0.45 + sp * 0.22);
+  }
+  if (!(m.jumpT > 0)) return 0;
   const dur = (RULESET.combat.jump && RULESET.combat.jump.duration_ticks) || 18;
   return Math.sin(Math.PI * (1 - m.jumpT / dur)) * 2.2;
 }
@@ -2454,6 +2685,11 @@ function fitCanvas(){
   if (cv.width !== w || cv.height !== h){ cv.width = w; cv.height = h; }
 }
 let b3 = { ok: false, renderer: null, scene: null, camera: null, actors: [], shots: [], world: [], worldKey: '', last: 0 };
+function battleFrameOf(i){
+  const slots = matchCtx && matchCtx.duels;
+  if (!slots || i >= slots.length) return null;
+  return slots[i].mech.frame || null;
+}
 function battleChassisOf(i){
   const slots = matchCtx && matchCtx.duels;
   if (!slots || !slots.length) return 'hound_prime';
@@ -2588,11 +2824,11 @@ function renderBattle3D(dt){
     mesh.material.emissiveIntensity = o.rubble ? 0 : hurt * 0.65;
   });
   b3ReadEvents();
-  const akey = sim.mechs.map((m, i) => battleChassisOf(i) + ':' + m.name).join('|');
+  const akey = sim.mechs.map((m, i) => battleChassisOf(i) + ':' + (battleFrameOf(i) || '') + ':' + m.name).join('|');
   if (b3.akey !== akey){
     b3.actors.forEach(a => b3.scene.remove(a.root));
     b3.actors = sim.mechs.map((m, i) => {
-      const root = presentLeague(battleChassisOf(i), m.team) || new THREE.Group();
+      const root = presentLeague(battleChassisOf(i), m.team, battleFrameOf(i)) || new THREE.Group();
       b3.scene.add(root);
       return { root, px: m.pos.x, pz: m.pos.z, spd: 0, hold: 0 };
     });
@@ -2611,11 +2847,13 @@ function renderBattle3D(dt){
     const spd = a.hold > 0 ? a.spd : 0;
     if ((m.knockT || 0) > 0) a.air = true;
     else if (a.air){ a.air = false; b3GroundDisc(m.pos.x, m.pos.z, 1.8, 0xC4B49A, 0.55, 1.4, 0.08); b3Chunks(m.pos.x, m.pos.z, 3); }
+    const air = (m.knockT || 0) > 0 || (m.jumpT || 0) > 0;
     if (m.hpNow <= 0) setClip(a.root, 'Death');
-    else if (spd > 3.2) setClip(a.root, 'Run');
-    else if (spd > 0.25) setClip(a.root, 'Walk');
+    else if (!air && spd > 3.2) setClip(a.root, 'Run');
+    else if (!air && spd > 0.25) setClip(a.root, 'Walk');
     else setClip(a.root, 'Idle');
     if (a.root.userData.mixer) a.root.userData.mixer.update(dt);
+    voxelPose(a.root, dt, spd, m.hpNow <= 0, air);
     if (m.hpNow > 0){ cx0 += m.pos.x; cz0 += m.pos.z; live++; }
   });
   if (live){ cx0 /= live; cz0 /= live; }

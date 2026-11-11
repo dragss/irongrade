@@ -62,7 +62,7 @@ export class CombatSim {
       order: cfg.order || ((r.processors[cfg.processorId] && r.processors[cfg.processorId].squad === 'dogpile') ? 'push' : 'hold'),
       focusSlot: cfg.focusSlot != null ? cfg.focusSlot : null,
       pilotLv: cfg.pilotLv || 0,
-      knockT: 0, knockVx: 0, knockVz: 0, knockBy: -1,
+      knockT: 0, knockVx: 0, knockVz: 0, knockBy: -1, knockImmune: 0,
       breachT: 0, breachCd: 0, threadCd: 0, reglage: 0, planted: false, fixedSpawn: !!cfg.spawn,
       prevPos: { x: spawn.x, z: spawn.z } };
   }
@@ -314,6 +314,7 @@ export class CombatSim {
     if ((m.breachCd || 0) > 0) m.breachCd--;
     if ((m.threadCd || 0) > 0) m.threadCd--;
     if ((m.breachT || 0) > 0) m.breachT--;
+    if ((m.knockImmune || 0) > 0) m.knockImmune--;
     if (this.worldCfg() && (m.knockT || 0) > 0){ this.coastKnock(i); if ((m.knockT || 0) > 0) return; }
     m.prevPos = { ...m.pos };
     if (m.jumpCd > 0) m.jumpCd--; // v1.2.0 (D-037) : recharge du saut (no-op sans config)
@@ -936,6 +937,8 @@ export class CombatSim {
     if (!this.worldCfg() || !(power > 0)) return false;
     const b = this.mechs[to];
     if (!b || b.hpNow <= 0) return false;
+    // Une projection, puis le mech reprend pied. Le coup suivant blesse encore, il ne le renvoie pas en l'air.
+    if ((b.knockImmune || 0) > 0 || (b.knockT || 0) > 0) return false;
     let dx = b.pos.x - x, dz = b.pos.z - z, l = Math.hypot(dx, dz);
     if (l < 0.25){ const a = this.mechs[from]; dx = Math.cos((a && a.heading) || 0); dz = Math.sin((a && a.heading) || 0); l = 1; }
     let pwr = power;
@@ -964,12 +967,16 @@ export class CombatSim {
     if (rub && (m.z || 0) < (rub.zh || 0.8)) this.trip(i, rub);
     if (!this.bodyBlocked(m, nx, nz)){ m.pos.x = nx; m.pos.z = nz; }
     m.knockVx *= 0.8; m.knockVz *= 0.8;
-    if (Math.hypot(m.knockVx, m.knockVz) < 0.9) m.knockT = 0;
+    if (m.knockT <= 0 || Math.hypot(m.knockVx, m.knockVz) < 0.9) this.endKnock(m);
+  }
+  endKnock(m){
+    m.knockT = 0; m.knockVx = 0; m.knockVz = 0;
+    m.knockImmune = Math.max(m.knockImmune || 0, 75);
   }
   slam(i, o){
     const m = this.mechs[i];
     const sp = Math.hypot(m.knockVx, m.knockVz);
-    m.knockT = 0; m.knockVx = 0; m.knockVz = 0; m.meleeState = null;
+    this.endKnock(m); m.meleeState = null;
     const dmg = Math.max(4, Math.round(sp * 2.4));
     const by = (m.knockBy != null && m.knockBy >= 0) ? m.knockBy : i;
     this.applyDamage(by, i, dmg);
