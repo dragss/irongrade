@@ -1,5 +1,5 @@
 {
   "chassis": [],
   "weapons": [],
-  "pieces": []
+  "pieces": ["core_hound_prime", "arm_standard", "autocannon_mk1"]
 }
