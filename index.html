@@ -7,7 +7,7 @@
 <script type="importmap">
 { "imports": { "three": "./vendor/three/build/three.module.js", "three/addons/": "./vendor/three/examples/jsm/" } }
 </script>
-<title>IRONGRADE — Prototype manager v0.16.2</title>
+<title>IRONGRADE — Prototype manager v0.16.3</title>
 <style>
   @font-face { font-family: Inter; font-style: normal; font-weight: 100 900; font-display: swap; src: url("vendor/fonts/inter-latin.woff2") format("woff2"); }
   :root {
@@ -159,6 +159,8 @@
   .fixture-meta button { width: 100%; }
   .squadstrip { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 12px; }
   .squadstrip .who { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #C6CDD4; min-width: 0; }
+  .squadstrip .who-txt { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+  .squadstrip .who-txt em { font-style: normal; font-size: 9px; letter-spacing: .04em; color: #E3A23B; white-space: pre-line; line-height: 1.25; }
   .squadstrip .vs { color: #E23B38; font-weight: 800; }
   .board { min-height: 0; overflow: auto; display: flex; flex-direction: column; }
   .board table { flex: 0 0 auto; }
@@ -297,7 +299,7 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.16.2 — MECHCORE v1.5.1 — FLOTTE CC0 QUATERNIUS, REMPLAÇABLE</div>
+  <div class="footer">IRONGRADE v0.16.3 — MECHCORE v1.5.1 — FLOTTE CC0 QUATERNIUS, REMPLAÇABLE</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -783,9 +785,9 @@ function launchDuel(){ // v0.10.0 : UNE bataille d'équipe 3v3 simultanée (les 
   const rs = teamRS(slots), cfg = teamCfg(slots, slots[0].arenaId);
   sim = new CombatSim(rs, cfg, matchCtx.battleSeed);
   $('hud-name-a').textContent = G.org.name + ' — ESCOUADE'; $('hud-name-o').textContent = oppTeam(matchCtx.oppId).nom + ' — ESCOUADE';
-  $('hud-squad').innerHTML = slots.map(d => '<div class="who">' + (d.pilot ? pilotSVG(d.pilot, 36) : '') + '<span>' + esc(d.pilot ? d.pilot.nom : '') + '</span></div>').join('') +
+  $('hud-squad').innerHTML = slots.map((d, i) => '<div class="who">' + (d.pilot ? pilotSVG(d.pilot, 36) : '') + '<span class="who-txt"><b>' + esc(d.pilot ? d.pilot.nom : '') + '</b><em id="hud-act-a-' + i + '"></em></span></div>').join('') +
     '<span class="vs">VS</span>' +
-    slots.map(d => '<div class="who">' + pilotSVG(d.oppPilot, 36, { recon: true }) + '<span>' + esc(d.oppPilot.nom) + '</span></div>').join('');
+    slots.map((d, i) => '<div class="who">' + pilotSVG(d.oppPilot, 36, { recon: true }) + '<span class="who-txt"><b>' + esc(d.oppPilot.nom) + '</b><em id="hud-act-b-' + i + '"></em></span></div>').join('');
   $('bt-banner').style.display = 'none'; $('btn-next').style.display = 'none';
   playing = true; speed = 1; accT = 0; $('btn-pause').textContent = '⏸ PAUSE';
   camLook = { x: 0, z: 0, init: false }; camFocus = null; bLastEvt = 0; bShake = 0; voxLine = null;
@@ -2228,12 +2230,41 @@ function loop(now){
   if (sim.ended){ duelFinished(false); return; }
   requestAnimationFrame(loop);
 }
+function mechIntent(m){
+  const say = v => (m && m.proc && m.proc.label) ? (m.proc.label + '\n' + v) : v;
+  if (!m || m.hpNow <= 0) return say('TOMBÉ');
+  if ((m.stunTicks || 0) > 0) return say('SONNÉ');
+  if ((m.knockT || 0) > 0) return say('PROJETÉ');
+  if (m.meleeState && m.meleeState.phase === 'windup') return say('FRAPPE');
+  const foe = m.targetIdx != null ? sim.mechs[m.targetIdx] : null;
+  const role = m.proc && m.proc.squad;
+  const ranged = m.weapon && m.weapon.type === 'ranged';
+  const dist = foe ? sim.distance(m.pos, foe.pos) : 0;
+  const los = foe ? sim.losClear(m.pos, foe.pos) : false;
+  const pref = (m.proc && m.proc.preferred_range) || 20;
+  const can = foe && ranged && dist <= m.weapon.range && dist >= (m.weapon.min_range || 0) && los;
+  if (role === 'peel' && m.guardWalk) return say('COUVRE');
+  if (role === 'dogpile' && foe && (!ranged || dist > m.weapon.range)) return say('FONCE');
+  if (ranged && foe && !los) return say('CHERCHE L’ANGLE');
+  if (role === 'flank' && !m.planted) return say('FLANQUE');
+  if (m.planted && can) return say('TIENT');
+  if (foe && dist > pref + 1.5) return say('AVANCE');
+  if (foe && dist < pref - 1.5) return say('RECUL');
+  if (can) return say('TIRE');
+  return say(m.order === 'push' ? 'POUSSE' : 'TIENT');
+}
 function updateHUD(){
   const teamFrac = t => { const ms = sim.mechs.filter(m => m.team === t); return ms.reduce((s, m) => s + Math.max(0, m.hpNow) / m.hp, 0) / ms.length; };
   $('hp-a').style.width = Math.max(0, 100 * teamFrac(0)) + '%'; $('hp-o').style.width = Math.max(0, 100 * teamFrac(1)) + '%';
   const secs = Math.floor(sim.tick / sim.tickRate);
   $('hud-time').textContent = String(Math.floor(secs / 60)).padStart(2, '0') + ':' + String(secs % 60).padStart(2, '0');
   $('hud-tick').textContent = 'TICK ' + sim.tick + '/' + sim.timeoutTicks;
+  const n = matchCtx && matchCtx.duels ? matchCtx.duels.length : 0;
+  for (let i = 0; i < n; i++){
+    const a = $('hud-act-a-' + i), b = $('hud-act-b-' + i);
+    if (a && sim.mechs[i]){ a.textContent = mechIntent(sim.mechs[i]); a.style.color = PROC_GLOW[sim.mechs[i].processorId] || '#E3A23B'; }
+    if (b && sim.mechs[n + i]){ b.textContent = mechIntent(sim.mechs[n + i]); b.style.color = PROC_GLOW[sim.mechs[n + i].processorId] || '#E3A23B'; }
+  }
 }
 const cv = $('gcanvas'), cx = cv.getContext('2d');
 function tScale(){ return Math.min(10.5, (cv.width - 60) / sim.arena.width, (cv.height - 40) / sim.arena.depth); }

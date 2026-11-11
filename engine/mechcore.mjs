@@ -80,16 +80,20 @@ export class CombatSim {
     if (!es.length) return null;
     const mates = this.alliesOf(i);
     if (role === 'focus'){
-      let best = null, bv = Infinity;
+      let best = null, bv = Infinity, seen = null, sv = Infinity;
       for (const j of es){
         let aimed = false;
         for (const a of mates) if (this.mechs[a].targetIdx === j) aimed = true;
         if (!aimed) continue;
         const v = this.mechs[j].hpNow + this.mechs[j].shieldNow;
+        const d = this.distance(m.pos, this.mechs[j].pos);
+        const see = d <= (m.weapon.range || 99) && d >= (m.weapon.min_range || 0) && this.losClear(m.pos, this.mechs[j].pos);
+        if (see && v < sv){ sv = v; seen = j; }
         if (v < bv){ bv = v; best = j; }
       }
-      if (best !== null && best !== m.targetIdx) this.log('squad_focus', i, { target: best });
-      return best;
+      const pick = seen !== null ? seen : best;
+      if (pick !== null && pick !== m.targetIdx) this.log('squad_focus', i, { target: pick });
+      return pick;
     }
     if (role === 'peel'){
       if (!mates.length) return null;
@@ -470,12 +474,8 @@ export class CombatSim {
       for (const j of this.enemiesOf(i)) if (this.distance(m.pos, this.mechs[j].pos) < 10) threat = true;
       const ward = m.guardIdx != null ? this.mechs[m.guardIdx] : null;
       const allyHurt = m.proc.squad === 'peel' && ward && ward.hpNow > 0 && (ward.hpNow / ward.hp) < 0.62;
-      if (!threat && !allyHurt){
-        const a = this.lineAnchor(i);
-        tgtX = a.x; tgtZ = a.z;
-        if (Math.hypot(a.x - m.pos.x, a.z - m.pos.z) > 3.2) m.guardWalk = true;
-        else m.planted = true;
-      }
+      // Tenir la ligne seulement là où le tir part. Un allié qui masque, ou un mur, ne doit pas figer le mech.
+      if (!threat && !allyHurt && inRange) m.planted = true;
     }
     const tdist = Math.hypot(tgtX - m.pos.x, tgtZ - m.pos.z) || 1;
     const ux = (tgtX - m.pos.x) / tdist, uz = (tgtZ - m.pos.z) / tdist;
@@ -503,7 +503,7 @@ export class CombatSim {
       if (cp){ const cdx = cp.x - m.pos.x, cdz = cp.z - m.pos.z, cd = Math.hypot(cdx, cdz) || 1;
         nx = m.pos.x + cdx / cd * spd * this.dt; nz = m.pos.z + cdz / cd * spd * this.dt; m.ticksMoved++; } }
     const bx = this.ballisticsCfg();
-    if (!m.planted && bx && m.z === 0 && !isMelee && (m.proc.cover_usage || 0) >= 0.25 && dist >= (m.weapon.min_range || 0) + 1){
+    if (!m.planted && bx && m.z === 0 && !isMelee && (m.proc.cover_usage || 0) >= 0.25 && dist <= m.weapon.range && dist >= (m.weapon.min_range || 0) + 1){
       const exposed = foe.hpNow > 0 && foe.weapon.type === 'ranged' && this.losClear(m.pos, foe.pos) && dist <= (foe.weapon.range || 40) + 6;
       const shooting = inRange && m.cooldown === 0 && m.ticksStationary >= Math.max(0, stab - 1);
       if (exposed && !shooting){
@@ -514,13 +514,14 @@ export class CombatSim {
           nx += -uz * sgn * spd * this.dt; nz += ux * sgn * spd * this.dt; m.ticksMoved++; }
       }
     }
-    if (bx && m.z === 0 && m.targetIdx != null){
+    const aiming = inRange && m.cooldown === 0;
+    if (bx && m.z === 0 && m.targetIdx != null && !aiming){
       const me = this.mechs.indexOf(m);
       for (let j = 0; j < me; j++){ const o = this.mechs[j];
         if (o.team !== m.team || o.hpNow <= 0 || o.targetIdx !== m.targetIdx) continue;
         const dd = this.distance(o.pos, m.pos);
         if (dd < 8 && dd > 0.3){ nx += -uz * spd * this.dt * .85; nz += ux * spd * this.dt * .85; break; } } }
-    if (this.squadCfg() && m.z === 0 && m.proc.squad !== 'dogpile'){
+    if (this.squadCfg() && m.z === 0 && m.proc.squad !== 'dogpile' && !aiming){
       const mates = this.alliesOf(i);
       for (const a of mates){
         const o = this.mechs[a];
