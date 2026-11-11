@@ -322,6 +322,47 @@
   body.has3d select, body.has3d input[type=text], body.has3d input[type=number] { border-radius: 9px; background: rgba(5,7,10,.55); }
   body.has3d ::-webkit-scrollbar { width: 8px; } body.has3d ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 8px; }
 
+  /* ==== v0.19 : vitrines — le mech et le pilote au centre, l'interface en retrait ==== */
+  body.has3d #screen-garage .stage:has(.pane[data-pane="fleet"]:not([hidden])),
+  body.has3d #screen-roster .stage:has(.pane[data-pane="contracts"]:not([hidden])) { width: 400px; }
+  body.has3d #screen-garage .mview { display: none; }
+  body.has3d #screen-garage .mrow { grid-template-columns: 1fr; }
+  body.has3d #screen-garage .stats, body.has3d #screen-roster .stats { grid-template-columns: 1fr; gap: 6px; }
+  body.has3d #screen-garage .trait { margin-top: 6px; }
+  body.has3d #screen-garage .actions { position: sticky; bottom: 0; }
+  body.has3d #screen-roster .port-row > .pilot { display: none; }
+  body.has3d #screen-roster .port-row, body.has3d #screen-roster .assign { grid-template-columns: 1fr; }
+  body.has3d #gar-switch, body.has3d #roster-switch {
+    position: fixed; z-index: 3; left: calc(188px + (100vw - 188px) / 2); bottom: 22px; transform: translateX(-50%);
+    width: auto; max-width: calc(100vw - 260px); padding: 8px; gap: 8px; flex-wrap: nowrap; overflow-x: auto;
+    background: rgba(10,14,20,.6); border: 1px solid rgba(255,255,255,.1); border-radius: 18px; backdrop-filter: blur(16px);
+    box-shadow: 0 12px 40px rgba(0,0,0,.45);
+  }
+  body.has3d #gar-switch[hidden], body.has3d #roster-switch[hidden] { display: none; }
+  body.has3d .mthumb, body.has3d .pthumb, .pico body.has3d :is(.mthumb, .pthumb) {
+    display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 12px !important; border: 1px solid transparent !important;
+    background: rgba(255,255,255,.04); white-space: nowrap;
+  }
+  body.has3d .mthumb small { color: #8B97A6; }
+  body.has3d .mthumb .dot { width: 8px; height: 8px; border-radius: 50%; background: #8FD3A8; }
+  body.has3d .mthumb .dot.warn { background: #E3A23B; } body.has3d .mthumb .dot.err { background: #E07A78; }
+  body.has3d .mthumb.cur, body.has3d .pthumb.cur, .pico body.has3d :is(.mthumb, .pthumb).cur {
+    background: rgba(226,59,56,.22) !important; border-color: rgba(226,59,56,.8) !important; color: #fff;
+  }
+  body.has3d .pthumb { flex-direction: column; gap: 4px; padding: 8px 10px; }
+  body.has3d .pthumb .pilot { border-radius: 8px; }
+  body.has3d .pthumb span { font-size: 11px; }
+  #roster-hero { display: none; }
+  body.has3d #roster-hero:not([hidden]) {
+    display: block; position: fixed; z-index: 2; right: 4.5vw; top: 15vh; width: 270px; text-align: left;
+    padding: 10px; background: rgba(10,14,20,.5); border: 1px solid rgba(255,255,255,.1); border-radius: 18px; backdrop-filter: blur(14px);
+    box-shadow: 0 14px 44px rgba(0,0,0,.5);
+  }
+  body.has3d #roster-hero .pilot { width: 250px !important; height: 288px !important; border-radius: 12px; border-color: rgba(255,255,255,.12); }
+  body.has3d #roster-hero .hname { font-size: 22px; font-weight: 720; color: var(--ink); margin: 10px 4px 0; }
+  body.has3d #roster-hero .hsub { color: #8B97A6; font-size: 13px; margin: 2px 4px; }
+  body.has3d #roster-hero .htrait { color: #E3A23B; font-weight: 700; margin: 6px 4px 4px; }
+
   @media (max-width: 1180px) {
     .fixture-top, .stage.split, #an-lineups, .hangar-flex, .at-info, #at-slots, .report-grid { grid-template-columns: 1fr; }
     .lineup { grid-template-columns: 28px minmax(0, 1fr); }
@@ -375,6 +416,7 @@
     <button type="button" data-pane="market">Agents libres</button>
   </nav>
   <nav class="subnav" id="roster-switch" data-with-pane="contracts"></nav>
+  <div id="roster-hero" data-with-pane="contracts"></div>
   <div class="stage">
     <div class="pane" data-pane="contracts"><div class="fillscroll" id="roster-cards"></div></div>
     <div class="pane" data-pane="market" hidden><div class="cards fillscroll" id="recruit-cards"></div></div>
@@ -1963,7 +2005,9 @@ function gar3dStart(){
     gar3d.raf = 0;
     if (!HANGAR_SCREENS.includes(state) || !gar3d.active) return;
     const dt = last ? Math.min(50, t - last) : 16; last = t;
-    const pose = HANGAR_POSE[state] || HANGAR_POSE.hub;
+    let pose = HANGAR_POSE[state] || HANGAR_POSE.hub;
+    const focused = (state === 'garage' || state === 'roster') && gar3d.focusX != null;
+    if (focused) pose = { px: gar3d.focusX, lx: gar3d.focusX, py: 3.6, pz: 16.5, ly: 3.2, off: 0.1 };
     const cam = gar3d.cam || (gar3d.cam = { ...pose });
     const k = Math.min(1, dt / 420);
     ['px', 'py', 'pz', 'ly', 'off', 'lx'].forEach(f => { cam[f] += (pose[f] - cam[f]) * k; });
@@ -1973,12 +2017,20 @@ function gar3dStart(){
     gar3d.camera.setViewOffset(W, H, -W * cam.off, 0, W, H);
     Object.keys(gar3d.groups).forEach(id => { const g = gar3d.groups[id]; if (!g.grp) return;
       g.grp.position.y = Math.sin(t / 700 + g.ph) * .04;
+      if (g.base === undefined) g.base = g.grp.rotation.y;
+      const mine = focused && Object.keys(gar3d.groups)[gar3d.focusIdx] === id;
+      g.grp.rotation.y = mine ? g.base + Math.sin(t / 2600) * 0.55 : g.base;
       if (g.mixer) g.mixer.update(dt / 1000); });
     if (gar3d.fx) gar3d.fx.update(dt, t, gar3d.anchors);
     gar3d.renderer.render(gar3d.scene, gar3d.camera);
     gar3d.raf = requestAnimationFrame(tick);
   };
   gar3d.raf = requestAnimationFrame(tick);
+}
+function hangarFocus(i){
+  const n = G && G.mechs ? G.mechs.length : 0;
+  gar3d.focusIdx = i;
+  gar3d.focusX = i >= 0 && n ? (i - (n - 1) / 2) * 4.2 : null;
 }
 const HANGAR_POSE = {
   hub:      { px: 0, py: 3.8, pz: 25, lx: 0, ly: 3.0, off: 0.2 },
@@ -2084,11 +2136,20 @@ function renderRoster(){
   const sw = $('roster-switch'); sw.innerHTML = '';
   if (rosterFocus >= G.pilots.length) rosterFocus = 0;
   G.pilots.forEach((p, i) => {
-    const b = document.createElement('button'); b.type = 'button'; b.textContent = p.nom;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'pthumb';
+    b.innerHTML = pilotSVG(p, 46, { badge: p.blessure > 0 ? 'ko' : null }) + '<span>' + esc(p.nom.split(/\s+/)[0]) + '</span>';
     if (i === rosterFocus) b.classList.add('cur');
     b.onclick = () => { rosterFocus = i; renderRoster(); };
     sw.appendChild(b);
   });
+  const hero = $('roster-hero'); const hp0 = G.pilots[rosterFocus];
+  if (hero){
+    hero.innerHTML = hp0 ? pilotSVG(hp0, 250, { badge: hp0.blessure > 0 ? 'ko' : null }) +
+      '<div class="hname">' + esc(hp0.nom) + '</div><div class="hsub">' + esc(hp0.origine || '') + ' · niveau ' + hp0.niveau + '</div>' +
+      '<div class="htrait">' + esc(hp0.traits || '') + '</div>' : '';
+  }
+  const asg = hp0 && hp0.mechId ? G.mechs.findIndex(m => m.id === hp0.mechId) : -1;
+  hangarFocus(asg);
   (G.pilots[rosterFocus] ? [G.pilots[rosterFocus]] : []).forEach(p => {
     const c = document.createElement('div'); c.className = 'card';
     const xpPct = Math.min(100, 100 * p.xp / GAME.xp_niveau);
@@ -2210,11 +2271,14 @@ function renderGarage(){
   const sw = $('gar-switch'); sw.innerHTML = '';
   if (garFocus >= G.mechs.length) garFocus = 0;
   G.mechs.forEach((m, i) => {
-    const b = document.createElement('button'); b.type = 'button'; b.textContent = m.label;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'mthumb';
+    const cond = Math.max(0, Math.round(m.condition));
+    b.innerHTML = '<i class="dot ' + (cond >= 80 ? 'ok' : mechAvailable(m) ? 'warn' : 'err') + '"></i><span>' + esc(m.label) + '</span><small>' + cond + '%</small>';
     if (i === garFocus) b.classList.add('cur');
     b.onclick = () => { garFocus = i; renderGarage(); };
     sw.appendChild(b);
   });
+  hangarFocus(garFocus);
   (G.mechs[garFocus] ? [G.mechs[garFocus]] : []).forEach(m => {
     const c = document.createElement('div'); c.className = 'card';
     const base = RSG.mechs[m.preset];
