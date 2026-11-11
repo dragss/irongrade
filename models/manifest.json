@@ -1,5 +1,8 @@
 {
   "chassis": [],
   "weapons": [],
-  "pieces": ["core_hound_prime", "arm_standard", "autocannon_mk1"]
+  "pieces": [
+    "core_hound_prime"
+  ],
+  "note": "core_hound_prime est le mesh voxel VoxAI V3. Les essais lisses Tripo ne sont plus montés."
 }
