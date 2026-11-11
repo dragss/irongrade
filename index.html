@@ -7,7 +7,7 @@
 <script type="importmap">
 { "imports": { "three": "./vendor/three/build/three.module.js", "three/addons/": "./vendor/three/examples/jsm/" } }
 </script>
-<title>IRONGRADE — Prototype manager v0.17.0</title>
+<title>IRONGRADE — Prototype manager v0.17.1</title>
 <style>
   @font-face { font-family: Inter; font-style: normal; font-weight: 100 900; font-display: swap; src: url("vendor/fonts/inter-latin.woff2") format("woff2"); }
   :root {
@@ -301,7 +301,7 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.17.0 — MECHCORE v1.5.1</div>
+  <div class="footer">IRONGRADE v0.17.1 — MECHCORE v1.5.1</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -1422,7 +1422,6 @@ function startAt3DLoop(){
     at3d.camera.lookAt(0, at3d.ly, 0);
     if (at3d.group) at3d.group.position.y = Math.sin(t / 700) * .04; // idle
     if (at3d.mixer) at3d.mixer.update(dt / 1000);
-    if (at3d.group) voxelPose(at3d.group, dt / 1000, 0.35, false, false);
     if (at3d.fx && atelierMech) at3d.fx.update(dt, t, [{ x: 0, y: 0, z: 0, damaged: atelierMech.condition < 100 }]);
     at3d.renderer.render(at3d.scene, at3d.camera);
     at3d.raf = requestAnimationFrame(tick3d);
@@ -1517,109 +1516,55 @@ function hangarProps(scene, mode){
     bx.position.set(x, .6 * sc, z); bx.rotation.y = ry; scene.add(bx); });
 }
 
-// Silhouettes voxel par châssis. Les GLB Quaternius restent dans assets/league, prêts à remplacer ce bloc.
+// Stand-in CC0 Quaternius. Un GLB VoxAI listé dans models/manifest.json le remplace.
+const LEAGUE_CDN = 'assets/league/';
 const LEAGUE_GLB = { hound_prime: 'Stan.glb', longbow_mk1: 'Leela.glb', warden_x1: 'Mike.glb', ghost_lt: 'George.glb' };
-const VOXEL_SPEC = {
-  hound_prime: { hull: 0xC4322E, dark: 0x16181E, eye: 0xF4F7FF, glow: 0x7DFF6A, torso: [1.5, 1.08, 0.96], cannon: true },
-  longbow_mk1: { hull: 0x2F6FE0, dark: 0x141820, eye: 0xFFF3A0, glow: 0xFFE14A, torso: [1.02, 1.28, 0.76], wing: 1.15 },
-  warden_x1: { hull: 0x1F9A56, dark: 0x141A16, eye: 0xE8FFB0, glow: 0xFFE14A, torso: [1.24, 1.14, 0.86], wing: 0.42 },
-  ghost_lt: { hull: 0x3A4454, dark: 0x12151A, eye: 0x9DEBFF, glow: 0x7EE0FF, torso: [0.78, 1.02, 0.6], slim: true }
-};
-let leagueLib = { ready: false, loading: false, wait: [] };
+let leagueLib = { ready: false, loading: false, wait: [], templates: {} };
 function loadLeagueLib(cb){
   if (leagueLib.ready) return cb(true);
-  ensureTHREE(ok => { leagueLib.ready = !!ok; cb(!!ok); });
-}
-function voxMat(color, em, ei){
-  return new window.THREE.MeshStandardMaterial({ color, roughness: 0.58, metalness: 0.22, emissive: em || 0x000000, emissiveIntensity: ei || 0 });
-}
-function voxBox(parent, w, h, d, x, y, z, mat){
-  const mesh = new window.THREE.Mesh(new window.THREE.BoxGeometry(w, h, d), mat);
-  mesh.position.set(x, y, z);
-  parent.add(mesh);
-  return mesh;
-}
-function voxelPose(root, dt, spd, dead, air){
-  const u = root && root.userData;
-  if (!u || !u.voxel) return;
-  u.phase = (u.phase || 0) + dt * (dead || air ? 0 : 2.2 + Math.min(7, spd || 0));
-  const swing = dead || air ? 0 : Math.sin(u.phase) * Math.min(0.48, 0.08 + (spd || 0) * 0.07);
-  (u.legs || []).forEach((leg, i) => { leg.rotation.x = swing * (i % 2 ? -1 : 1); });
-  (u.arms || []).forEach((arm, i) => { arm.rotation.x = swing * 0.4 * (i % 2 ? 1 : -1); });
-  if (u.body) u.body.position.y = u.bodyHome + (dead || air ? 0 : Math.abs(Math.sin(u.phase * 2)) * 0.03);
-  root.rotation.x = dead ? 1.15 : 0;
-  root.rotation.z = !dead && air ? 0.7 : 0;
-  (u.eyes || []).forEach(m => { if (m.material) m.material.emissiveIntensity = dead ? 0.04 : 0.75 + Math.abs(Math.sin(u.phase * 0.6)) * 0.45; });
-}
-function spawnLeague(chId, frameId){
-  if (!window.THREE) return null;
-  const THREE = window.THREE;
-  const spec = VOXEL_SPEC[chId] || VOXEL_SPEC.hound_prime;
-  const root = new THREE.Group();
-  const hull = voxMat(spec.hull);
-  const dark = voxMat(spec.dark);
-  const eyeM = () => voxMat(spec.dark, spec.eye, 1.15);
-  const glowM = () => voxMat(spec.dark, spec.glow, 1.25);
-  const slim = !!spec.slim;
-  const hip = slim ? 1.95 : 1.68;
-  const thick = slim ? 0.2 : 0.34;
-  const legs = [], arms = [], eyes = [];
-  [-1, 1].forEach(side => {
-    const leg = new THREE.Group();
-    leg.position.set(side * (slim ? 0.22 : 0.34), hip, 0);
-    voxBox(leg, thick, 0.72, thick, 0, -0.42, 0, dark);
-    voxBox(leg, thick * 0.9, 0.7, thick, 0, -1.1, 0.02, hull);
-    voxBox(leg, thick * 1.25, 0.16, 0.55, 0, -1.5, 0.1, dark);
-    root.add(leg); legs.push(leg);
-    const arm = new THREE.Group();
-    arm.position.set(side * (spec.torso[0] * 0.5 + 0.22), hip + 0.85, 0);
-    voxBox(arm, 0.28, 0.7, 0.28, 0, -0.4, 0, dark);
-    voxBox(arm, 0.32, 0.28, 0.46, 0, -0.85, 0.08, hull);
-    root.add(arm); arms.push(arm);
+  ensureTHREE(ok => {
+    if (!ok) return cb(false);
+    if (leagueLib.ready) return cb(true);
+    if (leagueLib.loading){ leagueLib.wait.push(cb); return; }
+    leagueLib.loading = true; leagueLib.wait = [cb];
+    const ld = new window.THREE.GLTFLoader();
+    const ids = Object.keys(LEAGUE_GLB);
+    let left = ids.length;
+    const finish = () => { leagueLib.ready = true; leagueLib.loading = false; const w = leagueLib.wait; leagueLib.wait = []; w.forEach(f => f(!!Object.keys(leagueLib.templates).length)); };
+    ids.forEach(id => ld.load(LEAGUE_CDN + LEAGUE_GLB[id], g => {
+      const root = g.scene;
+      root.updateMatrixWorld(true);
+      root.traverse(o => { if (o.isSkinnedMesh && o.skeleton) o.skeleton.update(); });
+      const box = new window.THREE.Box3().setFromObject(root);
+      const h = Math.max(1e-4, box.max.y - box.min.y);
+      root.scale.multiplyScalar(4.6 / h);
+      root.updateMatrixWorld(true);
+      const b2 = new window.THREE.Box3().setFromObject(root);
+      root.position.set(-(b2.min.x + b2.max.x) / 2, -b2.min.y, -(b2.min.z + b2.max.z) / 2);
+      leagueLib.templates[id] = { scene: root, animations: g.animations || [] };
+      if (--left === 0) finish();
+    }, undefined, () => { if (--left === 0) finish(); }));
   });
-  const body = new THREE.Group();
-  body.position.y = hip + 0.15;
-  root.add(body);
-  const [tw, th, td] = spec.torso;
-  voxBox(body, tw, th, td, 0, th * 0.45, 0, hull);
-  voxBox(body, tw * 0.55, 0.16, 0.08, 0, th * 0.55, td * 0.5 + 0.02, glowM());
-  eyes.push(voxBox(body, 0.16, 0.16, 0.08, -0.16, th * 0.72, td * 0.5 + 0.02, eyeM()));
-  eyes.push(voxBox(body, 0.16, 0.16, 0.08, 0.16, th * 0.72, td * 0.5 + 0.02, eyeM()));
-  const head = voxBox(body, slim ? 0.46 : 0.7, slim ? 0.36 : 0.48, slim ? 0.46 : 0.62, 0, th + (slim ? 0.24 : 0.32), 0, hull);
-  eyes.push(voxBox(body, 0.12, 0.1, 0.06, -0.14, head.position.y + 0.02, td * 0.42, eyeM()));
-  eyes.push(voxBox(body, 0.12, 0.1, 0.06, 0.14, head.position.y + 0.02, td * 0.42, eyeM()));
-  if (spec.cannon){
-    [-1, 1].forEach(side => {
-      voxBox(body, 0.62, 0.48, 0.7, side * (tw * 0.5 + 0.28), th * 0.72, 0.05, hull);
-      voxBox(body, 0.22, 0.22, 0.85, side * (tw * 0.5 + 0.28), th * 0.72, 0.7, dark);
-      eyes.push(voxBox(body, 0.1, 0.1, 0.06, side * (tw * 0.5 + 0.28), th * 0.72, 1.12, glowM()));
-    });
-  }
-  if (spec.wing){
-    [-1, 1].forEach(side => {
-      const pod = new THREE.Group();
-      pod.position.set(side * (tw * 0.5 + 0.12), th * 0.85, -0.05);
-      pod.rotation.z = side * -0.7 * Math.min(1, spec.wing);
-      voxBox(pod, 0.42, 0.95 * spec.wing + 0.35, 0.38, 0, 0.45, 0, hull);
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.045, 6, 14), glowM());
-      ring.position.set(0, 0.35, 0.22); ring.rotation.y = Math.PI / 2;
-      pod.add(ring); eyes.push(ring);
-      body.add(pod);
-    });
-  }
-  if (frameId === 'hound_citadelle') voxBox(body, tw * 0.86, th * 0.45, 0.12, 0, th * 0.4, td * 0.5 + 0.06, dark);
-  if (frameId === 'longbow_sirocco') voxBox(body, 0.5, 0.1, 0.1, 0, th + 0.62, td * 0.2, glowM());
-  if (frameId === 'warden_eclat') [-1, 1].forEach(side => eyes.push(voxBox(root, 0.08, 0.4, 0.06, side * 0.2, hip - 0.3, thick, glowM())));
-  if (frameId === 'ghost_voile') voxBox(arms[0], 0.12, 0.7, 0.55, -0.22, -0.45, 0.05, hull);
-  root.updateMatrixWorld(true);
-  const box = new THREE.Box3().setFromObject(root);
-  root.position.y -= box.min.y;
-  root.userData.voxel = true;
-  root.userData.legs = legs;
-  root.userData.arms = arms;
-  root.userData.body = body;
-  root.userData.bodyHome = body.position.y;
-  root.userData.eyes = eyes;
+}
+function spawnLeague(chId){
+  const src = leagueLib.templates[chId];
+  if (!src || !window.THREE || !window.THREE.SkeletonUtils) return null;
+  const root = window.THREE.SkeletonUtils.clone(src.scene);
+  root.traverse(o => { if (o.material && o.material.isMaterial) o.material = o.material.clone(); });
+  const mixer = new window.THREE.AnimationMixer(root);
+  const actions = {};
+  src.animations.forEach(c => { actions[c.name] = mixer.clipAction(c); });
+  const idle = actions.Idle || actions.Walk || actions[src.animations[0] && src.animations[0].name];
+  if (idle) idle.play();
+  root.userData.mixer = mixer;
+  root.userData.actions = actions;
+  root.userData.clip = idle ? (actions.Idle ? 'Idle' : 'Walk') : '';
+  root.userData.shared = true;
+  return root;
+}
+function cloneListed(src){
+  const root = src.clone(true);
+  root.traverse(o => { if (o.material && o.material.isMaterial) o.material = o.material.clone(); });
   root.userData.shared = false;
   return root;
 }
@@ -1635,19 +1580,16 @@ function setClip(root, name){
   if (prev && prev !== next) prev.fadeOut(0.18);
   root.userData.clip = nextName;
 }
-function presentLeague(chId, team, frameId){
-  const body = spawnLeague(chId, frameId);
+function presentLeague(chId, team){
+  const listed = tripo.chassis[chId];
+  const body = listed ? cloneListed(listed) : spawnLeague(chId);
   if (!body) return null;
   const grp = new window.THREE.Group();
   grp.add(body);
-  grp.userData.voxel = true;
-  grp.userData.legs = body.userData.legs;
-  grp.userData.arms = body.userData.arms;
-  grp.userData.body = body.userData.body;
-  grp.userData.bodyHome = body.userData.bodyHome;
-  grp.userData.eyes = body.userData.eyes;
-  grp.userData.phase = 0;
-  grp.userData.shared = false;
+  grp.userData.mixer = body.userData.mixer;
+  grp.userData.actions = body.userData.actions;
+  grp.userData.clip = body.userData.clip;
+  grp.userData.shared = !listed;
   const ring = new window.THREE.Mesh(
     new window.THREE.TorusGeometry(1.15, 0.035, 8, 32),
     new window.THREE.MeshStandardMaterial({ color: team === 1 ? 0x7FA6C9 : 0xD93432, emissive: team === 1 ? 0x7FA6C9 : 0xD93432, emissiveIntensity: 0.55 })
@@ -1678,7 +1620,7 @@ function boot3dEnter(){
     const rim = new THREE.DirectionalLight(0xD93432, 0.7); rim.position.set(-7, 4, -3); boot3d.scene.add(rim);
     const floor = new THREE.Mesh(new THREE.CircleGeometry(14, 48), new THREE.MeshStandardMaterial({ color: 0x14181e, roughness: 0.9, metalness: 0.15 }));
     floor.rotation.x = -Math.PI / 2; boot3d.scene.add(floor);
-    const ids = Object.keys(VOXEL_SPEC);
+    const ids = Object.keys(LEAGUE_GLB);
     ids.forEach((id, i) => {
       const m = spawnLeague(id); if (!m) return;
       const x = (i - (ids.length - 1) / 2) * 3.8;
@@ -1707,7 +1649,6 @@ function boot3dLoop(){
     if (!boot3d.on || state !== 'boot') return;
     const dt = last ? Math.min(0.05, (t - last) / 1000) : 0.016; last = t;
     boot3d.mixers.forEach(m => m.update(dt));
-    boot3d.scene.children.forEach(o => voxelPose(o, dt, 0.45, false, false));
     const a = t / 14000;
     boot3d.camera.position.set(Math.sin(a) * 2.4, 3.4, 17.5);
     boot3d.camera.lookAt(0, 1.8, 0);
@@ -1720,7 +1661,8 @@ function boot3dLoop(){
 // ==== v0.9.2 : HANGAR 3D DU GARAGE — la flotte en fond du menu ====
 let gar3d = { ok: false, loading: false, active: true, renderer: null, scene: null, camera: null, groups: {}, fx: null, raf: 0, key: '', anchors: [] };
 // ==== v0.10.1 — VITRINE TRIPO : GLB du dépôt montés automatiquement (D-036) ====
-// Convention (spec owner) : 1 GLB par châssis models/mch_<id>.glb, 1 par arme models/wep_<id>.glb,
+// Un GLB VoxAI se pose ici : models/mch_<chassis>.glb, id ajouté à models/manifest.json. Il passe devant le stand-in.
+// 1 GLB par châssis models/mch_<id>.glb, 1 par arme models/wep_<id>.glb,
 // Y-up, origine au sol entre les pieds, canon d'arme vers +Z. Normalisation auto (hauteur châssis 4.8, arme 2.4 en Z),
 // matériaux clonés par instance (highlight hover), fallback procédural intégral si absent (404 / hors-ligne / file://).
 const TRIPO_CHASSIS = ['hound_prime', 'longbow_mk1', 'warden_x1', 'ghost_lt'];
@@ -1739,7 +1681,8 @@ function loadTripo(){ // ne charge que les GLB cités dans models/manifest.json 
     let left = wanted.length;
   const done = () => {
     if (tripo.n && state === 'garage' && gar3d.ok){ gar3d.key = ''; buildGar3DFleet(); }
-    if (tripo.n && $('gar-tripo')) $('gar-tripo').textContent = '◆ TRIPO : ' + tripo.n + ' MODÈLE' + (tripo.n > 1 ? 'S' : '');
+    if (tripo.n && b3 && b3.akey) b3.akey = '';
+    if (tripo.n && $('gar-tripo')) $('gar-tripo').textContent = '◆ VOX : ' + tripo.n + ' MODÈLE' + (tripo.n > 1 ? 'S' : '');
   };
   wanted.forEach(([kind, file, id]) => ld.load('models/' + file + '.glb', g => {
     const obj = g.scene;
@@ -1802,8 +1745,7 @@ function gar3dStart(){
     gar3d.camera.lookAt(0, 10.2, 0);
     Object.keys(gar3d.groups).forEach(id => { const g = gar3d.groups[id]; if (!g.grp) return;
       g.grp.position.y = Math.sin(t / 700 + g.ph) * .04;
-      if (g.mixer) g.mixer.update(dt / 1000);
-      voxelPose(g.grp, dt / 1000, 0.4, false, false); });
+      if (g.mixer) g.mixer.update(dt / 1000); });
     if (gar3d.fx) gar3d.fx.update(dt, t, gar3d.anchors);
     gar3d.renderer.render(gar3d.scene, gar3d.camera);
     gar3d.raf = requestAnimationFrame(tick);
@@ -2853,7 +2795,6 @@ function renderBattle3D(dt){
     else if (!air && spd > 0.25) setClip(a.root, 'Walk');
     else setClip(a.root, 'Idle');
     if (a.root.userData.mixer) a.root.userData.mixer.update(dt);
-    voxelPose(a.root, dt, spd, m.hpNow <= 0, air);
     if (m.hpNow > 0){ cx0 += m.pos.x; cz0 += m.pos.z; live++; }
   });
   if (live){ cx0 /= live; cz0 /= live; }
