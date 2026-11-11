@@ -252,9 +252,8 @@
   #screen-boot > .boot-top, #screen-boot > .menu-col, #screen-boot > .footer { position: relative; z-index: 1; }
   .menu-col { display: flex; flex-direction: column; gap: 8px; width: min(420px, calc(100vw - 64px)); background: rgba(12,16,22,.88); border: 1px solid var(--line); padding: 14px; }
   .menu-col button, .menu-col input { width: 100%; text-align: left; }
-  #gar-3d-bg { position: fixed; inset: 0 0 0 208px; z-index: 0; display: none; }
-  #screen-garage .tophead, #screen-garage .subnav, #screen-garage .stage { position: relative; z-index: 1; }
-  #screen-garage.gar3d .stage { max-height: calc(100vh - 500px); }
+  #gar-3d-bg { position: fixed; inset: 0; z-index: 0; display: none; }
+  body.in-app > #app-nav, body.in-app .screen.active { position: relative; z-index: 1; }
 
   /* Pico met le fond primaire sur [type=button]. On reprend la main. */
   .pico :is(button, [type=button], [type=submit], [role=button]) {
@@ -275,6 +274,54 @@
   .pico #app-nav :is(button, [type=button]).cur { background-color: #161C24; color: #fff; border-color: transparent; border-left: 3px solid #E23B38; }
   .pico .hud-tools :is(button, [type=button]).active-tog { background-color: rgba(226,59,56,.18); border-color: #E23B38; color: #fff; }
 
+  /* ==== v0.18 : coque 3D — le hangar reste derrière, les écrans sont des panneaux de verre ==== */
+  body.has3d { background: #080B10; }
+  body.has3d.in-app { grid-template-columns: 188px minmax(0, 1fr); }
+  body.has3d .screen.active { background: transparent !important; }
+  body.has3d #app-nav {
+    margin: 14px 0 14px 14px; height: calc(100vh - 28px); border: 1px solid rgba(255,255,255,.08); border-radius: 14px;
+    background: rgba(10,14,20,.55); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  }
+  body.has3d #app-nav .brand { border-bottom: 0; padding: 20px 18px 14px; }
+  body.has3d #app-nav button, .pico body.has3d #app-nav :is(button, [type=button]) { margin: 2px 8px; width: calc(100% - 16px); border: 0 !important; border-radius: 9px; padding: 11px 12px; }
+  body.has3d #app-nav button.cur, .pico body.has3d #app-nav :is(button, [type=button]).cur { background: rgba(226,59,56,.9) !important; color: #fff; border: 0 !important; }
+  body.has3d .tophead, body.has3d .subnav, body.has3d .dock { background: transparent; border: 0; }
+  body.has3d .tophead { padding: 18px 24px 6px; }
+  body.has3d .tophead .org { font-size: 26px; }
+  body.has3d .tophead .res, body.has3d .tophead .meta, body.has3d #hub-alert-btn {
+    background: rgba(10,14,20,.55); border: 1px solid rgba(255,255,255,.08); border-radius: 999px; padding: 7px 14px; backdrop-filter: blur(12px);
+  }
+  body.has3d .subnav { padding: 0 24px; gap: 6px; }
+  body.has3d .subnav button, .pico body.has3d .subnav :is(button, [type=button]) {
+    border: 1px solid transparent !important; border-radius: 999px; padding: 7px 16px; background: transparent;
+  }
+  body.has3d .subnav button.cur, .pico body.has3d .subnav :is(button, [type=button]).cur {
+    background: rgba(255,255,255,.12) !important; color: #fff; border: 1px solid rgba(255,255,255,.14) !important;
+  }
+  body.has3d .stage { width: min(700px, 52vw); background: transparent; }
+  body.has3d .stage.split { width: min(960px, 64vw); }
+  body.has3d .subnav, body.has3d nav.subnav { justify-content: flex-start; }
+  body.has3d .tophead, body.has3d .subnav { width: min(960px, 64vw); }
+  body.has3d .panel, body.has3d .board, body.has3d .card {
+    background: rgba(12,17,24,.62); border: 1px solid rgba(255,255,255,.08); border-radius: 14px;
+    backdrop-filter: blur(16px) saturate(1.15); -webkit-backdrop-filter: blur(16px) saturate(1.15);
+    box-shadow: 0 10px 34px rgba(0,0,0,.35);
+  }
+  body.has3d .card { border-left: 1px solid rgba(255,255,255,.08); padding: 18px; }
+  body.has3d .card::before { content: ''; display: block; width: 28px; height: 3px; border-radius: 3px; background: #E23B38; margin-bottom: 12px; }
+  body.has3d button, body.has3d .pico button { border-radius: 9px; }
+  body.has3d th, body.has3d .rowline span, body.has3d .kicker, body.has3d h3 { text-transform: none; letter-spacing: .02em; font-size: 12px; }
+  body.has3d .kicker { font-weight: 650; }
+  body.has3d .fixture-top { grid-template-columns: 1fr; }
+  body.has3d .squadstrip { flex-wrap: wrap; }
+  body.has3d th { border-bottom-color: rgba(255,255,255,.08); }
+  body.has3d td { border-bottom-color: rgba(255,255,255,.05); }
+  body.has3d tr.alpha td { background: rgba(226,59,56,.2); }
+  body.has3d .badge { border-radius: 999px; padding: 2px 9px; letter-spacing: .02em; }
+  body.has3d .mview, body.has3d .mmini, body.has3d .port, body.has3d .pilot { border-radius: 10px; border-color: rgba(255,255,255,.1); background: rgba(5,7,10,.5); }
+  body.has3d select, body.has3d input[type=text], body.has3d input[type=number] { border-radius: 9px; background: rgba(5,7,10,.55); }
+  body.has3d ::-webkit-scrollbar { width: 8px; } body.has3d ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 8px; }
+
   @media (max-width: 1180px) {
     .fixture-top, .stage.split, #an-lineups, .hangar-flex, .at-info, #at-slots, .report-grid { grid-template-columns: 1fr; }
     .lineup { grid-template-columns: 28px minmax(0, 1fr); }
@@ -285,6 +332,7 @@
 </style>
 </head>
 <body>
+<div id="gar-3d-bg"></div>
 <aside id="app-nav"></aside>
 
 <!-- ÉCRAN D'ACCUEIL / CARRIÈRE -->
@@ -335,7 +383,6 @@
 
 <!-- GARAGE -->
 <div class="screen" id="screen-garage">
-  <div id="gar-3d-bg"></div>
   <div class="tophead"><span class="org">Garage</span><span class="res" id="gar-credits"></span><span class="hint" id="gar-tripo" style="color:#D93432;letter-spacing:1px"></span><button class="small" id="gar-3d-tog">Hangar 3D : off</button></div>
   <nav class="subnav">
     <button type="button" class="cur" data-pane="fleet">Flotte</button>
@@ -652,11 +699,12 @@ let matchCtx = null;    // match en cours
 let atelierMech = null; // mech en édition à l'atelier
 let hotZone = null; // zone de maquette mise en avant (survol de slot)
 
+const HANGAR_SCREENS = ['hub','roster','garage','league','analysis','setup','report','season'];
 const SCREENS = ['boot', 'hub', 'roster', 'garage', 'league', 'analysis', 'setup', 'battle', 'report', 'season', 'rules', 'about'];
 function show(name){ SCREENS.forEach(s => { const el = $('screen-' + s); if (el) el.classList.toggle('active', s === name); }); state = name;
   document.body.classList.toggle('in-app', ['hub','roster','garage','league','analysis','setup','report','season'].includes(name));
   document.querySelectorAll('#app-nav button').forEach(b => b.classList.toggle('cur', b.dataset.nav === name));
-  if (typeof window !== 'undefined'){ if (name === 'garage' && gar3d.active) gar3dEnter(); else gar3dLeave(); if (name === 'boot') boot3dEnter(); else boot3dLeave(); } }
+  if (typeof window !== 'undefined'){ document.body.classList.toggle('has3d', HANGAR_SCREENS.includes(name) && gar3d.active); if (HANGAR_SCREENS.includes(name) && gar3d.active) gar3dEnter(); else gar3dLeave(); if (name === 'boot') boot3dEnter(); else boot3dLeave(); } }
 function save(){ if (G) store.set(SAVE_KEY, JSON.stringify(G)); }
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
@@ -1795,7 +1843,7 @@ function loadTripo(){
     const ld = new window.THREE.GLTFLoader();
     let left = wanted.length;
     const done = () => {
-      if (vox.n && state === 'garage' && gar3d.ok){ gar3d.key = ''; buildGar3DFleet(); }
+      if (vox.n && HANGAR_SCREENS.includes(state) && gar3d.ok){ gar3d.key = ''; buildGar3DFleet(); }
       if (vox.n && b3 && b3.akey) b3.akey = '';
       if (vox.n && $('gar-tripo')) $('gar-tripo').textContent = '◆ VOX : ' + vox.n + ' PIÈCE' + (vox.n > 1 ? 'S' : '');
     };
@@ -1894,29 +1942,35 @@ function gar3dEnter(){
   gar3d.loading = true;
   ensureTHREE(ok => {
     gar3d.loading = false;
-    if (!ok || state !== 'garage') return;
+    if (!ok || !HANGAR_SCREENS.includes(state)) return;
     gar3d.ok = true;
     buildGar3D();
     gar3dStart();
-    loadLeagueLib(() => { if (state === 'garage' && gar3d.ok){ gar3d.key = ''; buildGar3DFleet(); } });
+    loadLeagueLib(() => { if (HANGAR_SCREENS.includes(state) && gar3d.ok){ gar3d.key = ''; buildGar3DFleet(); } });
     loadTripo(); // v0.10.1 : vitrine Tripo (rebuild auto du hangar à l'arrivée des GLB)
   });
 }
-function gar3dLeave(){ if (gar3d.raf){ cancelAnimationFrame(gar3d.raf); gar3d.raf = 0; } }
+function gar3dLeave(){ if (gar3d.raf){ cancelAnimationFrame(gar3d.raf); gar3d.raf = 0; } if ($('gar-3d-bg')) $('gar-3d-bg').style.display = 'none'; }
 function gar3dStart(){
   if (!gar3d.ok || !gar3d.active) return;
   buildGar3DFleet();
   $('gar-3d-bg').style.display = 'block';
-  $('screen-garage').classList.add('gar3d');
+  document.body.classList.add('has3d');
   $('gar-3d-tog').textContent = 'Hangar 3D : on';
   if (gar3d.raf) return;
   let last = 0;
   const tick = t => {
     gar3d.raf = 0;
-    if (state !== 'garage' || !gar3d.active) return;
+    if (!HANGAR_SCREENS.includes(state) || !gar3d.active) return;
     const dt = last ? Math.min(50, t - last) : 16; last = t;
-    gar3d.camera.position.set(Math.sin(t / 11000) * 0.6, 3.2, 16);
-    gar3d.camera.lookAt(0, 2.8, 0);
+    const pose = HANGAR_POSE[state] || HANGAR_POSE.hub;
+    const cam = gar3d.cam || (gar3d.cam = { ...pose });
+    const k = Math.min(1, dt / 420);
+    ['px', 'py', 'pz', 'ly', 'off', 'lx'].forEach(f => { cam[f] += (pose[f] - cam[f]) * k; });
+    gar3d.camera.position.set(cam.px + Math.sin(t / 11000) * 0.6, cam.py, cam.pz);
+    gar3d.camera.lookAt(cam.lx, cam.ly, 0);
+    const W = window.innerWidth, H = window.innerHeight;
+    gar3d.camera.setViewOffset(W, H, -W * cam.off, 0, W, H);
     Object.keys(gar3d.groups).forEach(id => { const g = gar3d.groups[id]; if (!g.grp) return;
       g.grp.position.y = Math.sin(t / 700 + g.ph) * .04;
       if (g.mixer) g.mixer.update(dt / 1000); });
@@ -1926,6 +1980,16 @@ function gar3dStart(){
   };
   gar3d.raf = requestAnimationFrame(tick);
 }
+const HANGAR_POSE = {
+  hub:      { px: 0, py: 3.8, pz: 25, lx: 0, ly: 3.0, off: 0.2 },
+  roster:   { px: 0, py: 3.8, pz: 25, lx: 0, ly: 3.0, off: 0.2 },
+  garage:   { px: 0, py: 3.8, pz: 25, lx: 0, ly: 3.0, off: 0.2 },
+  league:   { px: 0, py: 4.4, pz: 26, lx: 0, ly: 2.8, off: 0.2 },
+  analysis: { px: 0, py: 3.8, pz: 25, lx: 0, ly: 3.0, off: 0.2 },
+  setup:    { px: 0, py: 3.8, pz: 25, lx: 0, ly: 3.0, off: 0.2 },
+  report:   { px: 0, py: 3.8, pz: 25, lx: 0, ly: 3.0, off: 0.2 },
+  season:   { px: 0, py: 4.2, pz: 26, lx: 0, ly: 2.8, off: 0.2 }
+};
 function buildGar3D(){
   gar3d.renderer = new THREE.WebGLRenderer({ antialias: true });
   gar3d.renderer.setPixelRatio(Math.min(2, (window.devicePixelRatio || 1)));
@@ -1936,8 +2000,8 @@ function buildGar3D(){
   gar3d.scene.background = new THREE.Color(0x0B0E12);
   gar3d.scene.fog = new THREE.Fog(0x0B0E12, 14, 40);
   gar3d.camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, .1, 100);
-  gar3d.scene.add(new THREE.HemisphereLight(0x8FA3B8, 0x111418, .8));
-  const key = new THREE.DirectionalLight(0xE7EBEF, 1.05); key.position.set(6, 10, 7); gar3d.scene.add(key);
+  gar3d.scene.add(new THREE.HemisphereLight(0xA9BCD2, 0x1A2028, 1.6));
+  const key = new THREE.DirectionalLight(0xFFF3E6, 2.1); key.position.set(6, 10, 7); gar3d.scene.add(key);
   const rim = new THREE.DirectionalLight(0xD93432, .4); rim.position.set(-8, 5, -6); gar3d.scene.add(rim);
   gar3d.scene.add(new THREE.GridHelper(34, 34, 0x2E3946, 0x161A20));
   hangarProps(gar3d.scene, 'garage');
@@ -1983,7 +2047,7 @@ function gar3dHighlight(id, on){
 $('gar-3d-tog').onclick = () => {
   gar3d.active = !gar3d.active;
   if (gar3d.active){ if (gar3d.ok) gar3dStart(); else gar3dEnter(); }
-  else { gar3dLeave(); $('gar-3d-bg').style.display = 'none'; $('screen-garage').classList.remove('gar3d'); $('gar-3d-tog').textContent = 'Hangar 3D : off'; }
+  else { gar3dLeave(); document.body.classList.remove('has3d'); $('gar-3d-tog').textContent = 'Hangar 3D : off'; }
 };
 
 function renderHub(){
