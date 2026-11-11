@@ -7,7 +7,7 @@
 <script type="importmap">
 { "imports": { "three": "./vendor/three/build/three.module.js", "three/addons/": "./vendor/three/examples/jsm/" } }
 </script>
-<title>IRONGRADE — Prototype manager v0.17.1</title>
+<title>IRONGRADE — Prototype manager v0.17.2</title>
 <style>
   @font-face { font-family: Inter; font-style: normal; font-weight: 100 900; font-display: swap; src: url("vendor/fonts/inter-latin.woff2") format("woff2"); }
   :root {
@@ -301,7 +301,7 @@
     <button class="ghost" id="btn-rules">COMMENT JOUER</button>
     <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
   </div>
-  <div class="footer">IRONGRADE v0.17.1 — MECHCORE v1.5.1</div>
+  <div class="footer">IRONGRADE v0.17.2 — MECHCORE v1.5.1</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -1380,13 +1380,9 @@ function buildMech3D(lo, chId, hot){
   at3d.hot = hot || null;
   if (hotOnly){ updateAt3DHot(); return; }
   at3d.key = key;
-  if (at3d.group){
-    at3d.scene.remove(at3d.group);
-    if (!at3d.group.userData.shared) at3d.group.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
-  }
-  const league = presentLeague(chId, 0, atelierMech.frame);
-  const built = league ? { grp: league, parts: {} } : mech3DGroup(atelierMech, lo, chId);
-  at3d.group = built.grp; at3d.parts = built.parts; at3d.mixer = league ? league.userData.mixer : null;
+  if (at3d.group){ at3d.scene.remove(at3d.group); releaseView(at3d.group); }
+  const built = presentMech(chId, 0, atelierMech.frame, lo) || mech3DGroup(atelierMech, lo, chId);
+  at3d.group = built.grp; at3d.parts = built.parts; at3d.mixer = built.mixer || null;
   at3d.scene.add(built.grp);
   updateAt3DHot();
 }
@@ -1550,7 +1546,7 @@ function spawnLeague(chId){
   const src = leagueLib.templates[chId];
   if (!src || !window.THREE || !window.THREE.SkeletonUtils) return null;
   const root = window.THREE.SkeletonUtils.clone(src.scene);
-  root.traverse(o => { if (o.material && o.material.isMaterial) o.material = o.material.clone(); });
+  root.traverse(o => { if (o.material && o.material.isMaterial){ o.material = o.material.clone(); o.material.userData.voxClone = true; } });
   const mixer = new window.THREE.AnimationMixer(root);
   const actions = {};
   src.animations.forEach(c => { actions[c.name] = mixer.clipAction(c); });
@@ -1564,9 +1560,21 @@ function spawnLeague(chId){
 }
 function cloneListed(src){
   const root = src.clone(true);
-  root.traverse(o => { if (o.material && o.material.isMaterial) o.material = o.material.clone(); });
-  root.userData.shared = false;
+  root.traverse(o => {
+    if (o.material && o.material.isMaterial){
+      o.material = o.material.clone();
+      o.material.userData.voxClone = true;
+    }
+  });
   return root;
+}
+function releaseView(root){
+  if (!root) return;
+  const keep = !!(root.userData.shared || root.userData.keepGeo);
+  root.traverse(o => {
+    [].concat(o.material || []).forEach(mm => { if (mm && mm.userData && mm.userData.voxClone) mm.dispose(); });
+    if (!keep && o.geometry) o.geometry.dispose();
+  });
 }
 function setClip(root, name){
   const actions = root && root.userData.actions;
@@ -1581,19 +1589,19 @@ function setClip(root, name){
   root.userData.clip = nextName;
 }
 function presentLeague(chId, team){
-  const listed = tripo.chassis[chId];
-  const body = listed ? cloneListed(listed) : spawnLeague(chId);
+  const body = spawnLeague(chId);
   if (!body) return null;
   const grp = new window.THREE.Group();
   grp.add(body);
   grp.userData.mixer = body.userData.mixer;
   grp.userData.actions = body.userData.actions;
   grp.userData.clip = body.userData.clip;
-  grp.userData.shared = !listed;
+  grp.userData.shared = true;
   const ring = new window.THREE.Mesh(
     new window.THREE.TorusGeometry(1.15, 0.035, 8, 32),
     new window.THREE.MeshStandardMaterial({ color: team === 1 ? 0x7FA6C9 : 0xD93432, emissive: team === 1 ? 0x7FA6C9 : 0xD93432, emissiveIntensity: 0.55 })
   );
+  ring.material.userData.voxClone = true;
   ring.rotation.x = Math.PI / 2; ring.position.y = 0.03;
   grp.add(ring);
   return grp;
@@ -1660,58 +1668,107 @@ function boot3dLoop(){
 
 // ==== v0.9.2 : HANGAR 3D DU GARAGE — la flotte en fond du menu ====
 let gar3d = { ok: false, loading: false, active: true, renderer: null, scene: null, camera: null, groups: {}, fx: null, raf: 0, key: '', anchors: [] };
-// ==== v0.10.1 — VITRINE TRIPO : GLB du dépôt montés automatiquement (D-036) ====
-// Un GLB VoxAI se pose ici : models/mch_<chassis>.glb, id ajouté à models/manifest.json. Il passe devant le stand-in.
-// 1 GLB par châssis models/mch_<id>.glb, 1 par arme models/wep_<id>.glb,
-// Y-up, origine au sol entre les pieds, canon d'arme vers +Z. Normalisation auto (hauteur châssis 4.8, arme 2.4 en Z),
-// matériaux clonés par instance (highlight hover), fallback procédural intégral si absent (404 / hors-ligne / file://).
-const TRIPO_CHASSIS = ['hound_prime', 'longbow_mk1', 'warden_x1', 'ghost_lt'];
-const TRIPO_SOCKET = { hound_prime: { x: 1.225, y: 2.75 }, longbow_mk1: { x: 1.225, y: 3.0 }, warden_x1: { x: 1.4, y: 2.6 }, ghost_lt: { x: 1.225, y: 2.75 } };
-let tripo = { done: false, chassis: {}, weapons: {}, n: 0 };
-function loadTripo(){ // ne charge que les GLB cités dans models/manifest.json — pas de 404 sur un dossier vide
-  if (tripo.done || !window.THREE || !window.THREE.GLTFLoader) return;
-  tripo.done = true;
-  fetch('models/manifest.json').then(r => r.ok ? r.json() : null).then(man => {
-    if (!man) return;
-    const wanted = [];
-    (man.chassis || []).forEach(id => wanted.push(['chassis', 'mch_' + id, id]));
-    (man.weapons || []).forEach(id => wanted.push(['weapons', 'wep_' + id, id]));
+// Pièces VoxAI : models/pieces.json décrit chaque GLB, models/manifest.json ne liste que ceux déjà générés.
+let vox = { done: false, pieces: {}, n: 0, plan: null };
+function fitPiece(obj, def){
+  const THREE = window.THREE;
+  obj.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(obj);
+  const size = new THREE.Vector3();
+  box.getSize(size);
+  const axis = def.axis || 'y';
+  const cur = Math.max(1e-4, axis === 'z' ? size.z : axis === 'x' ? size.x : size.y);
+  obj.scale.multiplyScalar((def.span || 1) / cur);
+  obj.updateMatrixWorld(true);
+  const b2 = new THREE.Box3().setFromObject(obj);
+  const anchor = def.anchor || 'center';
+  let x = -(b2.min.x + b2.max.x) / 2;
+  let y = -(b2.min.y + b2.max.y) / 2;
+  let z = -(b2.min.z + b2.max.z) / 2;
+  if (anchor === 'ground' || anchor === 'bottom') y = -b2.min.y;
+  if (anchor === 'top') y = -b2.max.y;
+  if (anchor === 'grip') z = -b2.min.z;
+  const holder = new THREE.Group();
+  obj.position.set(x, y, z);
+  holder.add(obj);
+  return holder;
+}
+function loadTripo(){
+  if (vox.done || !window.THREE || !window.THREE.GLTFLoader) return;
+  vox.done = true;
+  Promise.all([
+    fetch('models/pieces.json').then(r => r.ok ? r.json() : null).catch(() => null),
+    fetch('models/manifest.json').then(r => r.ok ? r.json() : null).catch(() => null)
+  ]).then(([plan, man]) => {
+    vox.plan = plan;
+    const ready = (man && man.pieces) || [];
+    const byId = {};
+    ((plan && plan.pieces) || []).forEach(p => { byId[p.id] = p; });
+    const wanted = ready.filter(id => byId[id]);
     if (!wanted.length) return;
     const ld = new window.THREE.GLTFLoader();
     let left = wanted.length;
-  const done = () => {
-    if (tripo.n && state === 'garage' && gar3d.ok){ gar3d.key = ''; buildGar3DFleet(); }
-    if (tripo.n && b3 && b3.akey) b3.akey = '';
-    if (tripo.n && $('gar-tripo')) $('gar-tripo').textContent = '◆ VOX : ' + tripo.n + ' MODÈLE' + (tripo.n > 1 ? 'S' : '');
-  };
-  wanted.forEach(([kind, file, id]) => ld.load('models/' + file + '.glb', g => {
-    const obj = g.scene;
-    const box = new THREE.Box3().setFromObject(obj);
-    const target = kind === 'chassis' ? 4.8 : 2.4; // châssis : hauteur totale ; arme : longueur (Z)
-    const size = kind === 'chassis' ? Math.max(1e-4, box.max.y - box.min.y) : Math.max(1e-4, box.max.z - box.min.z, (box.max.x - box.min.x) * .8);
-    obj.scale.setScalar(target / size);
-    const b2 = new THREE.Box3().setFromObject(obj);
-    obj.position.set(-(b2.min.x + b2.max.x) / 2, -b2.min.y, -(b2.min.z + b2.max.z) / 2);
-    tripo[kind][id] = obj; tripo.n++;
-    if (--left === 0) done();
-  }, undefined, () => { if (--left === 0) done(); }));
-  }).catch(() => {});
+    const done = () => {
+      if (vox.n && state === 'garage' && gar3d.ok){ gar3d.key = ''; buildGar3DFleet(); }
+      if (vox.n && b3 && b3.akey) b3.akey = '';
+      if (vox.n && $('gar-tripo')) $('gar-tripo').textContent = '◆ VOX : ' + vox.n + ' PIÈCE' + (vox.n > 1 ? 'S' : '');
+    };
+    wanted.forEach(id => ld.load('models/' + id + '.glb', g => {
+      vox.pieces[id] = fitPiece(g.scene, byId[id]);
+      vox.n++;
+      if (--left === 0) done();
+    }, undefined, () => { if (--left === 0) done(); }));
+  });
 }
-function tripoMech(m, lo, chId){ // vitrine : GLB châssis (+ arme au socket) si dispo, sinon null → procédural
-  if (!tripo.chassis[chId]) return null;
+function assembleVox(chId, frameId, loadout, team){
+  if (!vox.plan || !vox.pieces['core_' + chId]) return null;
+  const THREE = window.THREE;
   const grp = new THREE.Group();
-  const body = tripo.chassis[chId].clone(true);
-  body.traverse(o => { if (o.material && o.material.isMaterial) o.material = o.material.clone(); }); // highlight hover par mech
-  grp.add(body);
-  const wid = lo.weapon_primary || (PRESETS[m.preset] ? PRESETS[m.preset].weapon : null);
-  if (wid && tripo.weapons[wid]){
-    const w = tripo.weapons[wid].clone(true);
-    w.traverse(o => { if (o.material && o.material.isMaterial) o.material = o.material.clone(); });
-    if (wid === 'seraph_lrm_pod'){ w.position.set(0, 3.85, -.6); } // pods dorsaux — socket dos
-    else { const sk = TRIPO_SOCKET[chId] || TRIPO_SOCKET.hound_prime; w.position.set(sk.x, sk.y, .2); } // main droite, canon +Z
-    grp.add(w);
-  }
-  return grp;
+  const parts = {};
+  const add = (node, zone) => {
+    grp.add(node);
+    const bucket = parts[zone] || (parts[zone] = []);
+    node.traverse(o => { if (o.isMesh) bucket.push(o); });
+  };
+  add(cloneListed(vox.pieces['core_' + chId]), 'torso');
+  const sockets = (vox.plan.sockets && vox.plan.sockets[chId]) || {};
+  const place = (pieceId, socketName, mirror, zone) => {
+    const src = vox.pieces[pieceId];
+    if (!src) return;
+    const node = cloneListed(src);
+    if (mirror) node.scale.x *= -1;
+    const s = sockets[socketName] || [0, 2.5, 0];
+    node.position.set(s[0], s[1], s[2]);
+    add(node, zone);
+  };
+  const lo = loadout || {};
+  Object.keys(lo).forEach(slot => {
+    const cat = lo[slot];
+    if (!cat || cat === 'fists') return;
+    const mount = vox.plan.mounts && vox.plan.mounts[cat];
+    if (!mount) return;
+    const secondary = !mount.fixed && slot === 'weapon_secondary';
+    place(mount.piece, secondary ? 'weapon_secondary' : mount.socket, !!(mount.mirror || secondary), zoneOfSlot(slot));
+  });
+  const fr = frameId && vox.plan.frames && vox.plan.frames[frameId];
+  if (fr) place(fr.piece, fr.socket || 'plate', false, 'torso');
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(1.15, 0.035, 8, 32),
+    new THREE.MeshStandardMaterial({ color: team === 1 ? 0x7FA6C9 : 0xD93432, emissive: team === 1 ? 0x7FA6C9 : 0xD93432, emissiveIntensity: 0.55 })
+  );
+  ring.material.userData.voxClone = true;
+  ring.rotation.x = Math.PI / 2; ring.position.y = 0.03;
+  grp.add(ring);
+  grp.userData.shared = true;
+  grp.userData.keepGeo = true;
+  return { grp, parts, shared: true, mixer: null };
+}
+function presentMech(chId, team, frameId, loadout){
+  const built = assembleVox(chId, frameId, loadout, team);
+  if (built) return built;
+  const league = presentLeague(chId, team);
+  if (!league) return null;
+  return { grp: league, parts: {}, shared: true, mixer: league.userData.mixer || null };
 }
 function gar3dEnter(){
   if (typeof window === 'undefined') return;
@@ -1779,18 +1836,13 @@ function buildGar3DFleet(){
   gar3d.key = key;
   (gar3d.decor || []).forEach(o => gar3d.scene.remove(o));
   gar3d.decor = [];
-  Object.keys(gar3d.groups).forEach(id => { const g = gar3d.groups[id]; gar3d.scene.remove(g.grp);
-    if (g.shared) return;
-    g.grp.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material){ const mats = [].concat(o.material); mats.forEach(mm => mm.dispose && mm.dispose()); } }); });
+  Object.keys(gar3d.groups).forEach(id => { const g = gar3d.groups[id]; gar3d.scene.remove(g.grp); releaseView(g.grp); });
   gar3d.groups = {}; gar3d.anchors = [];
   const n = G.mechs.length, sp = 4.2;
   G.mechs.forEach((m, i) => {
     const lo = m.loadout || (PRESETS[m.preset] ? PRESETS[m.preset].loadout : {});
     const chId = m.chassis || (PRESETS[m.preset] ? PRESETS[m.preset].mechId : 'hound_prime');
-    const league = presentLeague(chId, 0, m.frame);
-    const glb = league ? null : tripoMech(m, lo, chId);
-    const built = league ? { grp: league, parts: {}, shared: !!league.userData.shared, mixer: league.userData.mixer }
-      : (glb ? { grp: glb, parts: {}, shared: true, mixer: glb.userData.mixer || null } : mech3DGroup(m, lo, chId));
+    const built = presentMech(chId, 0, m.frame, lo) || mech3DGroup(m, lo, chId);
     const x = (i - (n - 1) / 2) * sp;
     built.grp.position.x = x;
     built.grp.rotation.y = (i - (n - 1) / 2) * -.06;
@@ -2632,6 +2684,16 @@ function battleFrameOf(i){
   if (!slots || i >= slots.length) return null;
   return slots[i].mech.frame || null;
 }
+function battleLoadoutOf(i){
+  const slots = matchCtx && matchCtx.duels;
+  if (!slots || !slots.length) return {};
+  const d = i < slots.length ? slots[i] : slots[i - slots.length];
+  const mech = d && (i < slots.length ? d.mech : d.oppMech);
+  if (!mech) return {};
+  if (mech.loadout) return mech.loadout;
+  const pr = PRESETS[mech.preset];
+  return (pr && pr.loadout) || {};
+}
 function battleChassisOf(i){
   const slots = matchCtx && matchCtx.duels;
   if (!slots || !slots.length) return 'hound_prime';
@@ -2766,11 +2828,12 @@ function renderBattle3D(dt){
     mesh.material.emissiveIntensity = o.rubble ? 0 : hurt * 0.65;
   });
   b3ReadEvents();
-  const akey = sim.mechs.map((m, i) => battleChassisOf(i) + ':' + (battleFrameOf(i) || '') + ':' + m.name).join('|');
+  const akey = sim.mechs.map((m, i) => battleChassisOf(i) + ':' + (battleFrameOf(i) || '') + ':' + JSON.stringify(battleLoadoutOf(i))).join('|');
   if (b3.akey !== akey){
-    b3.actors.forEach(a => b3.scene.remove(a.root));
+    b3.actors.forEach(a => { b3.scene.remove(a.root); releaseView(a.root); });
     b3.actors = sim.mechs.map((m, i) => {
-      const root = presentLeague(battleChassisOf(i), m.team, battleFrameOf(i)) || new THREE.Group();
+      const shown = presentMech(battleChassisOf(i), m.team, battleFrameOf(i), battleLoadoutOf(i));
+      const root = (shown && shown.grp) || new THREE.Group();
       b3.scene.add(root);
       return { root, px: m.pos.x, pz: m.pos.z, spd: 0, hold: 0 };
     });
