@@ -1657,7 +1657,7 @@ function mkRepairFX(scene){
 const PROPS_CDN = 'assets/hangar/'; // props Quaternius CC0, en local
 function hangarProps(scene, mode){
   const M = mode === 'garage'
-    ? [['Props_ContainerFull.glb', -11, 0, -7, 1.6, .3], ['Props_Crate.glb', 6.5, 0, -6.2, 1.1, .2], ['Props_CrateLong.glb', 8.2, 0, -6.6, 1.1, -.15], ['Props_Pod.glb', -5.8, 0, -6.4, 1.2, .1], ['Props_Capsule.glb', 10.6, 0, -7.4, 1.2, .5], ['Column_1.glb', -14, 0, -8, 1.5, 0], ['Column_1.glb', 14, 0, -8, 1.5, 0], ['Pipes.glb', 0, 0, -9.5, 1.4, 0]]
+    ? [['Props_ContainerFull.glb', -13, 0, -8, 1.6, .3], ['Props_Crate.glb', 12, 0, -8, 1.1, .2], ['Props_CrateLong.glb', 14, 0, -8.6, 1.1, -.15], ['Props_Pod.glb', -16.5, 0, -7.5, 1.2, .1], ['Props_Capsule.glb', 17, 0, -8.5, 1.2, .5], ['Column_1.glb', -21, 0, -9, 1.5, 0], ['Column_1.glb', 21, 0, -9, 1.5, 0], ['Pipes.glb', 0, 0, -11, 1.4, 0]]
     : [['Props_Crate.glb', -4.6, 0, -3.6, 1.1, .3], ['Props_CrateLong.glb', -5.6, 0, -3.1, 1.1, .1], ['Props_ContainerFull.glb', 5.4, 0, -4.2, 1.3, .2], ['Props_Capsule.glb', 4.5, 0, -3.4, 1.1, -.3], ['Props_Pod.glb', -6.4, 0, -4.6, 1.1, .2]];
   if (window.THREE && window.THREE.GLTFLoader){
     const ld = new window.THREE.GLTFLoader();
@@ -1855,6 +1855,7 @@ function fitPiece(obj, def){
   const axis = def.axis || 'y';
   const cur = Math.max(1e-4, axis === 'z' ? size.z : axis === 'x' ? size.x : size.y);
   obj.scale.multiplyScalar((def.span || 1) / cur);
+  if (def.girth){ obj.scale.x *= def.girth; obj.scale.z *= def.girth; }
   obj.updateMatrixWorld(true);
   const b2 = new THREE.Box3().setFromObject(obj);
   const anchor = def.anchor || 'center';
@@ -1873,8 +1874,8 @@ function loadTripo(){
   if (vox.done || !window.THREE || !window.THREE.GLTFLoader) return;
   vox.done = true;
   Promise.all([
-    fetch('models/pieces.json').then(r => r.ok ? r.json() : null).catch(() => null),
-    fetch('models/manifest.json').then(r => r.ok ? r.json() : null).catch(() => null)
+    fetch('models/pieces.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).catch(() => null),
+    fetch('models/manifest.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).catch(() => null)
   ]).then(([plan, man]) => {
     vox.plan = plan;
     const ready = (man && man.pieces) || [];
@@ -1936,7 +1937,12 @@ function assembleVox(chId, frameId, loadout, team){
     if (mirror) node.scale.x *= -1;
     const base = worldPos || (() => {
       const s = sockets[socketName] || [0, 2.5, 0];
-      return [s[0], s[1] + lift, s[2]];
+      let x = s[0];
+      if (socketName === 'left_leg' || socketName === 'right_leg'){
+        const w = new THREE.Box3().setFromObject(src).getSize(new THREE.Vector3()).x;
+        x = Math.sign(x || 1) * Math.max(Math.abs(x), w / 2 + 0.05);
+      }
+      return [x, s[1] + lift, s[2]];
     })();
     const n = nudge || [0, 0, 0];
     node.position.set(base[0] + n[0], base[1] + n[1], base[2] + n[2]);
