@@ -2071,8 +2071,8 @@ function assembleVox(chId, frameId, loadout, team){
     right_arm: [shoulderX, shoulderY, 0.02],
     left_leg: [-hip, legH, 0],
     right_leg: [hip, legH, 0],
-    left_shoulder: [-coreDim[0] / 2, shoulderY + 0.04, 0],
-    right_shoulder: [coreDim[0] / 2, shoulderY + 0.04, 0],
+    left_shoulder: [-(coreDim[0] / 2 + 0.22), shoulderY - 0.02, 0.08],
+    right_shoulder: [coreDim[0] / 2 + 0.22, shoulderY - 0.02, 0.08],
     engine: [0, coreBase + coreDim[1] * 0.48, -coreDim[2] / 2],
     back: [0, coreBase + coreDim[1] * 0.62, -coreDim[2] / 2 - 0.04],
     ram: [0, coreBase + coreDim[1] * 0.42, coreDim[2] / 2 + 0.06],
@@ -2165,12 +2165,23 @@ function assembleVox(chId, frameId, loadout, team){
       gun.traverse(o => { if (o.isMesh){ const bucket = parts[zoneOfSlot(slot)] || (parts[zoneOfSlot(slot)] = []); bucket.push(o); } });
       return;
     }
+    if (mount.socket === 'torso' || mount.socket === 'ram' || mount.socket === 'cooling' || mount.socket === 'utility'){
+      const fit = (vox.pieces[mount.piece] && vox.pieces[mount.piece].userData.fitSize) || [0.4, 0.4, 0.3];
+      const front = coreDim[2] / 2 + fit[2] * 0.42;
+      let world;
+      if (mount.socket === 'torso') world = [0, coreBase + coreDim[1] * 0.52, front + 0.04];
+      else if (mount.socket === 'ram') world = [0, coreBase + coreDim[1] * 0.3, front + fit[2] * 0.55];
+      else if (mount.socket === 'cooling') world = [-0.34, coreBase + coreDim[1] * 0.68, -front];
+      else world = [0.32, coreBase + coreDim[1] * 0.34, -front];
+      place(mount.piece, mount.socket, false, zoneOfSlot(slot), null, world);
+      return;
+    }
     if (mount.socket === 'shield'){
       const host = hold.left;
       const src = vox.pieces[mount.piece];
       if (!src || !host) return;
       const sh = cloneListed(src);
-      sh.position.set(-0.16, -host.loH * 0.72, 0.12);
+      sh.position.set(-0.1, -host.loH * 0.5, 0.16);
       sh.userData.aim = 'forward';
       host.elbow.add(sh);
       const armRec = joints.arms.filter(a => a.side === 'left').pop();

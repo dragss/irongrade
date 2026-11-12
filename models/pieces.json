@@ -467,9 +467,9 @@
    "anchor": "center",
    "prompt": "voxel mech torso shell only, standard thickness, no head, no arms",
    "box": [
-    0.92,
-    0.52,
-    0.2
+    1.05,
+    0.62,
+    0.26
    ]
   },
   {
@@ -479,9 +479,9 @@
    "anchor": "center",
    "prompt": "voxel mech torso shell only, thicker plates, no head, no arms",
    "box": [
-    1.02,
-    0.58,
-    0.24
+    1.28,
+    0.82,
+    0.34
    ]
   },
   {
@@ -557,9 +557,9 @@
    "anchor": "center",
    "prompt": "voxel right pauldron only, no arm",
    "box": [
-    0.34,
-    0.24,
-    0.3
+    0.78,
+    0.5,
+    0.62
    ]
   },
   {
@@ -569,9 +569,9 @@
    "anchor": "center",
    "prompt": "voxel kite shield emitter, translucent plate shape, no arm",
    "box": [
-    0.46,
-    0.58,
-    0.1
+    0.62,
+    0.9,
+    0.12
    ]
   },
   {
@@ -605,9 +605,9 @@
    "anchor": "center",
    "prompt": "voxel cooling vent, small, no body",
    "box": [
-    0.26,
-    0.24,
-    0.2
+    0.38,
+    0.34,
+    0.3
    ]
   },
   {
@@ -617,9 +617,9 @@
    "anchor": "center",
    "prompt": "voxel twin cooling vents, no body",
    "box": [
-    0.32,
-    0.28,
-    0.24
+    0.46,
+    0.4,
+    0.34
    ]
   },
   {
@@ -629,9 +629,9 @@
    "anchor": "center",
    "prompt": "voxel gyro ring module, small, no body",
    "box": [
-    0.24,
-    0.2,
-    0.16
+    0.34,
+    0.3,
+    0.26
    ]
   },
   {
@@ -641,9 +641,9 @@
    "anchor": "center",
    "prompt": "voxel targeting assist box, small antenna, no body",
    "box": [
-    0.22,
-    0.2,
-    0.16
+    0.3,
+    0.28,
+    0.24
    ]
   },
   {
@@ -690,13 +690,13 @@
    "id": "impact_ram",
    "span": 1.4,
    "axis": "z",
-   "anchor": "grip",
+   "anchor": "center",
    "prompt": "voxel chest ram, flat striking face toward the front, no body",
    "maxCross": 1.0,
    "box": [
-    0.3,
-    0.3,
-    0.5
+    0.95,
+    0.48,
+    0.72
    ]
   },
   {
@@ -842,9 +842,9 @@
    "anchor": "center",
    "prompt": "voxel light mech torso shell only, thin chest plates, open neck hole on top, side holes for the arms, no head, no arms, no legs",
    "box": [
-    0.82,
-    0.46,
-    0.18
+    0.92,
+    0.5,
+    0.2
    ]
   },
   {
@@ -867,9 +867,9 @@
    "anchor": "center",
    "prompt": "voxel RIGHT spiked pauldron only, three short spikes, no arm, no body",
    "box": [
-    0.36,
-    0.26,
-    0.3
+    0.72,
+    0.55,
+    0.5
    ]
   },
   {
@@ -879,9 +879,9 @@
    "anchor": "center",
    "prompt": "voxel tall rectangular tower shield slab, handle on the back, no arm, no body",
    "box": [
-    0.54,
-    0.78,
-    0.12
+    0.7,
+    1.05,
+    0.14
    ]
   },
   {
