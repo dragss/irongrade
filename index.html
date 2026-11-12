@@ -1330,7 +1330,7 @@ function mechView(m, size, opts){
 // ==== v0.9.0 : VUE 3D DE L'ATELIER (Three.js chargé à la demande en ligne ; fallback maquette SVG hors-ligne) ====
 // Pipeline Tripo : quand les modèles GLB existeront, buildMech3D procédural sera remplacé par un GLTFLoader
 // (un GLB par châssis + un GLB par arme, montés aux sockets torso/armes) — même logique de zones/hot.
-let at3d = { mode: 'svg', loading: false, ok: false, scene: null, camera: null, renderer: null, group: null, parts: {}, hot: null, key: '', theta: .65, phi: 1.08, r: 13, ly: 2.8, drag: null, raf: 0, anim: null, saved: null, lastUser: 0, autoTried: false, fx: null };
+let at3d = { mode: 'svg', loading: false, ok: false, scene: null, camera: null, renderer: null, group: null, parts: {}, hot: null, key: '', theta: .65, phi: 1.08, r: 6.2, ly: 1.45, drag: null, raf: 0, anim: null, saved: null, lastUser: 0, autoTried: false, fx: null };
 let THREE = null; // le module ne voit pas window.THREE : on le rattache ici, sinon le hangar plante
 function ensureTHREE(cb){
   if (typeof window === 'undefined') return cb(false);
@@ -1612,7 +1612,7 @@ function startAt3DLoop(){
     at3d.camera.position.set(at3d.r * Math.sin(at3d.phi) * Math.sin(at3d.theta), at3d.r * Math.cos(at3d.phi) + 1.2, at3d.r * Math.sin(at3d.phi) * Math.cos(at3d.theta));
     at3d.camera.lookAt(0, at3d.ly, 0);
     at3d.camera.setViewOffset(window.innerWidth, window.innerHeight, window.innerWidth * 0.17, 0, window.innerWidth, window.innerHeight);
-    if (at3d.group) at3d.group.position.y = Math.sin(t / 700) * .04; // idle
+    if (at3d.group){ poseVox(at3d.group, t / 1000, "idle"); }
     if (at3d.mixer) at3d.mixer.update(dt / 1000);
     if (at3d.fx && atelierMech) at3d.fx.update(dt, t, [{ x: 0, y: 0, z: 0, damaged: atelierMech.condition < 100 }]);
     at3d.renderer.render(at3d.scene, at3d.camera);
@@ -1642,7 +1642,7 @@ function focusAt3DZone(zone){
   $('at-focus-reset').style.display = 'inline-block';
 }
 function resetAt3DView(){
-  const to = at3d.saved || { theta: .65, phi: 1.08, r: 13, ly: 2.8 };
+  const to = at3d.saved || { theta: .65, phi: 1.08, r: 6.2, ly: 1.45 };
   at3d.anim = { t0: performance.now(), dur: 650,
     from: { theta: at3d.theta, phi: at3d.phi, r: at3d.r, ly: at3d.ly }, to };
   at3d.saved = null;
@@ -1694,7 +1694,7 @@ function mkRepairFX(scene){
 const PROPS_CDN = 'assets/hangar/'; // props Quaternius CC0, en local
 function hangarProps(scene, mode){
   const M = mode === 'garage'
-    ? [['Props_ContainerFull.glb', -13, 0, -8, 1.6, .3], ['Props_Crate.glb', 12, 0, -8, 1.1, .2], ['Props_CrateLong.glb', 14, 0, -8.6, 1.1, -.15], ['Props_Pod.glb', -16.5, 0, -7.5, 1.2, .1], ['Props_Capsule.glb', 17, 0, -8.5, 1.2, .5], ['Column_1.glb', -21, 0, -9, 1.5, 0], ['Column_1.glb', 21, 0, -9, 1.5, 0], ['Pipes.glb', 0, 0, -11, 1.4, 0]]
+    ? [['Props_ContainerFull.glb', -13, 0, -8, 1.6, .3], ['Props_Crate.glb', 12, 0, -8, 1.1, .2], ['Props_CrateLong.glb', 14, 0, -8.6, 1.1, -.15], ['Props_Pod.glb', -16.5, 0, -7.5, 1.2, .1], ['Props_Capsule.glb', 17, 0, -8.5, 1.2, .5], ['Column_1.glb', -21, 0, -9, 1.5, 0], ['Column_1.glb', 21, 0, -9, 1.5, 0], ['Pipes.glb', 0, 2.2, -24, 1.4, 0]]
     : [['Props_Crate.glb', -4.6, 0, -3.6, 1.1, .3], ['Props_CrateLong.glb', -5.6, 0, -3.1, 1.1, .1], ['Props_ContainerFull.glb', 5.4, 0, -4.2, 1.3, .2], ['Props_Capsule.glb', 4.5, 0, -3.4, 1.1, -.3], ['Props_Pod.glb', -6.4, 0, -4.6, 1.1, .2]];
   if (window.THREE && window.THREE.GLTFLoader){
     const ld = new window.THREE.GLTFLoader();
@@ -1845,7 +1845,7 @@ function bootFill(){
     const preset = PRESETS[FRAME_PRESET[id]];
     const built = presentMech(id, 0, null, preset ? preset.loadout : {});
     if (!built) return;
-    const x = (i - (ids.length - 1) / 2) * 4.0;
+    const x = (i - (ids.length - 1) / 2) * 2.7;
     built.grp.position.x = x;
     built.grp.rotation.y = (i - 1.5) * -0.12;
     boot3d.scene.add(built.grp); boot3d.figs.push(built.grp);
@@ -1863,10 +1863,11 @@ function boot3dLoop(){
     if (!boot3d.on || state !== 'boot') return;
     const dt = last ? Math.min(0.05, (t - last) / 1000) : 0.016; last = t;
     boot3d.mixers.forEach(m => m.update(dt));
+    (boot3d.figs || []).forEach(g => poseVox(g, t / 1000, "idle"));
     const a = t / 14000;
-    boot3d.camera.position.set(Math.sin(a) * 2.4, 3.8, 24);
-    boot3d.camera.lookAt(0, 2.9, 0);
-    boot3d.camera.setViewOffset(innerWidth, innerHeight, -innerWidth * 0.2, 0, innerWidth, innerHeight);
+    boot3d.camera.position.set(Math.sin(a) * 1.2, 1.7, 15.5);
+    boot3d.camera.lookAt(0, 1.35, 0);
+    boot3d.camera.setViewOffset(innerWidth, innerHeight, -innerWidth * 0.1, 0, innerWidth, innerHeight);
     boot3d.renderer.render(boot3d.scene, boot3d.camera);
     boot3d.raf = requestAnimationFrame(tick);
   };
@@ -1893,35 +1894,82 @@ function aimForward(obj, def){
     obj.applyQuaternion(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI));
   }
 }
+function faceForward(obj){
+  const THREE = window.THREE;
+  obj.updateMatrixWorld(true);
+  let z = 0, n = 0;
+  const v = new THREE.Vector3();
+  obj.traverse(o => {
+    if (!o.isMesh || !o.geometry || !o.geometry.attributes.position) return;
+    const pos = o.geometry.attributes.position;
+    for (let i = 0; i < pos.count; i += 3){
+      v.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld);
+      z += v.z; n++;
+    }
+  });
+  if (n && z / n < -0.02) obj.rotateY(Math.PI);
+}
+function clipRange(src, axis, min, max){
+  const THREE = window.THREE;
+  const obj = src.clone(true);
+  const ax = axis === 'x' ? 0 : axis === 'z' ? 2 : 1;
+  obj.traverse(o => {
+    if (!o.isMesh || !o.geometry) return;
+    let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone();
+    const pos = g.attributes.position;
+    const keep = [];
+    for (let i = 0; i < pos.count; i += 3){
+      let c = 0;
+      for (let k = 0; k < 3; k++) c += pos.getComponent(i + k, ax);
+      c /= 3;
+      if (c >= min && c <= max) keep.push(i, i + 1, i + 2);
+    }
+    const ng = new THREE.BufferGeometry();
+    ['position', 'normal', 'uv', 'color'].forEach(name => {
+      const a = g.attributes[name];
+      if (!a) return;
+      const arr = new Float32Array(keep.length * a.itemSize);
+      for (let i = 0; i < keep.length; i++){
+        for (let k = 0; k < a.itemSize; k++) arr[i * a.itemSize + k] = a.getComponent(keep[i], k);
+      }
+      ng.setAttribute(name, new THREE.BufferAttribute(arr, a.itemSize));
+    });
+    o.geometry = ng;
+  });
+  return obj;
+}
 function fitPiece(obj, def){
   const THREE = window.THREE;
   aimForward(obj, def);
-  obj.updateMatrixWorld(true);
-  const box = new THREE.Box3().setFromObject(obj);
-  const size = new THREE.Vector3();
-  box.getSize(size);
-  const axis = def.axis || 'y';
-  const cur = Math.max(1e-4, axis === 'z' ? size.z : axis === 'x' ? size.x : size.y);
-  obj.scale.multiplyScalar((def.span || 1) / cur);
-  if (def.girth){ obj.scale.x *= def.girth; obj.scale.z *= def.girth; }
-  if (def.maxCross){
-    obj.updateMatrixWorld(true);
-    const sz = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3());
-    const cross = axis === 'z' ? Math.max(sz.x, sz.y) : axis === 'x' ? Math.max(sz.y, sz.z) : Math.max(sz.x, sz.z);
-    if (cross > def.maxCross) obj.scale.multiplyScalar(def.maxCross / cross);
-  }
-  obj.updateMatrixWorld(true);
-  const b2 = new THREE.Box3().setFromObject(obj);
-  const anchor = def.anchor || 'center';
-  let x = -(b2.min.x + b2.max.x) / 2;
-  let y = -(b2.min.y + b2.max.y) / 2;
-  let z = -(b2.min.z + b2.max.z) / 2;
-  if (anchor === 'ground' || anchor === 'bottom') y = -b2.min.y;
-  if (anchor === 'top') y = -b2.max.y;
-  if (anchor === 'grip') z = -b2.min.z;
+  if (def && def.face) faceForward(obj);
+  const inner = new THREE.Group();
+  inner.add(obj);
+  inner.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(inner);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const anchor = (def && def.anchor) || 'center';
+  // décalage dans le repère du parent : l'ancre reste à l'origine après la mise à l'échelle
+  const shift = new THREE.Vector3(-center.x, -center.y, -center.z);
+  if (anchor === 'ground' || anchor === 'bottom') shift.y = -box.min.y;
+  if (anchor === 'top') shift.y = -box.max.y;
+  if (anchor === 'grip') shift.z = -box.min.z;
+  obj.position.copy(shift);
   const holder = new THREE.Group();
-  obj.position.set(x, y, z);
-  holder.add(obj);
+  holder.add(inner);
+  if (def && def.box){
+    holder.scale.set(
+      def.box[0] / Math.max(1e-4, size.x),
+      def.box[1] / Math.max(1e-4, size.y),
+      def.box[2] / Math.max(1e-4, size.z)
+    );
+    holder.userData.fitSize = def.box.slice();
+  } else {
+    const axis = (def && def.axis) || 'y';
+    const cur = Math.max(1e-4, axis === 'z' ? size.z : axis === 'x' ? size.x : size.y);
+    holder.scale.setScalar(((def && def.span) || 1) / cur);
+    holder.userData.fitSize = [size.x * holder.scale.x, size.y * holder.scale.y, size.z * holder.scale.z];
+  }
   return holder;
 }
 function loadTripo(){
@@ -1945,8 +1993,25 @@ function loadTripo(){
       if (vox.n && b3 && b3.akey) b3.akey = '';
       if (vox.n && $('gar-tripo')) $('gar-tripo').textContent = '◆ VOX : ' + vox.n + ' PIÈCE' + (vox.n > 1 ? 'S' : '');
     };
+    const store = (id, scene, def) => {
+      if (def && def.pair){
+        store(id + '__L', clipRange(scene, 'x', -99, 0.02), Object.assign({}, def, { pair: false }));
+        store(id + '__R', clipRange(scene, 'x', -0.02, 99), Object.assign({}, def, { pair: false }));
+        vox.pieces[id] = vox.pieces[id + '__R'];
+        return;
+      }
+      if (def && def.hinge && def.box){
+        const upBox = [def.box[0], def.box[1] * 0.46, def.box[2]];
+        const loBox = [def.box[0] * 0.88, def.box[1] * 0.54, def.box[2] * 0.88];
+        vox.pieces[id + '__up'] = fitPiece(clipRange(scene, 'y', -0.02, 99), Object.assign({}, def, { box: upBox, anchor: 'top', hinge: false }));
+        vox.pieces[id + '__lo'] = fitPiece(clipRange(scene, 'y', -99, 0.02), Object.assign({}, def, { box: loBox, anchor: 'top', hinge: false }));
+        vox.pieces[id] = vox.pieces[id + '__up'];
+        return;
+      }
+      vox.pieces[id] = fitPiece(scene, def);
+    };
     wanted.forEach(id => ld.load('models/' + id + '.glb', g => {
-      vox.pieces[id] = fitPiece(g.scene, byId[id]);
+      store(id, g.scene, byId[id]);
       vox.n++;
       if (--left === 0) done();
     }, undefined, () => { if (--left === 0) done(); }));
@@ -1964,62 +2029,176 @@ function assembleVox(chId, frameId, loadout, team){
   };
   const byId = {};
   (vox.plan.pieces || []).forEach(p => { byId[p.id] = p; });
-  const spanOf = (cat, fallback) => {
+  const pieceOf = cat => {
     const mount = cat && vox.plan.mounts && vox.plan.mounts[cat];
-    const def = mount && byId[mount.piece];
-    return def && def.span ? def.span : fallback;
+    return mount && mount.piece;
   };
-  const sockets = (vox.plan.sockets && vox.plan.sockets[chId]) || {};
+  const dim = id => {
+    const n = id && vox.pieces[id];
+    return (n && n.userData.fitSize) || [0.4, 0.4, 0.4];
+  };
   const lo = loadout || {};
-  const hip = sockets.left_leg || sockets.right_leg || [0, 0.8, 0];
-  const legSpan = Math.max(spanOf(lo.left_leg, 0), spanOf(lo.right_leg, 0));
-  const lift = (lo.left_leg || lo.right_leg) ? Math.max(0, legSpan - hip[1]) : 0;
-  const coreNode = cloneListed(vox.pieces['core_' + chId]);
-  coreNode.position.y = lift;
-  add(coreNode, 'torso');
-  const hand = side => {
-    const sockName = side === 'left' ? 'left_arm' : 'right_arm';
-    const slot = side === 'left' ? 'left_arm' : 'right_arm';
-    const s = sockets[sockName] || [side === 'left' ? -1 : 1, 3.2, 0];
-    const span = spanOf(lo[slot], 1.35);
-    const sign = side === 'left' ? -1 : 1;
-    return [s[0] + sign * 0.02, s[1] + lift - span * 0.96, (s[2] || 0) + 0.16];
+  const coreDim = dim('core_' + chId);
+  const limbH = id => {
+    if (!id) return 0;
+    const def = byId[id];
+    const pid = def && def.pair ? id + '__L' : id;
+    const up = vox.pieces[pid + '__up'] || vox.pieces[pid];
+    const lo = vox.pieces[pid + '__lo'];
+    return ((up && up.userData.fitSize && up.userData.fitSize[1]) || 0.7) + ((lo && lo.userData.fitSize && lo.userData.fitSize[1]) || 0);
   };
+  const limbW = id => {
+    if (!id) return 0.4;
+    const def = byId[id];
+    const pid = def && def.pair ? id + '__L' : id;
+    const up = vox.pieces[pid + '__up'] || vox.pieces[pid];
+    return (up && up.userData.fitSize && up.userData.fitSize[0]) || 0.4;
+  };
+  const legL = limbH(pieceOf(lo.left_leg)), legR = limbH(pieceOf(lo.right_leg));
+  const legH = Math.max(legL, legR, 1.5);
+  const legW = Math.max(limbW(pieceOf(lo.left_leg)), limbW(pieceOf(lo.right_leg)), 0.36);
+  const overlap = 0.42;
+  const coreBase = legH - overlap;
+  const coreTop = coreBase + coreDim[1];
+  const hip = Math.max(legW * 0.5 + 0.05, coreDim[0] * 0.26);
+  const armW = Math.max(limbW(pieceOf(lo.left_arm)), limbW(pieceOf(lo.right_arm)), 0.28);
+  const shoulderY = coreTop - 0.12;
+  const shoulderX = coreDim[0] / 2 + armW * 0.35;
+  const socketPos = {
+    head: [0, coreTop - 0.08, 0],
+    torso: [0, coreBase + coreDim[1] * 0.62, coreDim[2] / 2 - 0.08],
+    left_arm: [-shoulderX, shoulderY, 0.02],
+    right_arm: [shoulderX, shoulderY, 0.02],
+    left_leg: [-hip, legH, 0],
+    right_leg: [hip, legH, 0],
+    left_shoulder: [-coreDim[0] / 2, shoulderY + 0.04, 0],
+    right_shoulder: [coreDim[0] / 2, shoulderY + 0.04, 0],
+    engine: [0, coreBase + coreDim[1] * 0.48, -coreDim[2] / 2],
+    back: [0, coreBase + coreDim[1] * 0.62, -coreDim[2] / 2 - 0.04],
+    ram: [0, coreBase + coreDim[1] * 0.42, coreDim[2] / 2 + 0.06],
+    shield: null,
+    cooling: [0.22, coreBase + coreDim[1] * 0.42, -coreDim[2] / 2 - 0.02],
+    utility: [-0.22, coreBase + coreDim[1] * 0.42, -coreDim[2] / 2 - 0.02],
+    plate: [0, coreBase + coreDim[1] * 0.40, coreDim[2] / 2 + 0.02]
+  };
+  const joints = { arms: [], legs: [], head: null, core: null };
+  const coreNode = cloneListed(vox.pieces['core_' + chId]);
+  coreNode.position.y = coreBase;
+  coreNode.userData.baseY = coreBase;
+  add(coreNode, 'torso');
+  joints.core = coreNode;
   const place = (pieceId, socketName, mirror, zone, nudge, worldPos) => {
     const src = vox.pieces[pieceId];
-    if (!src) return;
+    if (!src) return null;
     const node = cloneListed(src);
     if (mirror) node.scale.x *= -1;
-    const base = worldPos || (() => {
-      const s = sockets[socketName] || [0, 2.5, 0];
-      let x = s[0];
-      if (socketName === 'left_leg' || socketName === 'right_leg'){
-        const w = new THREE.Box3().setFromObject(src).getSize(new THREE.Vector3()).x;
-        x = Math.sign(x || 1) * Math.max(Math.abs(x), w / 2 + 0.05);
-      }
-      return [x, s[1] + lift, s[2]];
-    })();
+    const base = worldPos || socketPos[socketName] || [0, coreBase + coreDim[1] * 0.5, 0];
     const n = nudge || [0, 0, 0];
     node.position.set(base[0] + n[0], base[1] + n[1], base[2] + n[2]);
     add(node, zone);
+    return node;
   };
-  Object.keys(lo).forEach(slot => {
+  const hold = {};
+  const addLimb = (pieceId, socketName, mirror, zone, kind) => {
+    const def = byId[pieceId];
+    const pid = def && def.pair ? pieceId + (socketName.indexOf('left') === 0 ? '__L' : '__R') : pieceId;
+    const upSrc = vox.pieces[pid + '__up'] || vox.pieces[pid];
+    const loSrc = vox.pieces[pid + '__lo'];
+    if (!upSrc) return null;
+    const doMirror = mirror && !(def && def.pair);
+    const pivot = new THREE.Group();
+    const base = socketPos[socketName];
+    pivot.position.set(base[0], base[1], base[2]);
+    const up = cloneListed(upSrc);
+    if (doMirror) up.scale.x *= -1;
+    pivot.add(up);
+    const upH = (upSrc.userData.fitSize && upSrc.userData.fitSize[1]) || 0.6;
+    let elbow = null;
+    const loH = (loSrc && loSrc.userData.fitSize && loSrc.userData.fitSize[1]) || 0;
+    if (loSrc){
+      elbow = new THREE.Group();
+      elbow.position.y = -upH;
+      const lo = cloneListed(loSrc);
+      if (doMirror) lo.scale.x *= -1;
+      elbow.add(lo);
+      pivot.add(elbow);
+    }
+    const side = socketName.indexOf('left') === 0 ? 'left' : 'right';
+    const rest = kind === 'arm'
+      ? (side === 'left' ? { x: -0.55, y: 0.15, z: -0.28 } : { x: -0.4, y: -0.2, z: 0.22 })
+      : (side === 'left' ? { x: 0.05, y: 0, z: -0.05 } : { x: 0.05, y: 0, z: 0.05 });
+    const elbowRest = elbow ? (kind === 'arm' ? (side === 'right' ? -1.15 : -0.95) : 0.22) : 0;
+    pivot.rotation.set(rest.x, rest.y, rest.z);
+    if (elbow) elbow.rotation.x = elbowRest;
+    grp.add(pivot);
+    pivot.traverse(o => { if (o.isMesh){ const bucket = parts[zone] || (parts[zone] = []); bucket.push(o); } });
+    const rec = { pivot, elbow, rest, elbowRest, side };
+    joints[kind === 'arm' ? 'arms' : 'legs'].push(rec);
+    if (kind === 'arm') hold[side] = { elbow: elbow || pivot, loH: loH || upH, hosted: !!elbow };
+    return rec;
+  };
+  const slotsOrdered = Object.keys(lo).sort((a, b) => (a.indexOf('weapon') === 0 || a === 'shield' || a === 'head') - (b.indexOf('weapon') === 0 || b === 'shield' || b === 'head'));
+  slotsOrdered.forEach(slot => {
     const cat = lo[slot];
     if (!cat || cat === 'fists') return;
     const mount = vox.plan.mounts && vox.plan.mounts[cat];
     if (!mount) return;
     const secondary = !mount.fixed && slot === 'weapon_secondary';
-    let world = null;
-    if (!mount.fixed && (slot === 'weapon_primary' || slot === 'weapon_secondary')) world = hand(secondary ? 'left' : 'right');
-    else if (mount.socket === 'shield'){
-      const h = hand('left');
-      const armSpan = spanOf(lo.left_arm, 1.35);
-      world = [h[0] - 0.18, h[1] + armSpan * 0.4, h[2] + 0.06];
+    if (mount.socket === 'left_arm' || mount.socket === 'right_arm' || mount.socket === 'left_leg' || mount.socket === 'right_leg'){
+      const sock = secondary ? 'weapon_secondary' : mount.socket;
+      if (sock === 'left_leg' || sock === 'right_leg' || sock === 'left_arm' || sock === 'right_arm'){
+        addLimb(mount.piece, sock, !!mount.mirror, zoneOfSlot(slot), sock.indexOf('arm') >= 0 ? 'arm' : 'leg');
+        return;
+      }
     }
-    place(mount.piece, secondary ? 'weapon_secondary' : mount.socket, !!(mount.mirror || secondary), zoneOfSlot(slot), null, world);
+    if (!mount.fixed && (slot === 'weapon_primary' || slot === 'weapon_secondary')){
+      const side = secondary ? 'left' : 'right';
+      const host = hold[side];
+      const src = vox.pieces[mount.piece];
+      if (!src || !host) return;
+      const gun = cloneListed(src);
+      gun.position.set(0, -host.loH * 0.92, 0.06);
+      gun.userData.aim = 'forward';
+      host.elbow.add(gun);
+      const armRec = joints.arms.filter(a => a.side === side).pop();
+      if (armRec) armRec.gun = gun;
+      gun.traverse(o => { if (o.isMesh){ const bucket = parts[zoneOfSlot(slot)] || (parts[zoneOfSlot(slot)] = []); bucket.push(o); } });
+      return;
+    }
+    if (mount.socket === 'shield'){
+      const host = hold.left;
+      const src = vox.pieces[mount.piece];
+      if (!src || !host) return;
+      const sh = cloneListed(src);
+      sh.position.set(-0.16, -host.loH * 0.72, 0.12);
+      sh.userData.aim = 'forward';
+      host.elbow.add(sh);
+      const armRec = joints.arms.filter(a => a.side === 'left').pop();
+      if (armRec) armRec.shield = sh;
+      sh.traverse(o => { if (o.isMesh){ const bucket = parts[zoneOfSlot(slot)] || (parts[zoneOfSlot(slot)] = []); bucket.push(o); } });
+      return;
+    }
+    if (mount.socket === 'head'){
+      const src = vox.pieces[mount.piece];
+      if (!src) return;
+      const pivot = new THREE.Group();
+      const base = socketPos.head;
+      pivot.position.set(base[0], base[1], base[2]);
+      pivot.userData.restX = -0.06;
+      pivot.rotation.x = -0.06;
+      const node = cloneListed(src);
+      pivot.add(node);
+      grp.add(pivot);
+      joints.head = pivot;
+      pivot.traverse(o => { if (o.isMesh){ const bucket = parts[zoneOfSlot(slot)] || (parts[zoneOfSlot(slot)] = []); bucket.push(o); } });
+      return;
+    }
+    place(mount.piece, mount.socket, !!mount.mirror, zoneOfSlot(slot), null, null);
   });
   const fr = frameId && vox.plan.frames && vox.plan.frames[frameId];
-  if (fr) place(fr.piece, fr.socket || 'plate', false, 'torso', fr.nudge || null);
+  if (fr) place(fr.piece, fr.socket || 'plate', false, 'torso', null);
+  joints.root = grp;
+  grp.userData.joints = joints;
   const ring = new THREE.Mesh(
     new THREE.TorusGeometry(1.15, 0.035, 8, 32),
     new THREE.MeshStandardMaterial({ color: team === 1 ? 0x7FA6C9 : 0xD93432, emissive: team === 1 ? 0x7FA6C9 : 0xD93432, emissiveIntensity: 0.55 })
@@ -2030,6 +2209,41 @@ function assembleVox(chId, frameId, loadout, team){
   grp.userData.shared = true;
   grp.userData.keepGeo = true;
   return { grp, parts, shared: true, mixer: null };
+}
+function poseVox(root, t, gait){
+  const j = root && root.userData && root.userData.joints;
+  if (!j) return;
+  const walk = gait === 'run' ? 1 : gait === 'walk' ? 0.7 : 0;
+  const freq = gait === 'run' ? 8 : gait === 'walk' ? 5.5 : 1.4;
+  const s = Math.sin(t * freq);
+  j.legs.forEach((leg, i) => {
+    const sgn = i % 2 ? 1 : -1;
+    leg.pivot.rotation.x = leg.rest.x + s * sgn * 0.45 * walk;
+    leg.pivot.rotation.y = leg.rest.y;
+    leg.pivot.rotation.z = leg.rest.z + Math.sin(t * 1.5 + i) * 0.02;
+    if (leg.elbow) leg.elbow.rotation.x = leg.elbowRest + Math.max(0, -s * sgn) * 0.55 * walk + (walk ? 0 : Math.sin(t * 1.3 + i) * 0.04);
+  });
+  j.arms.forEach((arm, i) => {
+    const sgn = arm.side === 'left' ? -1 : 1;
+    arm.pivot.rotation.x = arm.rest.x + s * sgn * -0.18 * walk + Math.sin(t * 1.5 + i) * 0.035;
+    arm.pivot.rotation.y = arm.rest.y + Math.sin(t * 0.8 + i) * 0.04;
+    arm.pivot.rotation.z = arm.rest.z;
+    if (arm.elbow) arm.elbow.rotation.x = arm.elbowRest + Math.sin(t * 1.6 + i) * 0.06;
+    const host = arm.elbow || arm.pivot;
+    [arm.gun, arm.shield].forEach(node => {
+      if (!node) return;
+      host.updateMatrixWorld(true);
+      const pq = new THREE.Quaternion(), rq = new THREE.Quaternion();
+      host.getWorldQuaternion(pq);
+      (j.root || root).getWorldQuaternion(rq);
+      node.quaternion.copy(pq.invert()).multiply(rq);
+    });
+  });
+  if (j.head){
+    j.head.rotation.y = Math.sin(t * 0.6) * 0.22;
+    j.head.rotation.x = (j.head.userData.restX || -0.06) + Math.sin(t * 0.45) * 0.05;
+  }
+  if (j.core) j.core.position.y = j.core.userData.baseY + Math.sin(t * 2.1) * 0.012;
 }
 function presentMech(chId, team, frameId, loadout){
   const built = assembleVox(chId, frameId, loadout, team);
@@ -2068,7 +2282,7 @@ function gar3dStart(){
     const dt = last ? Math.min(50, t - last) : 16; last = t;
     let pose = HANGAR_POSE[state] || HANGAR_POSE.hub;
     const focused = (state === 'garage' || state === 'roster') && gar3d.focusX != null;
-    if (focused) pose = { px: gar3d.focusX, lx: gar3d.focusX, py: 3.6, pz: 16.5, ly: 3.2, off: 0.1 };
+    if (focused) pose = { px: gar3d.focusX, lx: gar3d.focusX, py: 1.85, pz: 7.4, ly: 1.4, off: 0.1 };
     const cam = gar3d.cam || (gar3d.cam = { ...pose });
     const k = Math.min(1, dt / 420);
     ['px', 'py', 'pz', 'ly', 'off', 'lx'].forEach(f => { cam[f] += (pose[f] - cam[f]) * k; });
@@ -2081,7 +2295,8 @@ function gar3dStart(){
       if (g.base === undefined) g.base = g.grp.rotation.y;
       const mine = focused && Object.keys(gar3d.groups)[gar3d.focusIdx] === id;
       g.grp.rotation.y = mine ? g.base + Math.sin(t / 2600) * 0.55 : g.base;
-      if (g.mixer) g.mixer.update(dt / 1000); });
+      if (g.mixer) g.mixer.update(dt / 1000);
+      poseVox(g.grp, t / 1000, "idle"); });
     if (gar3d.fx) gar3d.fx.update(dt, t, gar3d.anchors);
     gar3d.renderer.render(gar3d.scene, gar3d.camera);
     gar3d.raf = requestAnimationFrame(tick);
@@ -2091,17 +2306,17 @@ function gar3dStart(){
 function hangarFocus(i){
   const n = G && G.mechs ? G.mechs.length : 0;
   gar3d.focusIdx = i;
-  gar3d.focusX = i >= 0 && n ? (i - (n - 1) / 2) * 4.2 : null;
+  gar3d.focusX = i >= 0 && n ? (i - (n - 1) / 2) * 3.3 : null;
 }
 const HANGAR_POSE = {
-  hub:      { px: 0, py: 3.8, pz: 25, lx: 0, ly: 3.0, off: 0.2 },
-  roster:   { px: 0, py: 3.8, pz: 25, lx: 0, ly: 3.0, off: 0.2 },
-  garage:   { px: 0, py: 3.8, pz: 25, lx: 0, ly: 3.0, off: 0.2 },
-  league:   { px: 0, py: 4.4, pz: 26, lx: 0, ly: 2.8, off: 0.2 },
-  analysis: { px: 0, py: 3.8, pz: 25, lx: 0, ly: 3.0, off: 0.2 },
-  setup:    { px: 0, py: 3.8, pz: 25, lx: 0, ly: 3.0, off: 0.2 },
-  report:   { px: 0, py: 3.8, pz: 25, lx: 0, ly: 3.0, off: 0.2 },
-  season:   { px: 0, py: 4.2, pz: 26, lx: 0, ly: 2.8, off: 0.2 }
+  hub:      { px: 0, py: 2.2, pz: 14, lx: 0, ly: 1.4, off: 0.2 },
+  roster:   { px: 0, py: 2.2, pz: 14, lx: 0, ly: 1.4, off: 0.2 },
+  garage:   { px: 0, py: 2.2, pz: 14, lx: 0, ly: 1.4, off: 0.2 },
+  league:   { px: 0, py: 2.4, pz: 16, lx: 0, ly: 1.4, off: 0.2 },
+  analysis: { px: 0, py: 2.2, pz: 14, lx: 0, ly: 1.4, off: 0.2 },
+  setup:    { px: 0, py: 2.2, pz: 14, lx: 0, ly: 1.4, off: 0.2 },
+  report:   { px: 0, py: 2.2, pz: 14, lx: 0, ly: 1.4, off: 0.2 },
+  season:   { px: 0, py: 2.4, pz: 16, lx: 0, ly: 1.4, off: 0.2 }
 };
 function buildGar3D(){
   gar3d.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -3148,6 +3363,7 @@ function renderBattle3D(dt){
     b3.akey = akey;
   }
   let cx0 = 0, cz0 = 0, live = 0;
+  b3.t = (b3.t || 0) + dt;
   sim.mechs.forEach((m, i) => {
     const a = b3.actors[i]; if (!a) return;
     const y = jArc(m) + ((m.zRender || m.z) || 0);
@@ -3166,6 +3382,7 @@ function renderBattle3D(dt){
     else if (!air && spd > 0.25) setClip(a.root, 'Walk');
     else setClip(a.root, 'Idle');
     if (a.root.userData.mixer) a.root.userData.mixer.update(dt);
+    poseVox(a.root, b3.t || 0, m.hpNow <= 0 ? "idle" : (!air && spd > 3.2 ? "run" : (!air && spd > 0.25 ? "walk" : "idle")));
     if (m.hpNow > 0){ cx0 += m.pos.x; cz0 += m.pos.z; live++; }
   });
   if (live){ cx0 /= live; cz0 /= live; }
