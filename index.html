@@ -1904,6 +1904,12 @@ function fitPiece(obj, def){
   const cur = Math.max(1e-4, axis === 'z' ? size.z : axis === 'x' ? size.x : size.y);
   obj.scale.multiplyScalar((def.span || 1) / cur);
   if (def.girth){ obj.scale.x *= def.girth; obj.scale.z *= def.girth; }
+  if (def.maxCross){
+    obj.updateMatrixWorld(true);
+    const sz = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3());
+    const cross = axis === 'z' ? Math.max(sz.x, sz.y) : axis === 'x' ? Math.max(sz.y, sz.z) : Math.max(sz.x, sz.z);
+    if (cross > def.maxCross) obj.scale.multiplyScalar(def.maxCross / cross);
+  }
   obj.updateMatrixWorld(true);
   const b2 = new THREE.Box3().setFromObject(obj);
   const anchor = def.anchor || 'center';
