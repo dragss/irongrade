@@ -494,7 +494,8 @@
     0.48,
     0.44,
     0.44
-   ]
+   ],
+   "face": true
   },
   {
    "id": "head_targeter",
@@ -506,7 +507,8 @@
     0.5,
     0.44,
     0.48
-   ]
+   ],
+   "face": true
   },
   {
    "id": "arm_standard",
@@ -518,7 +520,8 @@
     0.32,
     1.34,
     0.32
-   ]
+   ],
+   "hinge": true
   },
   {
    "id": "leg_standard",
@@ -530,7 +533,8 @@
     0.54,
     1.52,
     0.48
-   ]
+   ],
+   "hinge": true
   },
   {
    "id": "leg_sprint",
@@ -540,10 +544,11 @@
    "anchor": "top",
    "prompt": "voxel right mech sprint leg only, thinner, hip joint at the top, small thruster at the calf",
    "box": [
-    0.78,
+    0.42,
     1.55,
-    0.62
-   ]
+    0.4
+   ],
+   "pair": true
   },
   {
    "id": "shoulder_plate",
@@ -788,7 +793,8 @@
     0.38,
     1.4,
     0.36
-   ]
+   ],
+   "hinge": true
   },
   {
    "id": "arm_light",
@@ -800,7 +806,8 @@
     0.26,
     1.26,
     0.26
-   ]
+   ],
+   "hinge": true
   },
   {
    "id": "arm_claw",
@@ -812,7 +819,8 @@
     0.34,
     1.36,
     0.32
-   ]
+   ],
+   "hinge": true
   },
   {
    "id": "leg_anchor",
@@ -824,7 +832,8 @@
     0.56,
     1.5,
     0.5
-   ]
+   ],
+   "hinge": true
   },
   {
    "id": "torso_light",
@@ -848,7 +857,8 @@
     0.48,
     0.44,
     0.44
-   ]
+   ],
+   "face": true
   },
   {
    "id": "shoulder_spike",
