@@ -86,5 +86,23 @@ check('pack ligue vivant (saut, inertie, corps)',
     sim.unarmedId() === 'fists' && sim.mechs[0].secondaryWeaponId === 'fists');
   check('segRect exporté', typeof segRect === 'function');
 }
+{
+  const mk = () => new CombatSim(RS_ORIG, { arenaId: 'proving_grounds', mechs: [
+    { team: 0, name: 'A', mechId: 'hound_prime', weaponId: 'autocannon_mk1', processorId: 'tactician' },
+    { team: 1, name: 'B', mechId: 'ghost_lt', weaponId: 'rail_gun_mk1', processorId: 'phantom' } ] }, 9);
+  const quiet = mk(), marked = mk();
+  for (let i = 0; i < 20; i++){ quiet.step(); marked.step(); }
+  check('sans ordre direct, deux sims restent identiques', same(quiet.events, marked.events));
+  const moved = marked.mechs[0].ticksMoved, shots = marked.mechs[0].shotsFired;
+  marked.mechs[0].poweredOff = true;
+  for (let i = 0; i < 30; i++) marked.step();
+  check('alimentation coupée : le mech ne marche plus et ne tire plus',
+    marked.mechs[0].ticksMoved === moved && marked.mechs[0].shotsFired === shots && marked.mechs[0].hpNow > 0);
+  marked.mechs[0].poweredOff = false;
+  marked.mechs[0].order = 'focus';
+  marked.mechs[0].focusSlot = 0;
+  marked.step();
+  check('cible forcée : le slot demandé devient la cible', marked.mechs[0].targetIdx === 1);
+}
 console.log(`\n${pass}/${pass + fail} checks OK`);
 process.exit(fail ? 1 : 0);
