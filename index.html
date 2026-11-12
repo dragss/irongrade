@@ -245,6 +245,42 @@
   #b3d { display: none; }
   #screen-battle.cam-live #b3d { display: block; }
   #screen-battle.cam-live #gcanvas { visibility: hidden; }
+  .bt-hint { color: #6E7780; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; align-self: center; }
+  #battle-tags { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+  #battle-tags[hidden] { display: none !important; }
+  .btag { position: absolute; transform: translate(-50%, -150%); text-align: center; min-width: 64px; }
+  .btag b { display: block; font: 700 11px/1.15 ui-monospace, monospace; color: #F4F7FA; letter-spacing: .06em; text-shadow: 0 1px 2px #000, 0 0 6px #000; }
+  .btag.foe b { color: #D5DADF; }
+  .btag.off b { color: #6E7780; }
+  .btag .bar { height: 5px; width: 56px; margin: 3px auto 0; background: #12161C; border: 1px solid #343B43; }
+  .btag .bar i { display: block; height: 100%; background: #D93432; }
+  .btag.foe .bar i { background: #AAB2BA; }
+  .btag .sub { display: block; margin-top: 2px; font: 9px/1 ui-monospace, monospace; letter-spacing: .08em; color: #E3A23B; text-shadow: 0 1px 2px #000; }
+  #battle-term {
+    position: absolute; z-index: 5; width: 268px; padding: 14px 14px 10px;
+    background: rgba(7, 12, 18, .94); border: 1px solid rgba(126, 182, 193, .35);
+    box-shadow: 0 16px 40px rgba(0,0,0,.5), inset 0 0 0 1px rgba(0,0,0,.55);
+    font-family: ui-monospace, monospace; color: #C5D0D8;
+  }
+  #battle-term[hidden] { display: none !important; }
+  #battle-term::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background: repeating-linear-gradient(to bottom, rgba(0,0,0,.22) 0 1px, transparent 1px 3px);
+  }
+  #battle-term > * { position: relative; z-index: 1; }
+  #battle-term .readout { text-align: center; color: #7EB6C1; letter-spacing: .28em; font-size: 18px; font-weight: 700; margin: 0 0 8px; }
+  #battle-term .term-foot { text-align: center; color: #6E7780; font-size: 10px; letter-spacing: .12em; margin-top: 8px; text-transform: uppercase; }
+  .pico #battle-term :is(button, [type=button]).term-row {
+    display: block; width: 100%; margin: 0; padding: 6px 4px;
+    background: transparent; background-color: transparent; border: 0; border-color: transparent;
+    --pico-background-color: transparent; --pico-border-color: transparent; --pico-color: #C5D0D8;
+    color: #C5D0D8; font-family: ui-monospace, monospace; font-size: 12px; font-weight: 650;
+    letter-spacing: .12em; text-align: center; text-transform: uppercase; border-radius: 0;
+  }
+  .pico #battle-term :is(button, [type=button]).term-row:hover,
+  .pico #battle-term :is(button, [type=button]).term-row.on {
+    color: #E23B38; --pico-color: #E23B38; background: transparent; background-color: transparent;
+  }
 
   #screen-boot.active { position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; height: 100vh; overflow: hidden; padding: 48px; gap: 18px; }
   #boot-stage { position: absolute; inset: 0; z-index: 0; }
@@ -553,12 +589,23 @@
         <button class="small" data-spd="4" type="button">×4</button>
         <button class="small" id="bt-cam" type="button">📹 CAM BROADCAST</button>
         <button class="small ghost" id="btn-abandon" type="button">ABANDONNER</button>
+        <span class="bt-hint">Clique un de tes mechs</span>
       </div>
     </div>
     <div class="msscore" id="ms-score"></div>
     <div id="battle-view">
       <canvas id="gcanvas" width="900" height="480"></canvas>
       <canvas id="b3d"></canvas>
+      <div id="battle-tags" hidden></div>
+      <div id="battle-term" hidden>
+        <div class="readout" id="term-read">-000-</div>
+        <button type="button" class="term-row" id="term-power">COUPER L'ALIM</button>
+        <button type="button" class="term-row" id="term-override">FORCER LA CIBLE</button>
+        <button type="button" class="term-row" id="term-monitor">SURVEILLER</button>
+        <button type="button" class="term-row" id="term-cpu">PROCESSEUR</button>
+        <button type="button" class="term-row" id="term-mag">CHARGEUR</button>
+        <div class="term-foot" id="term-foot"></div>
+      </div>
     </div>
     <div class="endbanner" id="bt-banner" style="display:none"></div>
     <div style="text-align:center; margin: 8px 0 4px;">
@@ -607,7 +654,7 @@
       <tr><td><b>3. GARAGE</b></td><td>Le châssis de départ est la structure : il ne se change pas. L’atelier monte les pièces que vous possédez. La boutique vend le reste, et certaines journées un châssis entier — de série, ou une version rare qui gagne d’un côté et perd de l’autre. Les crédits paient aussi les réparations.</td></tr>
       <tr><td><b>4. CHAMPIONNAT</b></td><td>Ligue à 6 équipes, 10 journées. Un match = UNE bataille d'équipe 3v3 SIMULTANÉE : les 6 mechs sont sur le terrain en même temps, chaque processeur choisit sa cible. Victoire collective par destruction totale ou score HP au timeout (D-035).</td></tr><tr><td><b>4b. AFFINITÉS</b></td><td>Liaisons d'escouade : deux pilotes de la même origine → +3% visée chacun par liaison VIVANTE ; même bloc régional → +2%. Escouade 100% même bloc → PHALANX : +3 stabilité chacun. Les liaisons s'éteignent quand le coéquipier tombe.</td></tr><tr><td><b>4c. TERRAINS</b></td><td>7 arènes en rotation : les batailles traversent des terrains de campagne — <b>CENTRE-VILLE DE KESTREL</b> (bâtiments), <b>FORÊT DE FER-NOIR</b> (arbres, rochers), <b>DELTA DE KESSARI</b> (eau : déplacement ralenti, pontons) + les 4 d'origine. Un mech bloqué par un obstacle <b>saute par-dessus</b> (1,2 s en vol, recharge 6 s — ni tir ni mêlée en l'air, et une cible en vol est intouchable en mêlée).</td></tr><tr><td><b>4d. HAUTEUR</b></td><td>Les plateformes marquées <b>▲</b> (pontons du delta, tour du centre-ville, rochers de la forêt) s'<b>escaladent</b> : un tireur en rechargement à portée de marche prend la hauteur (0,4 s/m, recharge 3 s). Perché : <b>+4% visée</b> sur une cible au sol, ligne de tir <b>par-dessus les obstacles</b> — mais <b>intouchable en mêlée</b>, et une cible entrée dans sa portée minimale le force à redescendre. Un saut peut aussi y atterrir directement.</td></tr><tr><td><b>4e. INERTIE</b></td><td>Les châssis pèsent des dizaines de tonnes : un mech <b>se lance comme un coureur</b> (≈1,2 s pour atteindre sa pleine vitesse, ≈0,7 s pour s'arrêter), <b>dérape dans les virages</b> — son élan le porte — et <b>tirer en mouvement élargit son erreur de visée de +35 %</b> à pleine vitesse. Un mech perché tient son perchoir sans bouger.</td></tr><tr><td><b>4f. ENVERGURE</b></td><td>Chaque châssis a une <b>envergure physique</b> (ghost 1,1 m &lt; longbow 1,3 &lt; hound 1,6 &lt; warden 1,8 m de rayon) : les corps <b>se repoussent</b> au contact, la mêlée se joue <b>bord-à-bord</b>, un gros châssis est <b>plus facile à toucher</b> au tir et ne passe pas dans les passages étroits. Les alliés se répartissent autour de la cible au lieu de se coller.</td></tr>
       <tr><td><b>5. PRÉPARATION</b></td><td>Analysez l'adversaire, choisissez qui engage quel mech et avec quel processeur.</td></tr>
-      <tr><td><b>6. MATCH</b></td><td>Vous observez : les processeurs dirigent les mechs. Caméra tactique, pause, ×1/×2/×4.</td></tr>
+      <tr><td><b>6. MATCH</b></td><td>Vous observez la bataille. Cliquez un de vos mechs : le terminal coupe son alimentation, force sa cible, cadre son duel, change son processeur, ou passe le second chargeur s'il est monté. Caméra tactique, pause, ×1/×2/×4.</td></tr>
       <tr><td><b>7. RAPPORT</b></td><td>XP des pilotes, condition des mechs, crédits, classement. Les mechs détruits blessent leur pilote (1 journée).</td></tr>
     </table>
     <div class="footer" style="margin-top:12px">Règles du combat : portées, stabilisation avant tir, mêlée, fumigène, largage d'arme, épaves ramassables — détail complet dans l'écran À PROPOS et la spec du projet.</div>
@@ -977,12 +1024,16 @@ function launchDuel(){ // v0.10.0 : UNE bataille d'équipe 3v3 simultanée (les 
   $('bt-banner').style.display = 'none'; $('btn-next').style.display = 'none';
   playing = true; speed = 1; accT = 0; $('btn-pause').textContent = '⏸ PAUSE';
   camLook = { x: 0, z: 0, init: false }; camFocus = null; bLastEvt = 0; bShake = 0; voxLine = null;
+  term.idx = null; term.monitor = false; term.magNote = ''; term.magUntil = 0;
+  $('battle-term').hidden = true; $('battle-tags').hidden = true;
   updateMsScore(); show('battle'); lastT = performance.now(); requestAnimationFrame(loop);
 }
 function updateMsScore(){
   $('ms-score').innerHTML = 'BATAILLE D' + String.fromCharCode(39) + 'ÉQUIPE 3v3 — SIMULTANÉE — <b>' + matchCtx.winsYou + '</b> — <b>' + matchCtx.winsOpp + '</b> ' + oppTeam(matchCtx.oppId).nom;
 }
 function duelFinished(forfeit){ // v0.10.0 : résultat COLLECTIF de la bataille d'équipe, décliné par slot
+  term.idx = null; term.monitor = false;
+  const tEl = $('battle-term'); if (tEl) tEl.hidden = true;
   const slots = matchCtx.duels, n = slots.length;
   const w = forfeit ? 1 : sim.winner;
   const reason = sim.ended && sim.events.length ? sim.events[sim.events.length - 1].reason : (forfeit ? 'forfait' : undefined);
@@ -2987,6 +3038,8 @@ function loop(now){
 function mechIntent(m){
   const say = v => (m && m.proc && m.proc.label) ? (m.proc.label + '\n' + v) : v;
   if (!m || m.hpNow <= 0) return say('TOMBÉ');
+  if (m.poweredOff) return say('COUPÉ');
+  if (m.order === 'focus' && m.focusSlot != null) return say('CIBLE FORCÉE');
   if ((m.stunTicks || 0) > 0) return say('SONNÉ');
   if ((m.knockT || 0) > 0) return say('PROJETÉ');
   if (m.meleeState && m.meleeState.phase === 'windup') return say('FRAPPE');
@@ -3086,12 +3139,22 @@ function renderBattleTactical(){
     [[1, .12], [.66, .24], [.36, .36]].forEach(function(rr){ const f = rr[0], al = rr[1];
       cx.fillStyle = 'rgba(148,158,168,' + al + ')'; cx.beginPath(); cx.arc(tp(s.x), tz(s.z), smr * f, 0, Math.PI * 2); cx.fill(); }); }
   const taken = [];
-  sim.mechs.forEach(m => {
+  const watched = term.idx != null ? sim.mechs[term.idx] : null;
+  const watchedFoe = term.idx != null ? orderTargetIdx(term.idx) : null;
+  sim.mechs.forEach((m, i) => {
     const x = tp(m.pos.x), z = tz(m.pos.z), col = TEAMCOL[m.team];
+    if (m.hpNow > 0) battlePts[i] = { x, y: z };
     if (m.hpNow <= 0){ cx.strokeStyle = '#3A434D'; cx.globalAlpha = .6; cx.beginPath(); cx.arc(x, z, 1.6 * tScale(), 0, Math.PI * 2); cx.stroke();
       cx.beginPath(); cx.moveTo(x - 6, z - 6); cx.lineTo(x + 6, z + 6); cx.moveTo(x + 6, z - 6); cx.lineTo(x - 6, z + 6); cx.stroke(); cx.globalAlpha = 1; return; }
     // silhouette vue de dessus, nez orienté selon le heading (D-027)
     const sc = tScale(), jy = jArc(m), zE = jZ(m), ly = z - (jy + zE) * sc * .85; // v0.12.0 (D-038) : zE = perché/escalade
+    const hot = i === term.idx || i === watchedFoe;
+    cx.save(); cx.translate(x, z); cx.rotate(Math.PI / 4);
+    cx.globalAlpha = hot ? 0.55 : 0.28; cx.fillStyle = i === watchedFoe ? '#E3A23B' : col;
+    cx.fillRect(-1.25 * sc, -1.25 * sc, 2.5 * sc, 2.5 * sc);
+    cx.globalAlpha = hot ? 1 : 0.8; cx.strokeStyle = i === watchedFoe ? '#E3A23B' : col; cx.lineWidth = hot ? 2 : 1.2;
+    cx.strokeRect(-1.25 * sc, -1.25 * sc, 2.5 * sc, 2.5 * sc);
+    cx.restore(); cx.globalAlpha = 1;
     cx.strokeStyle = 'rgba(231,235,239,.13)'; cx.lineWidth = 1; cx.beginPath(); cx.arc(x, z, (m.r || 1.2) * sc, 0, Math.PI * 2); cx.stroke(); // v0.14.0 (D-040) : envergure du châssis
     if (jy > 0){ cx.strokeStyle = 'rgba(231,235,239,.4)'; cx.setLineDash([2, 3]); cx.beginPath(); cx.arc(x, z, 1.7 * sc, 0, Math.PI * 2); cx.stroke(); cx.setLineDash([]); }
     if (zE > 0){ // perché — ancre au sol : ombre + ligne de rappel pointillée (D-038)
@@ -3121,7 +3184,12 @@ function renderBattleTactical(){
     if (m.shieldMax > 0){ cx.fillStyle = '#7FA6C9'; cx.fillRect(x - 14, barY + 7, 28 * Math.max(0, (m.shieldNow || 0) / m.shieldMax), 2); }
     cx.fillStyle = '#E7EBEF'; cx.font = 'bold 9px monospace'; cx.textAlign = 'center';
     cx.fillText(m.name, x, lyN);
+    battlePts[i] = { x, y: lyN };
   });
+  if (term.monitor && watched && watched.hpNow > 0 && watchedFoe != null && sim.mechs[watchedFoe] && battlePts[term.idx] && battlePts[watchedFoe]){
+    cx.strokeStyle = 'rgba(227,59,56,.85)'; cx.lineWidth = 1.5;
+    cx.beginPath(); cx.moveTo(battlePts[term.idx].x, battlePts[term.idx].y); cx.lineTo(battlePts[watchedFoe].x, battlePts[watchedFoe].y); cx.stroke();
+  }
   cx.strokeStyle = 'rgba(227,162,59,.5)'; cx.lineWidth = 2;
   for (const p of sim.projectiles){
     cx.beginPath(); cx.moveTo(tp(p.x - p.dx * 9), tz(p.z - p.dz * 9)); cx.lineTo(tp(p.x), tz(p.z)); cx.stroke();
@@ -3403,11 +3471,30 @@ function renderBattle3D(dt){
     minX = Math.min(minX, m.pos.x); maxX = Math.max(maxX, m.pos.x);
     minZ = Math.min(minZ, m.pos.z); maxZ = Math.max(maxZ, m.pos.z);
   });
+  if (term.monitor && term.idx != null && sim.mechs[term.idx] && sim.mechs[term.idx].hpNow > 0){
+    const m = sim.mechs[term.idx];
+    const foeJ = orderTargetIdx(term.idx);
+    const foe = foeJ != null ? sim.mechs[foeJ] : null;
+    cx0 = m.pos.x; cz0 = m.pos.z;
+    minX = maxX = m.pos.x; minZ = maxZ = m.pos.z;
+    if (foe && foe.hpNow > 0){
+      cx0 = (m.pos.x + foe.pos.x) / 2; cz0 = (m.pos.z + foe.pos.z) / 2;
+      minX = Math.min(m.pos.x, foe.pos.x); maxX = Math.max(m.pos.x, foe.pos.x);
+      minZ = Math.min(m.pos.z, foe.pos.z); maxZ = Math.max(m.pos.z, foe.pos.z);
+    }
+  }
   const span = live ? Math.max(14, maxX - minX, maxZ - minZ) : 24;
   const dist = span * 0.72 + 11;
   const shake = (bShake || 0) * 0.015;
   b3.camera.position.set(cx0 + dist * 0.42 + shake, dist * 0.62, cz0 + dist * 0.9);
   b3.camera.lookAt(cx0, 2.6, cz0);
+  paintBattlePlates();
+  sim.mechs.forEach((m, i) => {
+    if (m.hpNow <= 0) return;
+    const y = jArc(m) + ((m.zRender || m.z) || 0) + 2.6;
+    const p = projectBattle(m.pos.x, y, m.pos.z);
+    if (p) battlePts[i] = p;
+  });
   const prs = sim.projectiles || [];
   while (b3.shots.length < prs.length){
     const s = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 8), new THREE.MeshStandardMaterial({ color: 0xE3A23B, emissive: 0xE3A23B, emissiveIntensity: 0.9 }));
@@ -3471,39 +3558,261 @@ function renderBattle3D(dt){
   }
   b3.renderer.render(b3.scene, b3.camera);
 }
+let battlePts = [];
+let term = { idx: null, monitor: false, magNote: '', magUntil: 0 };
+function projectBattle(x, y, z){
+  if (!b3.ok || !b3.camera || !window.THREE) return null;
+  const v = b3.pv || (b3.pv = new window.THREE.Vector3());
+  v.set(x, y, z);
+  v.project(b3.camera);
+  if (v.z < -1 || v.z > 1) return null;
+  const view = $('battle-view');
+  return { x: (v.x * 0.5 + 0.5) * view.clientWidth, y: (-v.y * 0.5 + 0.5) * view.clientHeight };
+}
+function paintBattlePlates(){
+  const THREE = window.THREE;
+  if (!THREE || !b3.scene) return;
+  b3.plates = b3.plates || [];
+  while (b3.plates.length < sim.mechs.length){
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(2.15, 0.05, 2.15),
+      new THREE.MeshBasicMaterial({ color: 0xD93432, transparent: true, opacity: 0.55, depthWrite: false })
+    );
+    mesh.rotation.x = 0; mesh.rotation.y = Math.PI / 4;
+    b3.scene.add(mesh);
+    b3.plates.push(mesh);
+  }
+  if (!b3.link){
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+    b3.link = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0xE23B38, transparent: true, opacity: 0.9 }));
+    b3.scene.add(b3.link);
+  }
+  const watched = term.idx != null ? sim.mechs[term.idx] : null;
+  const foeI = term.idx != null ? orderTargetIdx(term.idx) : null;
+  sim.mechs.forEach((m, i) => {
+    const mesh = b3.plates[i];
+    const up = m.hpNow > 0;
+    mesh.visible = up;
+    if (!up) return;
+    const y = 0.08 + ((m.zRender || m.z) || 0) * 0.02;
+    mesh.position.set(m.pos.x, y, m.pos.z);
+    const hot = i === term.idx;
+    const marked = i === foeI;
+    mesh.material.color.setHex(m.poweredOff ? 0x3A434D : (marked ? 0xE3A23B : (m.team === 0 ? 0xD93432 : 0x8E99A4)));
+    mesh.material.opacity = hot ? 0.9 : (marked ? 0.8 : (m.team === 0 ? 0.72 : 0.5));
+    const s = hot || marked ? 1.85 : 1.6;
+    mesh.scale.set(s, 1, s);
+  });
+  const show = term.monitor && watched && watched.hpNow > 0 && foeI != null && sim.mechs[foeI] && sim.mechs[foeI].hpNow > 0;
+  b3.link.visible = !!show;
+  if (!show) return;
+  const foe = sim.mechs[foeI];
+  const pos = b3.link.geometry.attributes.position.array;
+  pos[0] = watched.pos.x; pos[1] = 0.16; pos[2] = watched.pos.z;
+  pos[3] = foe.pos.x; pos[4] = 0.16; pos[5] = foe.pos.z;
+  b3.link.geometry.attributes.position.needsUpdate = true;
+}
+function orderTargetIdx(i){
+  const m = sim && sim.mechs[i];
+  if (!m) return null;
+  if (m.order === 'focus' && m.focusSlot != null && matchCtx && matchCtx.duels){
+    const j = matchCtx.duels.length + m.focusSlot;
+    if (sim.mechs[j] && sim.mechs[j].hpNow > 0) return j;
+  }
+  return m.targetIdx != null ? m.targetIdx : null;
+}
+function orderVox(i, text){
+  const m = sim.mechs[i];
+  voxLine = { text: text, call: callSign(i), until: sim.tick + 50, pri: 8, team: m ? m.team : 0 };
+}
+function mountedSecondary(i){
+  const duel = matchCtx && matchCtx.duels && matchCtx.duels[i];
+  const mech = duel && duel.mech;
+  if (!mech) return null;
+  const lo = mech.loadout || (PRESETS[mech.preset] && PRESETS[mech.preset].loadout) || {};
+  const alt = lo.weapon_secondary;
+  if (!alt || alt === 'fists' || !RULESET.weapons[alt]) return null;
+  return { primary: lo.weapon_primary || (sim.mechs[i] && sim.mechs[i].weaponId), secondary: alt };
+}
+function cycleCpu(i){
+  const m = sim.mechs[i];
+  const cur = Math.max(0, PROC_IDS.indexOf(m.processorId));
+  const next = PROC_IDS[(cur + 1) % PROC_IDS.length];
+  m.processorId = next;
+  m.proc = RULESET.processors[next];
+  orderVox(i, 'processeur ' + (m.proc.label || next) + '.');
+}
+function cycleTarget(i){
+  const m = sim.mechs[i];
+  const n = matchCtx.duels.length;
+  const slots = [];
+  for (let s = 0; s < n; s++) if (sim.mechs[n + s] && sim.mechs[n + s].hpNow > 0) slots.push(s);
+  if (!slots.length) return;
+  if (!m._order0) m._order0 = m.order === 'focus' ? 'hold' : (m.order || 'hold');
+  const at = m.order === 'focus' ? slots.indexOf(m.focusSlot) : -1;
+  if (at === slots.length - 1){
+    m.order = m._order0; m.focusSlot = null;
+    orderVox(i, 'reprend la main.');
+    return;
+  }
+  const slot = slots[at + 1];
+  m.order = 'focus'; m.focusSlot = slot;
+  orderVox(i, 'verrouille ' + callSign(n + slot) + '.');
+}
+function cycleMagazine(i){
+  const m = sim.mechs[i];
+  const pair = mountedSecondary(i);
+  if (!pair){
+    term.magNote = 'UN SEUL CHARGEUR';
+    term.magUntil = performance.now() + 900;
+    return;
+  }
+  const next = m.weaponId === pair.secondary ? pair.primary : pair.secondary;
+  if (!next || !RULESET.weapons[next] || next === m.weaponId){
+    term.magNote = 'UN SEUL CHARGEUR';
+    term.magUntil = performance.now() + 900;
+    return;
+  }
+  const prev = m.weaponId;
+  m.secondaryWeaponId = prev;
+  m.weapons[1] = RULESET.weapons[prev];
+  m.weaponId = next;
+  m.weapon = RULESET.weapons[next];
+  m.weapons[0] = m.weapon;
+  const c = m.cooldown; m.cooldown = m.cooldown2 || 0; m.cooldown2 = c;
+  m.meleeState = null;
+  m.meleeReach = Math.max(0, ...m.weapons.filter(w => w && w.type === 'melee').map(w => w.range || 0));
+  m.ticksStationary = 0;
+  orderVox(i, 'chargeur ' + (m.weapon.label || next) + '.');
+}
+function paintBattleChrome(){
+  const live = $('screen-battle').classList.contains('cam-live');
+  const box = $('battle-tags');
+  box.hidden = !live;
+  if (live){
+    const alive = [];
+    sim.mechs.forEach((m, i) => { if (m.hpNow > 0 && battlePts[i]) alive.push(i); });
+    while (box.children.length < alive.length){
+      const tag = document.createElement('div');
+      const name = document.createElement('b');
+      const bar = document.createElement('div'); bar.className = 'bar';
+      const fill = document.createElement('i'); bar.appendChild(fill);
+      const sub = document.createElement('div'); sub.className = 'sub';
+      tag.append(name, bar, sub);
+      box.appendChild(tag);
+    }
+    while (box.children.length > alive.length) box.lastChild.remove();
+    alive.forEach((i, n) => {
+      const m = sim.mechs[i], p = battlePts[i], tag = box.children[n];
+      tag.className = 'btag' + (m.team ? ' foe' : '') + (m.poweredOff ? ' off' : '');
+      tag.style.left = p.x + 'px'; tag.style.top = p.y + 'px';
+      tag.children[0].textContent = callSign(i);
+      tag.children[1].firstChild.style.width = Math.max(0, 100 * m.hpNow / m.hp) + '%';
+      const note = m.poweredOff ? 'COUPÉ' : (m.order === 'focus' && i === term.idx ? 'CIBLE FORCÉE' : '');
+      tag.children[2].textContent = note;
+      tag.children[2].hidden = !note;
+    });
+  }
+  const panel = $('battle-term');
+  const m = term.idx != null ? sim.mechs[term.idx] : null;
+  if (!m || m.hpNow <= 0 || m.team !== 0 || sim.ended){ panel.hidden = true; if (m && m.hpNow <= 0) term.idx = null; return; }
+  panel.hidden = false;
+  const deg = ((Math.round((m.heading || 0) * 180 / Math.PI) % 360) + 360) % 360;
+  $('term-read').textContent = '-' + String(deg).padStart(3, '0') + '-';
+  const pwr = $('term-power');
+  pwr.textContent = m.poweredOff ? "RALLUMER" : "COUPER L'ALIM";
+  pwr.classList.toggle('on', !!m.poweredOff);
+  const foe = m.order === 'focus' && m.focusSlot != null ? sim.mechs[matchCtx.duels.length + m.focusSlot] : null;
+  const ov = $('term-override');
+  ov.textContent = foe && foe.hpNow > 0 ? ('CIBLE · ' + callSign(matchCtx.duels.length + m.focusSlot)) : 'FORCER LA CIBLE';
+  ov.classList.toggle('on', m.order === 'focus' && m.focusSlot != null);
+  $('term-monitor').classList.toggle('on', !!term.monitor);
+  $('term-cpu').textContent = 'PROCESSEUR · ' + ((m.proc && m.proc.label) || m.processorId || '');
+  const wlabel = (m.weapon && m.weapon.label) || m.weaponId || '';
+  $('term-mag').textContent = performance.now() < term.magUntil ? term.magNote : ('CHARGEUR · ' + wlabel);
+  $('term-foot').textContent = callSign(term.idx);
+  const anchor = battlePts[term.idx];
+  const view = $('battle-view');
+  if (anchor && view){
+    let x = anchor.x - 134, y = anchor.y + 18;
+    x = Math.max(8, Math.min(view.clientWidth - 284, x));
+    y = Math.max(8, Math.min(view.clientHeight - 230, y));
+    panel.style.left = x + 'px';
+    panel.style.top = y + 'px';
+  }
+  if (term.monitor){
+    const foeJ = orderTargetIdx(term.idx);
+    const foeM = foeJ != null ? sim.mechs[foeJ] : m;
+    camFocus = { x: (m.pos.x + foeM.pos.x) / 2, z: (m.pos.z + foeM.pos.z) / 2, until: sim.tick + 8 };
+  }
+}
 function renderBattle(){
+  battlePts = [];
   pumpBattleFx();
   fitCanvas();
-  if (battleCam === 'tactical'){ $('screen-battle').classList.remove('cam-live'); return renderBattleTactical(); }
-  const now = performance.now();
-  const dt = b3.last ? Math.min(0.05, (now - b3.last) / 1000) : 0.016;
-  b3.last = now;
-  if (!b3.ok || !leagueLib.ready){
-    if (!b3.booting){
-      b3.booting = true;
-      loadLeagueLib(ok => {
-        b3.booting = false;
-        if (!ok || b3.ok) return;
-        const THREE = window.THREE;
-        b3.renderer = new THREE.WebGLRenderer({ canvas: $('b3d'), antialias: true });
-        b3.renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
-        b3.renderer.outputColorSpace = THREE.SRGBColorSpace;
-        b3.scene = new THREE.Scene();
-        b3.scene.background = new THREE.Color(0x10151C);
-        b3.scene.fog = new THREE.Fog(0x10151C, 48, 140);
-        b3.camera = new THREE.PerspectiveCamera(38, 1, 0.2, 260);
-        b3.scene.add(new THREE.HemisphereLight(0x9BB0C4, 0x16120e, 0.9));
-        const sun = new THREE.DirectionalLight(0xFFF2E4, 1.45); sun.position.set(18, 30, 14); b3.scene.add(sun);
-        const rim = new THREE.DirectionalLight(0xD93432, 0.4); rim.position.set(-18, 8, -12); b3.scene.add(rim);
-        b3.ok = true;
-      });
-    }
+  if (battleCam === 'tactical'){
     $('screen-battle').classList.remove('cam-live');
-    return renderBattleBroadcast();
+    renderBattleTactical();
+  } else {
+    const now = performance.now();
+    const dt = b3.last ? Math.min(0.05, (now - b3.last) / 1000) : 0.016;
+    b3.last = now;
+    if (!b3.ok || !leagueLib.ready){
+      if (!b3.booting){
+        b3.booting = true;
+        loadLeagueLib(ok => {
+          b3.booting = false;
+          if (!ok || b3.ok) return;
+          const THREE = window.THREE;
+          b3.renderer = new THREE.WebGLRenderer({ canvas: $('b3d'), antialias: true });
+          b3.renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
+          b3.renderer.outputColorSpace = THREE.SRGBColorSpace;
+          b3.scene = new THREE.Scene();
+          b3.scene.background = new THREE.Color(0x10151C);
+          b3.scene.fog = new THREE.Fog(0x10151C, 48, 140);
+          b3.camera = new THREE.PerspectiveCamera(38, 1, 0.2, 260);
+          b3.scene.add(new THREE.HemisphereLight(0x9BB0C4, 0x16120e, 0.9));
+          const sun = new THREE.DirectionalLight(0xFFF2E4, 1.45); sun.position.set(18, 30, 14); b3.scene.add(sun);
+          const rim = new THREE.DirectionalLight(0xD93432, 0.4); rim.position.set(-18, 8, -12); b3.scene.add(rim);
+          b3.ok = true;
+        });
+      }
+      $('screen-battle').classList.remove('cam-live');
+      renderBattleBroadcast();
+    } else {
+      $('screen-battle').classList.add('cam-live');
+      renderBattle3D(dt);
+    }
   }
-  $('screen-battle').classList.add('cam-live');
-  renderBattle3D(dt);
+  if (sim) paintBattleChrome();
 }
+$('battle-view').addEventListener('pointerdown', e => {
+  if (state !== 'battle' || !sim || sim.ended) return;
+  if (e.target.closest && e.target.closest('#battle-term')) return;
+  const rect = $('battle-view').getBoundingClientRect();
+  const x = e.clientX - rect.left, y = e.clientY - rect.top;
+  let best = -1, bd = 78;
+  battlePts.forEach((p, i) => {
+    if (!p || !sim.mechs[i] || sim.mechs[i].hpNow <= 0 || sim.mechs[i].team !== 0) return;
+    const d = Math.hypot(p.x - x, p.y - y);
+    if (d < bd){ bd = d; best = i; }
+  });
+  if (best < 0 || best === term.idx){ term.idx = null; term.monitor = false; paintBattleChrome(); return; }
+  term.idx = best; term.monitor = true;
+  paintBattleChrome();
+});
+$('battle-term').addEventListener('pointerdown', e => e.stopPropagation());
+$('term-power').onclick = () => {
+  const m = term.idx != null && sim && sim.mechs[term.idx];
+  if (!m || m.hpNow <= 0) return;
+  m.poweredOff = !m.poweredOff;
+  orderVox(term.idx, m.poweredOff ? 'alimentation coupée.' : 'alimentation rétablie.');
+};
+$('term-override').onclick = () => { if (term.idx != null && sim) cycleTarget(term.idx); };
+$('term-monitor').onclick = () => { term.monitor = !term.monitor; };
+$('term-cpu').onclick = () => { if (term.idx != null && sim) cycleCpu(term.idx); };
+$('term-mag').onclick = () => { if (term.idx != null && sim) cycleMagazine(term.idx); };
 function bcShade(col, k){
   const n = parseInt(col.slice(1), 16);
   const r = Math.max(0, Math.min(255, Math.round(((n >> 16) & 255) * k)));
@@ -3556,11 +3865,17 @@ function renderBattleBroadcast(){
     if (a && b && c && d){ cx.fillStyle = sd[1]; poly([a, b, c, d]); cx.fill(); }
   });
   // ombres portées (avant le tri painter) — rétrécies en plein saut (D-037)
-  sim.mechs.forEach(m => {
+  sim.mechs.forEach((m, i) => {
     if (m.hpNow <= 0) return;
     const p = proj(m.pos.x, 0, m.pos.z); if (!p) return;
     const jy = jArc(m), k = 1 - Math.min(.45, (jy + jZ(m)) * .18); // v0.12.0 (D-038) : ombre rétrécie aussi en hauteur
     cx.fillStyle = 'rgba(0,0,0,' + (0.42 * k).toFixed(2) + ')'; cx.beginPath(); cx.ellipse(p.x, p.y, (m.r || 1.2) * 1.42 * k * p.s, (m.r || 1.2) * .46 * k * p.s, 0, 0, Math.PI * 2); cx.fill(); // v0.14.0 (D-040) : ombre à l'envergure
+    const foeI = term.idx != null ? orderTargetIdx(term.idx) : null;
+    const hot = i === term.idx || i === foeI;
+    cx.strokeStyle = i === foeI ? '#E3A23B' : TEAMCOL[m.team];
+    cx.globalAlpha = hot ? 0.95 : 0.55; cx.lineWidth = hot ? 2 : 1.2;
+    cx.beginPath(); cx.ellipse(p.x, p.y, 1.7 * p.s, 0.62 * p.s, 0, 0, Math.PI * 2); cx.stroke();
+    cx.globalAlpha = 1;
   });
   // ===== faces 3D (painter's algorithm, tri par profondeur) =====
   const faces = [];
@@ -3718,9 +4033,10 @@ function renderBattleBroadcast(){
   });
   // plaques signalétiques (nom + HP + bouclier) par-dessus, triées par profondeur
   const tags = [];
-  sim.mechs.forEach(m => {
+  sim.mechs.forEach((m, i) => {
     if (m.hpNow <= 0) return;
     const p = proj(m.pos.x, 4.4, m.pos.z); if (!p) return;
+    battlePts[i] = { x: p.x, y: p.y };
     tags.push({ p, m, col: TEAMCOL[m.team] });
   });
   tags.sort((a, b) => b.p.d - a.p.d);
@@ -3733,6 +4049,11 @@ function renderBattleBroadcast(){
     cx.fillStyle = '#E7EBEF'; cx.font = 'bold 9px monospace'; cx.textAlign = 'center';
     cx.fillText(t.m.name, t.p.x, t.p.y - 3);
   });
+  if (term.monitor && term.idx != null && battlePts[term.idx]){
+    const foeI = orderTargetIdx(term.idx);
+    const b = foeI != null ? battlePts[foeI] : null;
+    if (b){ cx.strokeStyle = 'rgba(227,59,56,.9)'; cx.lineWidth = 1.5; cx.beginPath(); cx.moveTo(battlePts[term.idx].x, battlePts[term.idx].y); cx.lineTo(b.x, b.y); cx.stroke(); }
+  }
   // ===== vignette broadcast + lueur d'horizon =====
   cx.fillStyle = 'rgba(3,4,6,.42)'; cx.fillRect(0, 0, W, 26); cx.fillRect(0, H - 26, W, 26);
   cx.fillRect(0, 0, 14, H); cx.fillRect(W - 14, 0, 14, H);

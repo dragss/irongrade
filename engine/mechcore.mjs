@@ -337,6 +337,9 @@ export class CombatSim {
     if (m.stunTicks > 0){ m.stunTicks--; m.heat = Math.max(0, m.heat - this.ruleset.combat.overheat_threshold / (this.tickRate * this.ruleset.combat.overheat_stun_seconds)); return; }
     if (m.staggeredTicks > 0){ m.staggeredTicks--; if (m.staggerImmunityTicks > 0) m.staggerImmunityTicks--; return; } // D-024 : le stagger fait perdre son tour, immunité décrémentée ensuite
     if (m.staggerImmunityTicks > 0) m.staggerImmunityTicks--;
+    // Ordre direct du manager (coquille de jeu). Le moteur ne pose jamais ce drapeau :
+    // absent, le tick est celui d'avant — les sims de régression restent bit-identiques.
+    if (m.poweredOff) return;
     m.heat = Math.max(0, m.heat - m.cooling_per_s * this.dt);
     if (m.cooldown > 0) m.cooldown--;
     if (m.cooldown2 > 0) m.cooldown2--;
