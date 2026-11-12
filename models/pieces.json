@@ -1,184 +1,938 @@
 {
-  "version": 1,
-  "style": "isolated single voxel game part, dark weathered metal cubes, exactly one glowing slit, pure black background, no stand, no ground, no full mech, centered, three-quarter view",
-  "skip": ["fists", "decal_stripes"],
-  "sockets": {
-    "hound_prime": {
-      "head": [0, 4.67, 0.02],
-      "torso": [0, 3.45, -0.1],
-      "left_arm": [-1.54, 3.97, 0.15],
-      "right_arm": [1.54, 3.97, 0.15],
-      "left_leg": [-1.12, 0.6, -0.07],
-      "right_leg": [1.12, 0.6, -0.07],
-      "left_shoulder": [-1.7, 4.05, 0.15],
-      "right_shoulder": [1.7, 4.05, 0.15],
-      "weapon_primary": [1.54, 2.67, 0.31],
-      "weapon_secondary": [-1.54, 2.67, 0.31],
-      "engine": [0, 3.4, -1.15],
-      "back": [0, 3.85, -1.05],
-      "ram": [0, 3.2, 1.05],
-      "shield": [-1.7, 2.9, 0.35],
-      "cooling": [0, 3.05, 0.9],
-      "utility": [0, 3.7, 0.75],
-      "plate": [0, 3.25, 0.9]
-    },
-    "longbow_mk1": {
-      "head": [0, 4.67, 0.02],
-      "torso": [0, 1.85, -0.07],
-      "left_arm": [-1.17, 2.32, -0.08],
-      "right_arm": [1.17, 2.32, -0.08],
-      "left_leg": [-0.36, 0.46, 0],
-      "right_leg": [0.36, 0.46, 0],
-      "left_shoulder": [-1.33, 2.4, -0.08],
-      "right_shoulder": [1.33, 2.4, -0.08],
-      "weapon_primary": [1.17, 1.02, 0.08],
-      "weapon_secondary": [-1.17, 1.02, 0.08],
-      "engine": [0, 1.9, -0.8],
-      "back": [0, 2.55, -0.72],
-      "ram": [0, 1.85, 0.7],
-      "shield": [-1.3, 1.4, 0.15],
-      "cooling": [0, 1.6, 0.55],
-      "utility": [0, 2.15, 0.45],
-      "plate": [0, 1.9, 0.55]
-    },
-    "warden_x1": {
-      "head": [0, 4.67, 0.02],
-      "torso": [0, 3.15, 0.02],
-      "left_arm": [-1.8, 3.75, 0.3],
-      "right_arm": [1.8, 3.75, 0.3],
-      "left_leg": [-1.25, 0.82, 0.21],
-      "right_leg": [1.25, 0.82, 0.21],
-      "left_shoulder": [-1.96, 3.83, 0.3],
-      "right_shoulder": [1.96, 3.83, 0.3],
-      "weapon_primary": [1.8, 2.45, 0.46],
-      "weapon_secondary": [-1.8, 2.45, 0.46],
-      "engine": [0, 3.15, -1.25],
-      "back": [0, 3.7, -1.15],
-      "ram": [0, 3.1, 1.15],
-      "shield": [-1.95, 2.7, 0.45],
-      "cooling": [0, 2.85, 0.95],
-      "utility": [0, 3.4, 0.85],
-      "plate": [0, 3.1, 0.95]
-    },
-    "ghost_lt": {
-      "head": [0, 4.67, 0.02],
-      "torso": [0, 3.48, -0.08],
-      "left_arm": [-1.29, 4.05, -0.09],
-      "right_arm": [1.29, 4.05, -0.09],
-      "left_leg": [-0.82, 0.82, -0.1],
-      "right_leg": [0.82, 0.82, -0.1],
-      "left_shoulder": [-1.45, 4.13, -0.09],
-      "right_shoulder": [1.45, 4.13, -0.09],
-      "weapon_primary": [1.29, 2.75, 0.07],
-      "weapon_secondary": [-1.29, 2.75, 0.07],
-      "engine": [0, 3.4, -0.55],
-      "back": [0, 3.85, -0.5],
-      "ram": [0, 3.3, 0.5],
-      "shield": [-1.45, 2.9, 0.1],
-      "cooling": [0, 3.15, 0.35],
-      "utility": [0, 3.65, 0.28],
-      "plate": [0, 3.4, 0.32]
-    }
+ "version": 1,
+ "style": "isolated single voxel game part, dark weathered metal cubes, exactly one glowing slit, pure black background, no stand, no ground, no full mech, centered, three-quarter view",
+ "skip": [
+  "fists",
+  "decal_stripes"
+ ],
+ "sockets": {
+  "hound_prime": {
+   "head": [
+    0.0,
+    2.59,
+    0.01
+   ],
+   "torso": [
+    0.0,
+    1.92,
+    -0.05
+   ],
+   "left_arm": [
+    -0.85,
+    2.2,
+    0.08
+   ],
+   "right_arm": [
+    0.85,
+    2.2,
+    0.08
+   ],
+   "left_leg": [
+    -0.62,
+    0.33,
+    -0.04
+   ],
+   "right_leg": [
+    0.62,
+    0.33,
+    -0.04
+   ],
+   "left_shoulder": [
+    -0.94,
+    2.24,
+    0.08
+   ],
+   "right_shoulder": [
+    0.94,
+    2.24,
+    0.08
+   ],
+   "weapon_primary": [
+    0.85,
+    1.48,
+    0.17
+   ],
+   "weapon_secondary": [
+    -0.85,
+    1.48,
+    0.17
+   ],
+   "engine": [
+    0.0,
+    1.88,
+    -0.64
+   ],
+   "back": [
+    0.0,
+    2.14,
+    -0.59
+   ],
+   "ram": [
+    0.0,
+    1.77,
+    0.59
+   ],
+   "shield": [
+    -0.94,
+    1.6,
+    0.2
+   ],
+   "cooling": [
+    0.38,
+    1.84,
+    -0.65
+   ],
+   "utility": [
+    -0.38,
+    1.99,
+    -0.65
+   ],
+   "plate": [
+    0.0,
+    1.8,
+    0.5
+   ]
   },
-  "pieces": [
-    {"id": "core_hound_prime", "chassis": "hound_prime", "span": 4.8, "axis": "y", "anchor": "ground", "prompt": "short thick spine column on a wide heavy pelvis block, flat cut underside, one empty square hip hole on each side of the pelvis and nothing attached under it, empty square shoulder posts, empty neck hole on top, only the skeleton torso, about as tall as it is wide --no legs --no thighs --no knees --no feet --no arms --no hands --no head"},
-    {"id": "core_longbow_mk1", "chassis": "longbow_mk1", "span": 4.8, "axis": "y", "anchor": "ground", "prompt": "very tall narrow spine column on a small pelvis block, flat cut underside, one empty square hip hole on each side and nothing attached under it, empty square shoulder posts, empty neck hole on top, only the skeleton torso --no legs --no thighs --no knees --no feet --no arms --no hands --no head"},
-    {"id": "core_warden_x1", "chassis": "warden_x1", "span": 4.8, "axis": "y", "anchor": "ground", "prompt": "broad spine column with a forward chest post on a wide pelvis block, flat cut underside, one empty square hip hole on each side and nothing attached under it, empty square shoulder posts, empty neck hole on top, only the skeleton torso --no legs --no thighs --no knees --no feet --no arms --no hands --no head"},
-    {"id": "core_ghost_lt", "chassis": "ghost_lt", "span": 4.8, "axis": "y", "anchor": "ground", "prompt": "slim tall spine column on a narrow pelvis block, flat cut underside, one empty square hip hole on each side and nothing attached under it, empty square shoulder posts, empty neck hole on top, only the skeleton torso --no legs --no thighs --no knees --no feet --no arms --no hands --no head"},
-    {"id": "plate_citadelle", "span": 1.3, "axis": "y", "anchor": "center", "prompt": "voxel extra chest plate, thick, bolted, no body", "role": "chest vest bolted over the torso"},
-    {"id": "plate_sirocco", "span": 1.45, "axis": "y", "anchor": "center", "prompt": "voxel thin stabilizer fin for a tall artillery mech, no body", "role": "dorsal stabilizer fin, not a vest"},
-    {"id": "plate_eclat", "span": 1.15, "axis": "x", "anchor": "center", "prompt": "voxel light side thruster pod, no body", "role": "side thruster pod, not a vest"},
-    {"id": "plate_voile", "span": 1.2, "axis": "y", "anchor": "center", "prompt": "voxel oversized shield cowl, thin frame, no body", "role": "sensor cowl worn over the head, not a vest"},
-    {"id": "torso_standard", "span": 1.45, "axis": "y", "anchor": "center", "prompt": "voxel mech torso shell only, standard thickness, no head, no arms"},
-    {"id": "torso_fortified", "span": 1.6, "axis": "y", "anchor": "center", "prompt": "voxel mech torso shell only, thicker plates, no head, no arms"},
-    {"id": "head_sensor_mk1", "span": 0.55, "axis": "y", "anchor": "bottom", "prompt": "voxel mech head only, sensor slit visor, neck joint at the bottom"},
-    {"id": "head_targeter", "span": 0.62, "axis": "y", "anchor": "bottom", "prompt": "voxel mech head only, long targeting scope on the side, neck joint at the bottom"},
-    {"id": "arm_standard", "span": 1.35, "axis": "y", "anchor": "top", "prompt": "voxel right mech arm only, shoulder joint at the top, no weapon"},
-    {"id": "leg_standard", "span": 1.7, "axis": "y", "anchor": "top", "prompt": "voxel right mech leg only, hip joint at the top, heavy foot"},
-    {"id": "leg_sprint", "span": 1.75, "axis": "y", "anchor": "top", "prompt": "voxel right mech sprint leg only, thinner, hip joint at the top, small thruster at the calf"},
-    {"id": "shoulder_plate", "span": 0.85, "axis": "x", "anchor": "center", "prompt": "voxel right pauldron only, no arm"},
-    {"id": "shield_basic", "span": 1.2, "axis": "y", "anchor": "center", "prompt": "voxel kite shield emitter, translucent plate shape, no arm"},
-    {"id": "engine_vx4", "span": 0.7, "axis": "y", "anchor": "center", "prompt": "voxel backpack engine, compact, two exhausts, no body"},
-    {"id": "engine_vx6", "span": 0.85, "axis": "y", "anchor": "center", "prompt": "voxel backpack engine, larger, four exhausts, no body"},
-    {"id": "cooling_standard", "span": 0.45, "axis": "y", "anchor": "center", "prompt": "voxel cooling vent, small, no body"},
-    {"id": "cooling_deluxe", "span": 0.6, "axis": "y", "anchor": "center", "prompt": "voxel twin cooling vents, no body"},
-    {"id": "utility_gyro", "span": 0.35, "axis": "y", "anchor": "center", "prompt": "voxel gyro ring module, small, no body"},
-    {"id": "utility_targeting", "span": 0.3, "axis": "y", "anchor": "center", "prompt": "voxel targeting assist box, small antenna, no body"},
-    {"id": "autocannon_mk1", "span": 1.6, "axis": "z", "anchor": "grip", "aim": "min", "prompt": "voxel autocannon, grip at the back, barrel toward the front"},
-    {"id": "seraph_lrm_pod", "span": 1.2, "axis": "z", "anchor": "center", "prompt": "voxel missile pod pair, shoulder rack, no body"},
-    {"id": "reaver_blade", "span": 1.8, "axis": "y", "anchor": "bottom", "prompt": "voxel heavy blade, grip at the bottom"},
-    {"id": "impact_ram", "span": 1.4, "axis": "z", "anchor": "grip", "prompt": "voxel chest ram, flat striking face toward the front, no body"},
-    {"id": "rail_gun_mk1", "span": 2.4, "axis": "z", "anchor": "grip", "aim": "max", "prompt": "voxel railgun, long barrel toward the front, grip at the back"},
-    {"id": "scatter_gun_mk1", "span": 1.05, "axis": "z", "anchor": "grip", "aim": "max", "prompt": "voxel short scatter gun, wide muzzle toward the front"},
-    {"id": "war_pike_mk1", "span": 2.2, "axis": "z", "anchor": "grip", "aim": "max", "prompt": "voxel war pike, long shaft, tip toward the front"},
-    {"id": "grinder_mk1", "span": 0.9, "axis": "z", "anchor": "grip", "aim": "max", "prompt": "voxel circular grinder saw, grip behind the disc"},
-    {"id": "pulse_emp", "span": 1.1, "axis": "z", "anchor": "grip", "aim": "max", "prompt": "voxel EMP launcher, short fat tube, muzzle toward the front"},
-    {"id": "frag_charge", "span": 0.7, "axis": "z", "anchor": "grip", "aim": "max", "prompt": "voxel frag charge thrower, drum magazine, muzzle toward the front"},
-    {"id": "arm_heavy", "span": 1.45, "axis": "y", "anchor": "top", "prompt": "voxel RIGHT heavy mech arm only, thick upper arm and forearm, large shoulder joint at the top, two-finger clamp hand at the bottom, no weapon, no body, no second arm"},
-    {"id": "arm_light", "span": 1.25, "axis": "y", "anchor": "top", "prompt": "voxel RIGHT slim scout mech arm only, thin upper arm and forearm, small shoulder joint at the top, narrow hand at the bottom, no weapon, no body, no second arm"},
-    {"id": "arm_claw", "span": 1.4, "axis": "y", "anchor": "top", "prompt": "voxel RIGHT melee mech arm only, shoulder joint at the top, forearm ends in a three-prong metal claw, no gun, no body, no second arm"},
-    {"id": "leg_anchor", "span": 1.65, "axis": "y", "anchor": "top", "prompt": "voxel RIGHT heavy anchor mech leg only, hip joint at the top, thick thigh, wide planted foot, no body, no second leg"},
-    {"id": "torso_light", "span": 1.3, "axis": "y", "anchor": "center", "prompt": "voxel light mech torso shell only, thin chest plates, open neck hole on top, side holes for the arms, no head, no arms, no legs"},
-    {"id": "head_relay", "span": 0.6, "axis": "y", "anchor": "bottom", "prompt": "voxel small mech head only, two short antennae, neck joint at the bottom, no body"},
-    {"id": "shoulder_spike", "span": 0.9, "axis": "x", "anchor": "center", "prompt": "voxel RIGHT spiked pauldron only, three short spikes, no arm, no body"},
-    {"id": "shield_tower", "span": 1.6, "axis": "y", "anchor": "center", "prompt": "voxel tall rectangular tower shield slab, handle on the back, no arm, no body"},
-    {"id": "rotary_mk1", "span": 1.3, "axis": "z", "anchor": "grip", "aim": "max", "prompt": "voxel rotary minigun, cluster of short barrels toward the front, grip at the back, no body"},
-    {"id": "laser_mk1", "span": 1.7, "axis": "z", "anchor": "grip", "aim": "min", "prompt": "voxel laser carbine, long thin barrel toward the front, grip at the back, one glowing slit along the barrel, no body"},
-    {"id": "srm_pack", "span": 1.0, "axis": "z", "anchor": "center", "aim": "max", "prompt": "voxel short-range missile box, four missile tubes facing the front, no body"},
-    {"id": "maul_mk1", "span": 1.6, "axis": "y", "anchor": "bottom", "prompt": "voxel siege hammer, heavy block head, short shaft, grip at the bottom, no body"}
-  ],
-  "mounts": {
-    "torso_standard": {"piece": "torso_standard", "socket": "torso"},
-    "torso_fortified": {"piece": "torso_fortified", "socket": "torso"},
-    "head_sensor_mk1": {"piece": "head_sensor_mk1", "socket": "head"},
-    "head_targeter": {"piece": "head_targeter", "socket": "head"},
-    "arm_left_standard": {"piece": "arm_standard", "socket": "left_arm", "mirror": true},
-    "arm_right_standard": {"piece": "arm_standard", "socket": "right_arm"},
-    "leg_left_standard": {"piece": "leg_standard", "socket": "left_leg", "mirror": true},
-    "leg_right_standard": {"piece": "leg_standard", "socket": "right_leg"},
-    "leg_left_sprint": {"piece": "leg_sprint", "socket": "left_leg", "mirror": true},
-    "leg_right_sprint": {"piece": "leg_sprint", "socket": "right_leg"},
-    "shoulder_plate_L": {"piece": "shoulder_plate", "socket": "left_shoulder", "mirror": true},
-    "shoulder_plate_R": {"piece": "shoulder_plate", "socket": "right_shoulder"},
-    "engine_vx4": {"piece": "engine_vx4", "socket": "engine"},
-    "engine_vx6": {"piece": "engine_vx6", "socket": "engine"},
-    "shield_basic": {"piece": "shield_basic", "socket": "shield"},
-    "cooling_standard": {"piece": "cooling_standard", "socket": "cooling"},
-    "cooling_deluxe": {"piece": "cooling_deluxe", "socket": "cooling"},
-    "utility_gyro": {"piece": "utility_gyro", "socket": "utility"},
-    "utility_targeting": {"piece": "utility_targeting", "socket": "utility"},
-    "autocannon_mk1": {"piece": "autocannon_mk1", "socket": "weapon_primary"},
-    "seraph_lrm_pod": {"piece": "seraph_lrm_pod", "socket": "back", "fixed": true},
-    "reaver_blade": {"piece": "reaver_blade", "socket": "weapon_primary"},
-    "impact_ram": {"piece": "impact_ram", "socket": "ram", "fixed": true},
-    "rail_gun_mk1": {"piece": "rail_gun_mk1", "socket": "weapon_primary"},
-    "scatter_gun_mk1": {"piece": "scatter_gun_mk1", "socket": "weapon_primary"},
-    "war_pike_mk1": {"piece": "war_pike_mk1", "socket": "weapon_primary"},
-    "grinder_mk1": {"piece": "grinder_mk1", "socket": "weapon_primary"},
-    "pulse_emp": {"piece": "pulse_emp", "socket": "weapon_primary"},
-    "frag_charge": {"piece": "frag_charge", "socket": "weapon_primary"},
-    "arm_left_heavy": {"piece": "arm_heavy", "socket": "left_arm", "mirror": true},
-    "arm_right_heavy": {"piece": "arm_heavy", "socket": "right_arm"},
-    "arm_left_light": {"piece": "arm_light", "socket": "left_arm", "mirror": true},
-    "arm_right_light": {"piece": "arm_light", "socket": "right_arm"},
-    "arm_left_claw": {"piece": "arm_claw", "socket": "left_arm", "mirror": true},
-    "arm_right_claw": {"piece": "arm_claw", "socket": "right_arm"},
-    "leg_left_anchor": {"piece": "leg_anchor", "socket": "left_leg", "mirror": true},
-    "leg_right_anchor": {"piece": "leg_anchor", "socket": "right_leg"},
-    "torso_light": {"piece": "torso_light", "socket": "torso"},
-    "head_relay": {"piece": "head_relay", "socket": "head"},
-    "shoulder_spike_L": {"piece": "shoulder_spike", "socket": "left_shoulder", "mirror": true},
-    "shoulder_spike_R": {"piece": "shoulder_spike", "socket": "right_shoulder"},
-    "shield_tower": {"piece": "shield_tower", "socket": "shield"},
-    "rotary_mk1": {"piece": "rotary_mk1", "socket": "weapon_primary"},
-    "laser_mk1": {"piece": "laser_mk1", "socket": "weapon_primary"},
-    "srm_pack": {"piece": "srm_pack", "socket": "weapon_primary"},
-    "maul_mk1": {"piece": "maul_mk1", "socket": "weapon_primary"}
+  "longbow_mk1": {
+   "head": [
+    0.0,
+    2.2,
+    0.01
+   ],
+   "torso": [
+    0.0,
+    1.53,
+    -0.04
+   ],
+   "left_arm": [
+    -0.65,
+    1.78,
+    -0.05
+   ],
+   "right_arm": [
+    0.65,
+    1.78,
+    -0.05
+   ],
+   "left_leg": [
+    -0.2,
+    0.26,
+    0.0
+   ],
+   "right_leg": [
+    0.2,
+    0.26,
+    0.0
+   ],
+   "left_shoulder": [
+    -0.74,
+    1.83,
+    -0.05
+   ],
+   "right_shoulder": [
+    0.74,
+    1.83,
+    -0.05
+   ],
+   "weapon_primary": [
+    0.65,
+    1.06,
+    0.05
+   ],
+   "weapon_secondary": [
+    -0.65,
+    1.06,
+    0.05
+   ],
+   "engine": [
+    0.0,
+    1.56,
+    -0.44
+   ],
+   "back": [
+    0.0,
+    1.91,
+    -0.4
+   ],
+   "ram": [
+    0.0,
+    1.53,
+    0.39
+   ],
+   "shield": [
+    -0.72,
+    1.28,
+    0.08
+   ],
+   "cooling": [
+    0.38,
+    1.45,
+    -0.46
+   ],
+   "utility": [
+    -0.38,
+    1.6,
+    -0.46
+   ],
+   "plate": [
+    0.0,
+    1.56,
+    0.3
+   ]
   },
-  "frames": {
-    "hound_citadelle": {"piece": "plate_citadelle", "socket": "plate"},
-    "longbow_sirocco": {"piece": "plate_sirocco", "socket": "back", "nudge": [0, 0.4, -0.05]},
-    "warden_eclat": {"piece": "plate_eclat", "socket": "right_arm", "nudge": [0.45, -0.2, 0.1]},
-    "ghost_voile": {"piece": "plate_voile", "socket": "head", "nudge": [0, 0.48, 0.04]}
+  "warden_x1": {
+   "head": [
+    0.0,
+    2.45,
+    0.01
+   ],
+   "torso": [
+    0.0,
+    1.75,
+    0.01
+   ],
+   "left_arm": [
+    -1.0,
+    2.07,
+    0.17
+   ],
+   "right_arm": [
+    1.0,
+    2.07,
+    0.17
+   ],
+   "left_leg": [
+    -0.69,
+    0.46,
+    0.11
+   ],
+   "right_leg": [
+    0.69,
+    0.46,
+    0.11
+   ],
+   "left_shoulder": [
+    -1.09,
+    2.12,
+    0.17
+   ],
+   "right_shoulder": [
+    1.09,
+    2.12,
+    0.17
+   ],
+   "weapon_primary": [
+    1.0,
+    1.36,
+    0.26
+   ],
+   "weapon_secondary": [
+    -1.0,
+    1.36,
+    0.26
+   ],
+   "engine": [
+    0.0,
+    1.75,
+    -0.69
+   ],
+   "back": [
+    0.0,
+    2.05,
+    -0.64
+   ],
+   "ram": [
+    0.0,
+    1.72,
+    0.64
+   ],
+   "shield": [
+    -1.08,
+    1.5,
+    0.25
+   ],
+   "cooling": [
+    0.38,
+    1.67,
+    -0.71
+   ],
+   "utility": [
+    -0.38,
+    1.82,
+    -0.71
+   ],
+   "plate": [
+    0.0,
+    1.72,
+    0.52
+   ]
+  },
+  "ghost_lt": {
+   "head": [
+    0.0,
+    2.59,
+    0.01
+   ],
+   "torso": [
+    0.0,
+    1.93,
+    -0.05
+   ],
+   "left_arm": [
+    -0.71,
+    2.24,
+    -0.05
+   ],
+   "right_arm": [
+    0.71,
+    2.24,
+    -0.05
+   ],
+   "left_leg": [
+    -0.46,
+    0.46,
+    -0.05
+   ],
+   "right_leg": [
+    0.46,
+    0.46,
+    -0.05
+   ],
+   "left_shoulder": [
+    -0.81,
+    2.29,
+    -0.05
+   ],
+   "right_shoulder": [
+    0.81,
+    2.29,
+    -0.05
+   ],
+   "weapon_primary": [
+    0.71,
+    1.53,
+    0.04
+   ],
+   "weapon_secondary": [
+    -0.71,
+    1.53,
+    0.04
+   ],
+   "engine": [
+    0.0,
+    1.88,
+    -0.3
+   ],
+   "back": [
+    0.0,
+    2.14,
+    -0.27
+   ],
+   "ram": [
+    0.0,
+    1.83,
+    0.27
+   ],
+   "shield": [
+    -0.81,
+    1.6,
+    0.05
+   ],
+   "cooling": [
+    0.38,
+    1.85,
+    -0.32
+   ],
+   "utility": [
+    -0.38,
+    2.01,
+    -0.32
+   ],
+   "plate": [
+    0.0,
+    1.88,
+    0.17
+   ]
   }
+ },
+ "pieces": [
+  {
+   "id": "core_hound_prime",
+   "chassis": "hound_prime",
+   "span": 2.66,
+   "axis": "y",
+   "anchor": "ground",
+   "prompt": "short thick spine column on a wide heavy pelvis block, flat cut underside, one empty square hip hole on each side of the pelvis and nothing attached under it, empty square shoulder posts, empty neck hole on top, only the skeleton torso, about as tall as it is wide --no legs --no thighs --no knees --no feet --no arms --no hands --no head"
+  },
+  {
+   "id": "core_longbow_mk1",
+   "chassis": "longbow_mk1",
+   "span": 2.66,
+   "axis": "y",
+   "anchor": "ground",
+   "prompt": "very tall narrow spine column on a small pelvis block, flat cut underside, one empty square hip hole on each side and nothing attached under it, empty square shoulder posts, empty neck hole on top, only the skeleton torso --no legs --no thighs --no knees --no feet --no arms --no hands --no head"
+  },
+  {
+   "id": "core_warden_x1",
+   "chassis": "warden_x1",
+   "span": 2.66,
+   "axis": "y",
+   "anchor": "ground",
+   "prompt": "broad spine column with a forward chest post on a wide pelvis block, flat cut underside, one empty square hip hole on each side and nothing attached under it, empty square shoulder posts, empty neck hole on top, only the skeleton torso --no legs --no thighs --no knees --no feet --no arms --no hands --no head"
+  },
+  {
+   "id": "core_ghost_lt",
+   "chassis": "ghost_lt",
+   "span": 2.66,
+   "axis": "y",
+   "anchor": "ground",
+   "prompt": "slim tall spine column on a narrow pelvis block, flat cut underside, one empty square hip hole on each side and nothing attached under it, empty square shoulder posts, empty neck hole on top, only the skeleton torso --no legs --no thighs --no knees --no feet --no arms --no hands --no head"
+  },
+  {
+   "id": "plate_citadelle",
+   "span": 1.0,
+   "axis": "y",
+   "anchor": "center",
+   "prompt": "voxel extra chest plate, thick, bolted, no body",
+   "role": "chest vest bolted over the torso"
+  },
+  {
+   "id": "plate_sirocco",
+   "span": 1.0,
+   "axis": "y",
+   "anchor": "center",
+   "prompt": "voxel thin stabilizer fin for a tall artillery mech, no body",
+   "role": "dorsal stabilizer fin, not a vest"
+  },
+  {
+   "id": "plate_eclat",
+   "span": 0.8,
+   "axis": "x",
+   "anchor": "center",
+   "prompt": "voxel light side thruster pod, no body",
+   "role": "side thruster pod, not a vest"
+  },
+  {
+   "id": "plate_voile",
+   "span": 0.9,
+   "axis": "y",
+   "anchor": "center",
+   "prompt": "voxel oversized shield cowl, thin frame, no body",
+   "role": "sensor cowl worn over the head, not a vest"
+  },
+  {
+   "id": "torso_standard",
+   "span": 1.0,
+   "axis": "y",
+   "anchor": "center",
+   "prompt": "voxel mech torso shell only, standard thickness, no head, no arms"
+  },
+  {
+   "id": "torso_fortified",
+   "span": 1.1,
+   "axis": "y",
+   "anchor": "center",
+   "prompt": "voxel mech torso shell only, thicker plates, no head, no arms"
+  },
+  {
+   "id": "head_sensor_mk1",
+   "span": 0.85,
+   "axis": "y",
+   "anchor": "bottom",
+   "prompt": "voxel mech head only, sensor slit visor, neck joint at the bottom"
+  },
+  {
+   "id": "head_targeter",
+   "span": 0.85,
+   "axis": "y",
+   "anchor": "bottom",
+   "prompt": "voxel mech head only, long targeting scope on the side, neck joint at the bottom"
+  },
+  {
+   "id": "arm_standard",
+   "span": 1.65,
+   "axis": "y",
+   "anchor": "top",
+   "prompt": "voxel right mech arm only, shoulder joint at the top, no weapon"
+  },
+  {
+   "id": "leg_standard",
+   "span": 2.2,
+   "axis": "y",
+   "anchor": "top",
+   "prompt": "voxel right mech leg only, hip joint at the top, heavy foot"
+  },
+  {
+   "id": "leg_sprint",
+   "span": 2.3,
+   "girth": 0.62,
+   "axis": "y",
+   "anchor": "top",
+   "prompt": "voxel right mech sprint leg only, thinner, hip joint at the top, small thruster at the calf"
+  },
+  {
+   "id": "shoulder_plate",
+   "span": 0.8,
+   "axis": "x",
+   "anchor": "center",
+   "prompt": "voxel right pauldron only, no arm"
+  },
+  {
+   "id": "shield_basic",
+   "span": 1.2,
+   "axis": "y",
+   "anchor": "center",
+   "prompt": "voxel kite shield emitter, translucent plate shape, no arm"
+  },
+  {
+   "id": "engine_vx4",
+   "span": 0.7,
+   "axis": "y",
+   "anchor": "center",
+   "prompt": "voxel backpack engine, compact, two exhausts, no body"
+  },
+  {
+   "id": "engine_vx6",
+   "span": 0.85,
+   "axis": "y",
+   "anchor": "center",
+   "prompt": "voxel backpack engine, larger, four exhausts, no body"
+  },
+  {
+   "id": "cooling_standard",
+   "span": 0.45,
+   "axis": "y",
+   "anchor": "center",
+   "prompt": "voxel cooling vent, small, no body"
+  },
+  {
+   "id": "cooling_deluxe",
+   "span": 0.6,
+   "axis": "y",
+   "anchor": "center",
+   "prompt": "voxel twin cooling vents, no body"
+  },
+  {
+   "id": "utility_gyro",
+   "span": 0.35,
+   "axis": "y",
+   "anchor": "center",
+   "prompt": "voxel gyro ring module, small, no body"
+  },
+  {
+   "id": "utility_targeting",
+   "span": 0.3,
+   "axis": "y",
+   "anchor": "center",
+   "prompt": "voxel targeting assist box, small antenna, no body"
+  },
+  {
+   "id": "autocannon_mk1",
+   "span": 1.6,
+   "axis": "z",
+   "anchor": "grip",
+   "aim": "min",
+   "prompt": "voxel autocannon, grip at the back, barrel toward the front",
+   "maxCross": 0.7
+  },
+  {
+   "id": "seraph_lrm_pod",
+   "span": 1.2,
+   "axis": "z",
+   "anchor": "center",
+   "prompt": "voxel missile pod pair, shoulder rack, no body",
+   "maxCross": 0.9
+  },
+  {
+   "id": "reaver_blade",
+   "span": 1.8,
+   "axis": "y",
+   "anchor": "bottom",
+   "prompt": "voxel heavy blade, grip at the bottom",
+   "maxCross": 0.7
+  },
+  {
+   "id": "impact_ram",
+   "span": 1.4,
+   "axis": "z",
+   "anchor": "grip",
+   "prompt": "voxel chest ram, flat striking face toward the front, no body",
+   "maxCross": 1.0
+  },
+  {
+   "id": "rail_gun_mk1",
+   "span": 2.4,
+   "axis": "z",
+   "anchor": "grip",
+   "aim": "max",
+   "prompt": "voxel railgun, long barrel toward the front, grip at the back",
+   "maxCross": 0.5
+  },
+  {
+   "id": "scatter_gun_mk1",
+   "span": 1.05,
+   "axis": "z",
+   "anchor": "grip",
+   "aim": "max",
+   "prompt": "voxel short scatter gun, wide muzzle toward the front",
+   "maxCross": 0.7
+  },
+  {
+   "id": "war_pike_mk1",
+   "span": 2.2,
+   "axis": "z",
+   "anchor": "grip",
+   "aim": "max",
+   "prompt": "voxel war pike, long shaft, tip toward the front",
+   "maxCross": 0.5
+  },
+  {
+   "id": "grinder_mk1",
+   "span": 0.9,
+   "axis": "z",
+   "anchor": "grip",
+   "aim": "max",
+   "prompt": "voxel circular grinder saw, grip behind the disc",
+   "maxCross": 0.7
+  },
+  {
+   "id": "pulse_emp",
+   "span": 1.1,
+   "axis": "z",
+   "anchor": "grip",
+   "aim": "max",
+   "prompt": "voxel EMP launcher, short fat tube, muzzle toward the front",
+   "maxCross": 0.6
+  },
+  {
+   "id": "frag_charge",
+   "span": 0.7,
+   "axis": "z",
+   "anchor": "grip",
+   "aim": "max",
+   "prompt": "voxel frag charge thrower, drum magazine, muzzle toward the front",
+   "maxCross": 0.6
+  },
+  {
+   "id": "arm_heavy",
+   "span": 1.75,
+   "axis": "y",
+   "anchor": "top",
+   "prompt": "voxel RIGHT heavy mech arm only, thick upper arm and forearm, large shoulder joint at the top, two-finger clamp hand at the bottom, no weapon, no body, no second arm"
+  },
+  {
+   "id": "arm_light",
+   "span": 1.55,
+   "axis": "y",
+   "anchor": "top",
+   "prompt": "voxel RIGHT slim scout mech arm only, thin upper arm and forearm, small shoulder joint at the top, narrow hand at the bottom, no weapon, no body, no second arm"
+  },
+  {
+   "id": "arm_claw",
+   "span": 1.7,
+   "axis": "y",
+   "anchor": "top",
+   "prompt": "voxel RIGHT melee mech arm only, shoulder joint at the top, forearm ends in a three-prong metal claw, no gun, no body, no second arm"
+  },
+  {
+   "id": "leg_anchor",
+   "span": 2.1,
+   "axis": "y",
+   "anchor": "top",
+   "prompt": "voxel RIGHT heavy anchor mech leg only, hip joint at the top, thick thigh, wide planted foot, no body, no second leg"
+  },
+  {
+   "id": "torso_light",
+   "span": 0.9,
+   "axis": "y",
+   "anchor": "center",
+   "prompt": "voxel light mech torso shell only, thin chest plates, open neck hole on top, side holes for the arms, no head, no arms, no legs"
+  },
+  {
+   "id": "head_relay",
+   "span": 0.85,
+   "axis": "y",
+   "anchor": "bottom",
+   "prompt": "voxel small mech head only, two short antennae, neck joint at the bottom, no body"
+  },
+  {
+   "id": "shoulder_spike",
+   "span": 0.85,
+   "axis": "x",
+   "anchor": "center",
+   "prompt": "voxel RIGHT spiked pauldron only, three short spikes, no arm, no body"
+  },
+  {
+   "id": "shield_tower",
+   "span": 1.6,
+   "axis": "y",
+   "anchor": "center",
+   "prompt": "voxel tall rectangular tower shield slab, handle on the back, no arm, no body"
+  },
+  {
+   "id": "rotary_mk1",
+   "span": 1.3,
+   "axis": "z",
+   "anchor": "grip",
+   "aim": "max",
+   "prompt": "voxel rotary minigun, cluster of short barrels toward the front, grip at the back, no body",
+   "maxCross": 0.7
+  },
+  {
+   "id": "laser_mk1",
+   "span": 1.7,
+   "axis": "z",
+   "anchor": "grip",
+   "aim": "min",
+   "prompt": "voxel laser carbine, long thin barrel toward the front, grip at the back, one glowing slit along the barrel, no body",
+   "maxCross": 0.6
+  },
+  {
+   "id": "srm_pack",
+   "span": 1.0,
+   "axis": "z",
+   "anchor": "center",
+   "aim": "max",
+   "prompt": "voxel short-range missile box, four missile tubes facing the front, no body",
+   "maxCross": 0.8
+  },
+  {
+   "id": "maul_mk1",
+   "span": 1.6,
+   "axis": "y",
+   "anchor": "bottom",
+   "prompt": "voxel siege hammer, heavy block head, short shaft, grip at the bottom, no body",
+   "maxCross": 0.8
+  }
+ ],
+ "mounts": {
+  "torso_standard": {
+   "piece": "torso_standard",
+   "socket": "torso"
+  },
+  "torso_fortified": {
+   "piece": "torso_fortified",
+   "socket": "torso"
+  },
+  "head_sensor_mk1": {
+   "piece": "head_sensor_mk1",
+   "socket": "head"
+  },
+  "head_targeter": {
+   "piece": "head_targeter",
+   "socket": "head"
+  },
+  "arm_left_standard": {
+   "piece": "arm_standard",
+   "socket": "left_arm",
+   "mirror": true
+  },
+  "arm_right_standard": {
+   "piece": "arm_standard",
+   "socket": "right_arm"
+  },
+  "leg_left_standard": {
+   "piece": "leg_standard",
+   "socket": "left_leg",
+   "mirror": true
+  },
+  "leg_right_standard": {
+   "piece": "leg_standard",
+   "socket": "right_leg"
+  },
+  "leg_left_sprint": {
+   "piece": "leg_sprint",
+   "socket": "left_leg",
+   "mirror": true
+  },
+  "leg_right_sprint": {
+   "piece": "leg_sprint",
+   "socket": "right_leg"
+  },
+  "shoulder_plate_L": {
+   "piece": "shoulder_plate",
+   "socket": "left_shoulder",
+   "mirror": true
+  },
+  "shoulder_plate_R": {
+   "piece": "shoulder_plate",
+   "socket": "right_shoulder"
+  },
+  "engine_vx4": {
+   "piece": "engine_vx4",
+   "socket": "engine"
+  },
+  "engine_vx6": {
+   "piece": "engine_vx6",
+   "socket": "engine"
+  },
+  "shield_basic": {
+   "piece": "shield_basic",
+   "socket": "shield"
+  },
+  "cooling_standard": {
+   "piece": "cooling_standard",
+   "socket": "cooling"
+  },
+  "cooling_deluxe": {
+   "piece": "cooling_deluxe",
+   "socket": "cooling"
+  },
+  "utility_gyro": {
+   "piece": "utility_gyro",
+   "socket": "utility"
+  },
+  "utility_targeting": {
+   "piece": "utility_targeting",
+   "socket": "utility"
+  },
+  "autocannon_mk1": {
+   "piece": "autocannon_mk1",
+   "socket": "weapon_primary"
+  },
+  "seraph_lrm_pod": {
+   "piece": "seraph_lrm_pod",
+   "socket": "back",
+   "fixed": true
+  },
+  "reaver_blade": {
+   "piece": "reaver_blade",
+   "socket": "weapon_primary"
+  },
+  "impact_ram": {
+   "piece": "impact_ram",
+   "socket": "ram",
+   "fixed": true
+  },
+  "rail_gun_mk1": {
+   "piece": "rail_gun_mk1",
+   "socket": "weapon_primary"
+  },
+  "scatter_gun_mk1": {
+   "piece": "scatter_gun_mk1",
+   "socket": "weapon_primary"
+  },
+  "war_pike_mk1": {
+   "piece": "war_pike_mk1",
+   "socket": "weapon_primary"
+  },
+  "grinder_mk1": {
+   "piece": "grinder_mk1",
+   "socket": "weapon_primary"
+  },
+  "pulse_emp": {
+   "piece": "pulse_emp",
+   "socket": "weapon_primary"
+  },
+  "frag_charge": {
+   "piece": "frag_charge",
+   "socket": "weapon_primary"
+  },
+  "arm_left_heavy": {
+   "piece": "arm_heavy",
+   "socket": "left_arm",
+   "mirror": true
+  },
+  "arm_right_heavy": {
+   "piece": "arm_heavy",
+   "socket": "right_arm"
+  },
+  "arm_left_light": {
+   "piece": "arm_light",
+   "socket": "left_arm",
+   "mirror": true
+  },
+  "arm_right_light": {
+   "piece": "arm_light",
+   "socket": "right_arm"
+  },
+  "arm_left_claw": {
+   "piece": "arm_claw",
+   "socket": "left_arm",
+   "mirror": true
+  },
+  "arm_right_claw": {
+   "piece": "arm_claw",
+   "socket": "right_arm"
+  },
+  "leg_left_anchor": {
+   "piece": "leg_anchor",
+   "socket": "left_leg",
+   "mirror": true
+  },
+  "leg_right_anchor": {
+   "piece": "leg_anchor",
+   "socket": "right_leg"
+  },
+  "torso_light": {
+   "piece": "torso_light",
+   "socket": "torso"
+  },
+  "head_relay": {
+   "piece": "head_relay",
+   "socket": "head"
+  },
+  "shoulder_spike_L": {
+   "piece": "shoulder_spike",
+   "socket": "left_shoulder",
+   "mirror": true
+  },
+  "shoulder_spike_R": {
+   "piece": "shoulder_spike",
+   "socket": "right_shoulder"
+  },
+  "shield_tower": {
+   "piece": "shield_tower",
+   "socket": "shield"
+  },
+  "rotary_mk1": {
+   "piece": "rotary_mk1",
+   "socket": "weapon_primary"
+  },
+  "laser_mk1": {
+   "piece": "laser_mk1",
+   "socket": "weapon_primary"
+  },
+  "srm_pack": {
+   "piece": "srm_pack",
+   "socket": "weapon_primary"
+  },
+  "maul_mk1": {
+   "piece": "maul_mk1",
+   "socket": "weapon_primary"
+  }
+ },
+ "frames": {
+  "hound_citadelle": {
+   "piece": "plate_citadelle",
+   "socket": "plate"
+  },
+  "longbow_sirocco": {
+   "piece": "plate_sirocco",
+   "socket": "back",
+   "nudge": [
+    0.0,
+    0.22,
+    -0.03
+   ]
+  },
+  "warden_eclat": {
+   "piece": "plate_eclat",
+   "socket": "right_arm",
+   "nudge": [
+    0.25,
+    -0.11,
+    0.05
+   ]
+  },
+  "ghost_voile": {
+   "piece": "plate_voile",
+   "socket": "head",
+   "nudge": [
+    0.0,
+    0.27,
+    0.02
+   ]
+  }
+ }
 }

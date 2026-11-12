@@ -363,6 +363,39 @@
   body.has3d #roster-hero .hsub { color: #8B97A6; font-size: 13px; margin: 2px 4px; }
   body.has3d #roster-hero .htrait { color: #E3A23B; font-weight: 700; margin: 6px 4px 4px; }
 
+  /* ==== v0.20 : landing + atelier ==== */
+  #screen-boot.active::before { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: linear-gradient(90deg, rgba(8,11,16,.92) 0%, rgba(8,11,16,.55) 34%, rgba(8,11,16,0) 62%); }
+  #screen-boot h1 { font-size: 72px; }
+  #screen-boot .sub { font-size: 17px; letter-spacing: 0; text-transform: none; color: #C6CDD4; }
+  #screen-boot .menu-col { background: rgba(12,17,24,.6); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 16px; backdrop-filter: blur(16px); box-shadow: 0 14px 44px rgba(0,0,0,.45); }
+  #screen-boot .menu-col button, #screen-boot .menu-col input { border-radius: 10px; padding: 12px 16px; }
+  #screen-boot .menu-col button.ghost { border-color: transparent; color: #AAB2BA; }
+
+  #atelier-panel { background: #080B10; padding: 0; justify-content: flex-end; align-items: stretch; }
+  #atelier-panel .modal-card.wide {
+    position: relative; z-index: 2; width: 480px; max-height: none; margin: 14px; border-radius: 16px; padding: 18px;
+    background: transparent; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border: 1px solid rgba(255,255,255,.1); box-shadow: 0 14px 50px rgba(0,0,0,.5);
+  }
+  #atelier-panel .modal-card.wide::before { content: ''; position: absolute; inset: 0; z-index: 0; border-radius: 16px; background: rgba(12,17,24,.9); border: 1px solid rgba(255,255,255,.1); pointer-events: none; }
+  #atelier-panel .modal-card.wide > :not(.hangar-flex), #atelier-panel .slotcol { position: relative; z-index: 1; }
+  #atelier-panel .modal-head h3 { font-size: 22px; font-weight: 720; }
+  #atelier-panel .hangar-flex { position: static !important; display: block; flex: 1 1 auto; min-height: 0; overflow: auto; }
+  #atelier-panel .hangar-side { position: static; }
+  #atelier-panel #at-3d { position: fixed !important; inset: 0; z-index: -1 !important; width: auto; max-height: none; border: 0; background: transparent; }
+  #atelier-panel #at-3d canvas { display: block; }
+  #atelier-panel #at-hangar { display: none !important; }
+  #atelier-panel #at-cam3d { position: fixed; z-index: 3; left: 24px; top: 20px; border-radius: 999px; background: rgba(12,17,24,.6); }
+  #atelier-panel #at-focus-reset { position: fixed; z-index: 3; left: 24px; top: 58px; border-radius: 999px; }
+  #atelier-panel #at-3d-msg { position: fixed; z-index: 3; left: 24px; bottom: 24px; }
+  #atelier-panel .slotrow { grid-template-columns: 1fr; gap: 3px; margin: 0 0 8px; }
+  #atelier-panel .slotrow .tag { text-transform: none; letter-spacing: 0; font-size: 12px; }
+  #atelier-panel #at-slots { gap: 2px 12px; }
+  #atelier-panel .rowline span { text-transform: none; letter-spacing: 0; font-size: 12px; }
+  #atelier-panel .cfg-save { margin-top: 10px; }
+  #atelier-panel .modal-card select, #atelier-panel .modal-card input { border-radius: 9px; }
+  #atelier-panel #at-apply { padding: 12px; font-size: 14px; border-radius: 10px; margin-top: 8px; }
+
   @media (max-width: 1180px) {
     .fixture-top, .stage.split, #an-lineups, .hangar-flex, .at-info, #at-slots, .report-grid { grid-template-columns: 1fr; }
     .lineup { grid-template-columns: 28px minmax(0, 1fr); }
@@ -381,16 +414,16 @@
   <div id="boot-stage"></div>
   <div class="boot-top">
     <h1>IRONG<span class="r">RADE</span></h1>
-    <div class="sub">Prototype manager — Ligue pro de combat de mechs</div>
+    <div class="sub">Dirige une écurie de mechs de combat.</div>
   </div>
   <div class="menu-col">
-    <input type="text" id="orgname" placeholder="NOM DE VOTRE ORGANISATION" maxlength="24" style="min-width:320px; padding:13px 16px; letter-spacing:2px;" />
-    <button class="primary" id="btn-new">▸ NOUVELLE CARRIÈRE</button>
-    <button id="btn-continue" style="display:none">▸ CONTINUER LA CARRIÈRE</button>
-    <button class="ghost" id="btn-rules">COMMENT JOUER</button>
-    <button class="ghost" id="btn-about">À PROPOS DU PROTOTYPE</button>
+    <input type="text" id="orgname" placeholder="Nom de ton écurie" maxlength="24" style="min-width:320px; padding:13px 16px;" />
+    <button class="primary" id="btn-new">Nouvelle carrière</button>
+    <button id="btn-continue" style="display:none">Continuer</button>
+    <button class="ghost" id="btn-rules">Comment jouer</button>
+    <button class="ghost" id="btn-about">À propos</button>
   </div>
-  <div class="footer">IRONGRADE v0.17.3 — MECHCORE v1.5.1</div>
+  <div class="footer">v0.17.3</div>
 </div>
 
 <!-- CENTRE DE COMMANDEMENT -->
@@ -439,7 +472,7 @@
   </div>
   <div class="modal" id="atelier-panel" hidden>
     <div class="modal-card wide panel">
-      <div class="modal-head"><h3>Atelier — <span id="at-title"></span></h3><button class="small" id="at-cancel" type="button">Fermer</button></div>
+      <div class="modal-head"><h3><span id="at-title"></span></h3><button class="small" id="at-cancel" type="button">Fermer</button></div>
       <div class="hangar-flex">
         <div class="hangar-side">
           <button class="small" id="at-cam3d" type="button">Vue 3D</button>
@@ -449,18 +482,18 @@
           <div class="hint" id="at-3d-msg" style="display:none"></div>
         </div>
         <div class="slotcol">
-          <div class="slotrow"><span class="tag">CHÂSSIS</span><select id="at-chassis"></select></div>
+          <div class="slotrow"><span class="tag">Châssis</span><select id="at-chassis"></select></div>
           <div id="at-slots"></div>
           <div class="at-info"><div id="at-budgets"></div><div id="at-stats"></div></div>
           <div id="at-validation"></div>
         </div>
       </div>
       <div class="cfg-save">
-        <select id="at-cfg-load"><option value="">Charger une config…</option></select>
-        <input type="text" id="at-cfg-name" maxlength="24" placeholder="Nom de la config" />
+        <select id="at-cfg-load"><option value="">Charger un plan…</option></select>
+        <input type="text" id="at-cfg-name" maxlength="24" placeholder="Nom du plan" />
         <button class="small" id="at-save-cfg" type="button">Enregistrer</button>
       </div>
-      <button class="primary small" id="at-apply" type="button">Appliquer le build</button>
+      <button class="primary small" id="at-apply" type="button">Appliquer</button>
     </div>
   </div>
 </div>
@@ -1317,7 +1350,7 @@ function ensureTHREE(cb){
 }
 function setHangarView(mode){
   at3d.mode = mode;
-  $('at-cam3d').textContent = mode === '3d' ? '▣ VUE MAQUETTE' : '▦ VUE 3D';
+  $('at-cam3d').textContent = mode === '3d' ? 'Maquette 2D' : 'Vue 3D';
   $('at-hangar').style.display = mode === '3d' ? 'none' : 'block';
   $('at-3d').style.display = mode === '3d' ? 'block' : 'none';
   $('at-focus-reset').style.display = 'none';
@@ -1344,7 +1377,7 @@ function initAt3D(){
   });
 }
 function buildAt3DScene(){
-  const w = 430, h = 560;
+  const w = window.innerWidth, h = window.innerHeight;
   at3d.renderer = new THREE.WebGLRenderer({ antialias: true });
   at3d.renderer.setPixelRatio(Math.min(2, (window.devicePixelRatio || 1)));
   at3d.renderer.setSize(w, h);
@@ -1363,6 +1396,9 @@ function buildAt3DScene(){
   const ring = new THREE.Mesh(new THREE.TorusGeometry(3.4, .045, 8, 64), new THREE.MeshStandardMaterial({ color: 0xD93432, emissive: 0xD93432, emissiveIntensity: .5 }));
   ring.rotation.x = Math.PI / 2; ring.position.y = .02; at3d.scene.add(ring);
   hangarProps(at3d.scene, 'atelier');
+  window.addEventListener('resize', () => { if (!at3d.renderer || !at3d.camera) return;
+    at3d.camera.aspect = window.innerWidth / window.innerHeight; at3d.camera.updateProjectionMatrix();
+    at3d.renderer.setSize(window.innerWidth, window.innerHeight); });
   at3d.fx = mkRepairFX(at3d.scene);
   // orbite minimale : glisser pour tourner, molette pour zoomer
   const el = at3d.renderer.domElement;
@@ -1575,6 +1611,7 @@ function startAt3DLoop(){
     if (!at3d.drag && !at3d.anim && t - at3d.lastUser > 4500) at3d.theta += dt * .00008; // dérive lente d'inspection
     at3d.camera.position.set(at3d.r * Math.sin(at3d.phi) * Math.sin(at3d.theta), at3d.r * Math.cos(at3d.phi) + 1.2, at3d.r * Math.sin(at3d.phi) * Math.cos(at3d.theta));
     at3d.camera.lookAt(0, at3d.ly, 0);
+    at3d.camera.setViewOffset(window.innerWidth, window.innerHeight, window.innerWidth * 0.17, 0, window.innerWidth, window.innerHeight);
     if (at3d.group) at3d.group.position.y = Math.sin(t / 700) * .04; // idle
     if (at3d.mixer) at3d.mixer.update(dt / 1000);
     if (at3d.fx && atelierMech) at3d.fx.update(dt, t, [{ x: 0, y: 0, z: 0, damaged: atelierMech.condition < 100 }]);
@@ -1657,7 +1694,7 @@ function mkRepairFX(scene){
 const PROPS_CDN = 'assets/hangar/'; // props Quaternius CC0, en local
 function hangarProps(scene, mode){
   const M = mode === 'garage'
-    ? [['Props_ContainerFull.glb', -11, 0, -7, 1.6, .3], ['Props_Crate.glb', 6.5, 0, -6.2, 1.1, .2], ['Props_CrateLong.glb', 8.2, 0, -6.6, 1.1, -.15], ['Props_Pod.glb', -5.8, 0, -6.4, 1.2, .1], ['Props_Capsule.glb', 10.6, 0, -7.4, 1.2, .5], ['Column_1.glb', -14, 0, -8, 1.5, 0], ['Column_1.glb', 14, 0, -8, 1.5, 0], ['Pipes.glb', 0, 0, -9.5, 1.4, 0]]
+    ? [['Props_ContainerFull.glb', -13, 0, -8, 1.6, .3], ['Props_Crate.glb', 12, 0, -8, 1.1, .2], ['Props_CrateLong.glb', 14, 0, -8.6, 1.1, -.15], ['Props_Pod.glb', -16.5, 0, -7.5, 1.2, .1], ['Props_Capsule.glb', 17, 0, -8.5, 1.2, .5], ['Column_1.glb', -21, 0, -9, 1.5, 0], ['Column_1.glb', 21, 0, -9, 1.5, 0], ['Pipes.glb', 0, 0, -11, 1.4, 0]]
     : [['Props_Crate.glb', -4.6, 0, -3.6, 1.1, .3], ['Props_CrateLong.glb', -5.6, 0, -3.1, 1.1, .1], ['Props_ContainerFull.glb', 5.4, 0, -4.2, 1.3, .2], ['Props_Capsule.glb', 4.5, 0, -3.4, 1.1, -.3], ['Props_Pod.glb', -6.4, 0, -4.6, 1.1, .2]];
   if (window.THREE && window.THREE.GLTFLoader){
     const ld = new window.THREE.GLTFLoader();
@@ -1782,22 +1819,13 @@ function boot3dEnter(){
     boot3d.scene.background = new THREE.Color(0x0B0E12);
     boot3d.scene.fog = new THREE.Fog(0x0B0E12, 16, 36);
     boot3d.camera = new THREE.PerspectiveCamera(36, (stage.clientWidth || innerWidth) / (stage.clientHeight || innerHeight), 0.1, 80);
-    boot3d.scene.add(new THREE.HemisphereLight(0x8FA3B8, 0x14110e, 0.9));
-    const key = new THREE.DirectionalLight(0xfff1e0, 1.7); key.position.set(4, 9, 6); boot3d.scene.add(key);
+    boot3d.scene.add(new THREE.HemisphereLight(0xA9BCD2, 0x1A2028, 1.5));
+    const key = new THREE.DirectionalLight(0xfff1e0, 2.2); key.position.set(4, 9, 6); boot3d.scene.add(key);
     const rim = new THREE.DirectionalLight(0xD93432, 0.7); rim.position.set(-7, 4, -3); boot3d.scene.add(rim);
     const floor = new THREE.Mesh(new THREE.CircleGeometry(14, 48), new THREE.MeshStandardMaterial({ color: 0x14181e, roughness: 0.9, metalness: 0.15 }));
     floor.rotation.x = -Math.PI / 2; boot3d.scene.add(floor);
-    const ids = Object.keys(LEAGUE_GLB);
-    ids.forEach((id, i) => {
-      const m = spawnLeague(id); if (!m) return;
-      const x = (i - (ids.length - 1) / 2) * 3.8;
-      m.position.x = x;
-      m.rotation.y = 0.18;
-      boot3d.scene.add(m);
-      if (m.userData.mixer) boot3d.mixers.push(m.userData.mixer);
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(1.15, 0.025, 8, 40), new THREE.MeshStandardMaterial({ color: 0xD93432, emissive: 0xD93432, emissiveIntensity: 0.45 }));
-      ring.rotation.x = Math.PI / 2; ring.position.set(x, 0.02, 0); boot3d.scene.add(ring);
-    });
+    bootFill();
+    loadTripo();
     addEventListener('resize', () => {
       if (!boot3d.renderer) return;
       const w = stage.clientWidth || innerWidth, h = stage.clientHeight || innerHeight;
@@ -1805,6 +1833,25 @@ function boot3dEnter(){
       boot3d.renderer.setSize(w, h);
     });
     boot3dLoop();
+  });
+}
+function bootFill(){
+  if (!boot3d.scene) return;
+  const THREE = window.THREE;
+  (boot3d.figs || []).forEach(o => { boot3d.scene.remove(o); releaseView(o); });
+  boot3d.figs = []; boot3d.mixers = [];
+  const ids = Object.keys(LEAGUE_GLB);
+  ids.forEach((id, i) => {
+    const preset = PRESETS[FRAME_PRESET[id]];
+    const built = presentMech(id, 0, null, preset ? preset.loadout : {});
+    if (!built) return;
+    const x = (i - (ids.length - 1) / 2) * 4.0;
+    built.grp.position.x = x;
+    built.grp.rotation.y = (i - 1.5) * -0.12;
+    boot3d.scene.add(built.grp); boot3d.figs.push(built.grp);
+    if (built.mixer) boot3d.mixers.push(built.mixer);
+    const plate = new THREE.Mesh(new THREE.CylinderGeometry(1.7, 1.7, 0.1, 40), new THREE.MeshStandardMaterial({ color: 0x161A20, roughness: 0.9, metalness: 0.2 }));
+    plate.position.set(x, -0.08, 0); boot3d.scene.add(plate); boot3d.figs.push(plate);
   });
 }
 function boot3dLeave(){ boot3d.on = false; if (boot3d.raf){ cancelAnimationFrame(boot3d.raf); boot3d.raf = 0; } }
@@ -1817,8 +1864,9 @@ function boot3dLoop(){
     const dt = last ? Math.min(0.05, (t - last) / 1000) : 0.016; last = t;
     boot3d.mixers.forEach(m => m.update(dt));
     const a = t / 14000;
-    boot3d.camera.position.set(Math.sin(a) * 2.4, 3.4, 17.5);
-    boot3d.camera.lookAt(0, 1.8, 0);
+    boot3d.camera.position.set(Math.sin(a) * 2.4, 3.8, 24);
+    boot3d.camera.lookAt(0, 2.9, 0);
+    boot3d.camera.setViewOffset(innerWidth, innerHeight, -innerWidth * 0.2, 0, innerWidth, innerHeight);
     boot3d.renderer.render(boot3d.scene, boot3d.camera);
     boot3d.raf = requestAnimationFrame(tick);
   };
@@ -1855,6 +1903,13 @@ function fitPiece(obj, def){
   const axis = def.axis || 'y';
   const cur = Math.max(1e-4, axis === 'z' ? size.z : axis === 'x' ? size.x : size.y);
   obj.scale.multiplyScalar((def.span || 1) / cur);
+  if (def.girth){ obj.scale.x *= def.girth; obj.scale.z *= def.girth; }
+  if (def.maxCross){
+    obj.updateMatrixWorld(true);
+    const sz = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3());
+    const cross = axis === 'z' ? Math.max(sz.x, sz.y) : axis === 'x' ? Math.max(sz.y, sz.z) : Math.max(sz.x, sz.z);
+    if (cross > def.maxCross) obj.scale.multiplyScalar(def.maxCross / cross);
+  }
   obj.updateMatrixWorld(true);
   const b2 = new THREE.Box3().setFromObject(obj);
   const anchor = def.anchor || 'center';
@@ -1873,8 +1928,8 @@ function loadTripo(){
   if (vox.done || !window.THREE || !window.THREE.GLTFLoader) return;
   vox.done = true;
   Promise.all([
-    fetch('models/pieces.json').then(r => r.ok ? r.json() : null).catch(() => null),
-    fetch('models/manifest.json').then(r => r.ok ? r.json() : null).catch(() => null)
+    fetch('models/pieces.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).catch(() => null),
+    fetch('models/manifest.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).catch(() => null)
   ]).then(([plan, man]) => {
     vox.plan = plan;
     const ready = (man && man.pieces) || [];
@@ -1886,6 +1941,7 @@ function loadTripo(){
     let left = wanted.length;
     const done = () => {
       if (vox.n && HANGAR_SCREENS.includes(state) && gar3d.ok){ gar3d.key = ''; buildGar3DFleet(); }
+      if (vox.n && state === 'boot') bootFill();
       if (vox.n && b3 && b3.akey) b3.akey = '';
       if (vox.n && $('gar-tripo')) $('gar-tripo').textContent = '◆ VOX : ' + vox.n + ' PIÈCE' + (vox.n > 1 ? 'S' : '');
     };
@@ -1936,7 +1992,12 @@ function assembleVox(chId, frameId, loadout, team){
     if (mirror) node.scale.x *= -1;
     const base = worldPos || (() => {
       const s = sockets[socketName] || [0, 2.5, 0];
-      return [s[0], s[1] + lift, s[2]];
+      let x = s[0];
+      if (socketName === 'left_leg' || socketName === 'right_leg'){
+        const w = new THREE.Box3().setFromObject(src).getSize(new THREE.Vector3()).x;
+        x = Math.sign(x || 1) * Math.max(Math.abs(x), w / 2 + 0.05);
+      }
+      return [x, s[1] + lift, s[2]];
     })();
     const n = nudge || [0, 0, 0];
     node.position.set(base[0] + n[0], base[1] + n[1], base[2] + n[2]);
@@ -2261,7 +2322,7 @@ function renderConfigLib(){
 }
 function fillCfgSelect(){
   const sel = $('at-cfg-load'); if (!sel || !G) return;
-  sel.innerHTML = '<option value="">Charger une config…</option>';
+  sel.innerHTML = '<option value="">Charger un plan…</option>';
   configCatalog().forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = (c.locked ? 'Série · ' : '') + c.name; sel.appendChild(o); });
 }
 // ---- garage ----
@@ -2328,6 +2389,7 @@ function renderGarage(){
 }
 // ---- atelier (14 slots — module garage embarqué) ----
 const AT_SLOTS = SLOTS;
+const SLOT_FR = { head: 'Tête', torso: 'Torse', left_arm: 'Bras gauche', right_arm: 'Bras droit', left_leg: 'Jambe gauche', right_leg: 'Jambe droite', left_shoulder: 'Épaule gauche', right_shoulder: 'Épaule droite', weapon_primary: 'Arme 1', weapon_secondary: 'Arme 2', engine: 'Moteur', shield: 'Bouclier', cooling: 'Refroidissement', utility: 'Utilitaire' };
 function openAtelier(m){
   atelierMech = m;
   $('atelier-panel').hidden = false;
@@ -2338,15 +2400,15 @@ function openAtelier(m){
   chassisSel.disabled = true;
   const only = document.createElement('option');
   only.value = m.chassis;
-  only.textContent = (frameOf(m) ? frameOf(m).label : m.chassis) + ' — STRUCTURE FIXE';
+  only.textContent = frameOf(m) ? frameOf(m).label : (CHASSIS[m.chassis] ? CHASSIS[m.chassis].label : m.chassis);
   chassisSel.appendChild(only);
   let frameNote = $('at-frame-note');
   if (!frameNote){ frameNote = document.createElement('div'); frameNote.id = 'at-frame-note'; frameNote.className = 'hint'; chassisSel.parentElement.appendChild(frameNote); }
-  frameNote.textContent = (frameOf(m) ? frameOf(m).blurb + ' ' : '') + 'Le châssis ne se démonte pas. L’atelier ne propose que les pièces en réserve ou déjà montées ici.';
+  frameNote.textContent =  'Pièces de la réserve uniquement.';
   const slotsBox = $('at-slots'); slotsBox.innerHTML = '';
   AT_SLOTS.forEach(slot => {
     const row = document.createElement('div'); row.className = 'slotrow';
-    const lab = document.createElement('span'); lab.className = 'tag'; lab.textContent = slot.replace(/_/g, ' ');
+    const lab = document.createElement('span'); lab.className = 'tag'; lab.textContent = SLOT_FR[slot] || slot.replace(/_/g, ' ');
     const sel = document.createElement('select'); sel.id = 'at-slot-' + slot; sel.dataset.slot = slot;
     const eo = document.createElement('option'); eo.value = ''; eo.textContent = slot === 'weapon_secondary' ? '— VIDE (POINGS) —' : '— VIDE —'; sel.appendChild(eo);
     const curId = (m.loadout && m.loadout[slot]) || '';
@@ -2369,6 +2431,7 @@ function openAtelier(m){
   AT_SLOTS.forEach(slot => { const s = $('at-slot-' + slot); if (s) s.value = cur[slot] || ''; });
   atelierRecompute();
   fillCfgSelect();
+  setHangarView('3d');
 }
 function atelierCurrentLoadout(){ const lo = {}; AT_SLOTS.forEach(s => { const el = $('at-slot-' + s); if (el && el.value) lo[s] = el.value; }); return lo; }
 function atelierRecompute(){
@@ -2389,8 +2452,8 @@ function atelierRecompute(){
   $('at-stats').innerHTML = '<div class="rowline"><span>INTÉGRITÉ</span><b>' + s.hp + ' HP</b></div><div class="rowline"><span>ARMURE</span><b>' + s.armor + '</b></div>' +
     '<div class="rowline"><span>VITESSE</span><b>' + s.speed_mps + ' M/S</b></div><div class="rowline"><span>BOUCLIER</span><b>' + s.shield + '</b></div>' +
     '<div class="rowline"><span>PRÉCISION +</span><b>' + s.accuracy_bonus + '</b></div><div class="rowline"><span>STABILITÉ</span><b>' + s.stability + '</b></div>' +
-    '<div class="hint" style="margin:8px 0 0">Stats appliquées en duel une fois le build validé puis appliqué.</div>';
-  $('at-validation').innerHTML = v.ok ? '<div class="valid-ok">✔ BUILD VALIDE — appliquable</div>' : v.errors.map(e => '<div class="valid-err">✘ ' + esc(e) + '</div>').join('');
+    '';
+  $('at-validation').innerHTML = v.ok ? '<div class="valid-ok">✔ Build valide</div>' : v.errors.map(e => '<div class="valid-err">✘ ' + esc(e) + '</div>').join('');
   $('at-hangar').innerHTML = mechView(atelierMech, 190, { loadout: lo, chassis: chId, hot: hotZone, live: true });
   if (at3d.mode === '3d' && at3d.ok) buildMech3D(lo, chId, hotZone);
 }
